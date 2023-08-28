@@ -82,7 +82,7 @@ Bash shell environment
 
 ## Action Menu
 
-![Action Menu Screenshot]
+<img src="documents/images/action_menu.png" alt="Main Menu" width="250px" style="float: right;" />
 
 - **Shell into Systems**: SSH into selected remote systems.
 - **Test Connection**: Test connection to the remote host.

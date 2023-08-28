@@ -287,9 +287,6 @@ function action_menu {
         "⏹️${light_red} Exit ${app_name}${default}" #18
     )
 
-    printf "%b%s%b\n" "${light_yellow}" "${display_host}" "${default}"
-    printf "%b════════════════════════════════════════════════════════════════════════════════════════════════════════%b\n\n" "${dark_gray}" "${default}"
-
     select_option "${menu[@]}"
     action_choice=$?
 
