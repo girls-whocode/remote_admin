@@ -252,40 +252,48 @@ function header() {
     text="$2"
     text_length=${#text}
     decorative_length=8  # Length of --][-- characters
-    
+
+    # Get components of the date
+    year=$(date +%Y)
+    month=$(date +%b)  # Abbreviated month name
+    day=$(date +%d)    # Zero-padded day
+
+    # Combine them into the desired format
+    fixed_date="${day}, ${month}. ${year}"
+    fixed_date_length=${#fixed_date}
+
     case "$1" in
         "left")
-            # Prepare the prefix
-            echo -ne "${dark_gray}--${white}[ ${light_cyan}${text}${white} ]${dark_gray}--${default}"
+            # Prepare the prefix with title
+            echo -ne "--] ${text} [--"
             
-            # Prepare the suffix
-            suffix_length=$((cols - text_length - decorative_length))
-            echo -ne "${dark_gray}"
+            # Prepare the suffix with date
+            suffix_length=$((cols - text_length - fixed_date_length - (decorative_length * 2)))
             printf '%*s' "${suffix_length}" | tr ' ' '-'
-            echo -ne "${default}"
+            echo -ne "--] ${fixed_date} [--"
             echo  # Add a newline at the end
             ;;
         "center")
-            padding_length=$(( (cols - text_length - decorative_length) / 2 ))
+            padding_length=$(( (cols - text_length - fixed_date_length - (decorative_length * 2)) / 2 ))
             
-            # Prepare the prefix
-            echo -ne "${dark_gray}"
+            # Prepare the prefix with title
             printf '%*s' "${padding_length}" | tr ' ' '-'
-            echo -ne "--${white}[ ${light_cyan}${text}${white} ]${dark_gray}--${default}"
+            echo -ne "--] ${text} [--"
             
-            # Prepare the suffix
-            suffix_length=$((cols - text_length - padding_length - decorative_length))
-            echo -ne "${dark_gray}"
+            # Prepare the suffix with date
+            suffix_length=$((cols - text_length - fixed_date_length - padding_length - (decorative_length * 2)))
             printf '%*s' "${suffix_length}" | tr ' ' '-'
-            echo -ne "${default}"
+            echo -ne "--] ${fixed_date} [--"
             echo  # Add a newline at the end
             ;;
         "right")
-            # Prepare the prefix
-            prefix_length=$((cols - text_length - decorative_length))
-            echo -ne "${dark_gray}"
+            # Prepare the prefix with date
+            prefix_length=$((cols - text_length - fixed_date_length - (decorative_length * 2)))
             printf '%*s' "${prefix_length}" | tr ' ' '-'
-            echo -ne "--${white}[ ${light_cyan}${text}${white} ]${dark_gray}--${default}"
+            echo -ne "--] ${fixed_date} [--"
+            
+            # Prepare the title
+            echo -ne "--] ${text} [--"
             echo  # Add a newline at the end
             ;;
         *)
