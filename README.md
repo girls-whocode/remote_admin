@@ -108,5 +108,64 @@ For support, please refer to the built-in Help Manual or open an issue. Contribu
 
 ---
 
+## Development
+
+Remote Admin is developed entirely in BASH, optimized for minimalism and independence from third-party utilities. As of BASH version 5.1.16, the application requires no additional software, adhering to a philosophy of streamlined and dependency-free operation.
+
+### Development Environment
+
+- **Primary Development**: Ubuntu
+- **Deployment Target**: RHEL 8
+
+### Compatibility Goals
+
+The goal is to ensure universal compatibility across various shell environments, extending beyond BASH to include ZSH, FSH, ASH, and others. This initiative aims to make Remote Admin a versatile tool for system administrators, irrespective of their preferred shell environment.
+
+### Contributions
+
+Contributors proficient in these or similar environments are highly encouraged to fork the repository and submit pull requests to assist in achieving this compatibility goal.
+
+## Contributing to Remote Admin 2.0
+
+We are excited to have you contribute to Remote Admin! If you're interested in improving Remote Admin, there are many ways to contribute. Below are some guidelines to follow:
+
+### Getting Started
+
+1. **Fork the Repository**: Navigate to [Remote Admin GitHub Repository](https://github.com/your-github-username/Remote-Admin) and click on the "Fork" button in the upper right corner.
+  
+2. **Clone Your Fork**: Open your command line and run `git clone https://github.com/your-github-username/Remote-Admin.git`.
+
+3. **Add Upstream**: Add the original repository as an upstream repository by running `git remote add upstream https://github.com/original-github-username/Remote-Admin.git`.
+
+### Making Changes
+
+1. **Create a New Branch**: Before making any changes, create a new branch using `git checkout -b name-of-your-new-branch`.
+
+2. **Make Your Changes**: Implement your changes on this branch.
+
+3. **Run Tests**: Make sure your changes do not break any functionality by running tests.
+
+4. **Commit Changes**: Commit your changes using a descriptive commit message.
+
+5. **Pull Latest Upstream**: Update your local repository with the most recent changes from the main project by running `git pull upstream master`.
+
+6. **Resolve Conflicts**: If there are any merge conflicts, resolve them.
+
+### Submitting a Pull Request
+
+1. **Push Changes**: Push your changes to your forked repository on GitHub.
+
+2. **Create a Pull Request**: Navigate to the "Pull requests" tab in the original GitHub repository and click on the "New Pull Request" button.
+
+3. **Choose Branch**: Select the branch that contains your changes.
+
+4. **Describe Changes**: Provide a detailed description of the changes you made.
+
+5. **Submit**: Click on "Create pull request".
+
+### Review Process
+
+After submitting your pull request, the project maintainers will review your contribution. You may receive feedback and be asked to make changes. Once your pull request is accepted, your changes will be merged into the main codebase.
+
 ## License
 This script is released under the MIT License.
