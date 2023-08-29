@@ -16,7 +16,7 @@
 ---
 
 ## Overview
-[NOTE *]: It is important to know, this is in EXTREME ALPHA State, most functions are not working, or have not been developed. Because I am building this for my job, I will be updating this daily. Last update: [AUG, 28th, 2023]
+[NOTE *]: It is important to know, this is in EXTREME ALPHA State, most functions are not working, or have not been developed. Because I am building this for my job, I will be updating this daily. Last update: [AUG, 29th, 2023]
 
 Remote Admin is a comprehensive tool designed for system administrators to remotely manage servers and local systems. Utilizing a sleek, menu-driven interface, the application allows you to perform various tasks with ease.
 
