@@ -11,6 +11,7 @@
 - [Action Menu](#action-menu)
 - [Screenshots](#screenshots)
 - [Support and Contributions](#support-and-contributions)
+- [Menu Map](documents/menu_map.md)
 
 ---
 

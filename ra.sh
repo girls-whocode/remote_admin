@@ -4,6 +4,9 @@
 # shellcheck disable=SC2181  # mycmd #? is used for return value of ping
 # shellcheck disable=SC2154  # variables are sourced from other files
 
+# Description: Open the ssh config file, look for any includes, and include each file, seperate
+#              all hosts, place them into an array.
+CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~],config*[!~]/*})
 app_name="Remote Admin"
 script_name="ra.sh"
 app_ver="2.0"
@@ -17,7 +20,7 @@ config_path="${ra_script_location}/var/conf"
 tmpfile=sshtorc-${USER}
 reports_path="${ra_script_location}/reports"
 server_list_path="${ra_script_location}/var/server_lists"
-search_dir=("${server_list_path}"/???_*)
+search_dir=("${server_list_path}")
 ra_snapshot_dir="${ra_script_location}/snapshots"
 LINES=$( tput lines )
 COLS=$( tput cols )

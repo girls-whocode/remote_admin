@@ -39,6 +39,7 @@ function handle_input() {
         echo -ne "\033[?25h"
         stty -icanon sane
         eval "${1}"
+        keep_running=false
     fi
     unset key
 }

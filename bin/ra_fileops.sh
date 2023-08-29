@@ -5,7 +5,7 @@
 #              in the current directory
 function select_file() {
     # Prompt the user to select a host file
-    select_option "${search_dir[@]}"
+    select_option "${db_files[@]}"
     file_choice=$?
 }
 

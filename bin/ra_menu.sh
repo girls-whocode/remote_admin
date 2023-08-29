@@ -58,12 +58,11 @@ function remote_menu() {
     
     menu=(
         "🆎 Enter a Host" #0
-        "📂 Load Server Database" #1
+        "📂 Server Databases" #1
         "🗳️ Load from SSH Config" #2
-        "📇 Create a New Database" #3
-        "🔙${light_green} Return to System Menu${default}" #4
-        "❓${light_blue} Help Manual${default}" #5
-        "⏹️${light_red} Exit ${app_name}${default}" #6
+        "🔙${light_green} Return to System Menu${default}" #3
+        "❓${light_blue} Help Manual${default}" #4
+        "⏹️${light_red} Exit ${app_name}${default}" #5
     )
 
     select_option "${menu[@]}"
@@ -78,9 +77,8 @@ function remote_menu() {
             ;;
         1)
             clear
-            debug "\"Load Server Database\" was selected"
-            get_host_file
-            action_menu
+            debug "\"Server Databases\" was selected"
+            database_menu
             ;;
         2)
             clear
@@ -89,20 +87,15 @@ function remote_menu() {
             ;;
         3)
             clear
-            debug "\"Create a New Database\" was selected"
-            remote_menu
-            ;;
-        4)
-            clear
             debug "\"Return to System Menu\" was selected"
             menu
             ;;
-        5)
+        4)
             clear
             debug "\"Help Manual\" was selected"
             display_help "remote_menu"
             ;;
-        6)
+        5)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
@@ -397,6 +390,123 @@ function action_menu {
     esac
 }
 
-        # "Modify a Database" #2
-        # "Delete a Database"
+function database_menu() {
+    clear
+    header "center" "Server Database Menu"
+    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    draw_center_line_with_info
+    unset menu_choice
+    
+    menu=(
+        "📂 Load a Database" #0
+        "✨ Create a Database" #1
+        "✏️ Modify a Database" #2
+        "🗑️ Delete a Database" #3
+        "🔙${light_green} Return to System Menu${default}" #4
+        "❓${light_blue} Help Manual${default}" #5
+        "⏹️${light_red} Exit ${app_name}${default}" #6
+    )
+
+    select_option "${menu[@]}"
+    menu_choice=$?
+
+    case "${menu_choice}" in
+        0)
+            clear
+            debug "\"Load a Database\" was selected"
+            load_database
+            action_menu
+            ;;
+        1)
+            clear
+            debug "\"Create a Database\" was selected"
+            create_database
+            database_menu
+            ;;
+        2)
+            clear
+            debug "\"Modify a Database\" was selected"
+            modify_db_menu
+            ;;
+        2)
+            clear
+            debug "\"Delete a Database\" was selected"
+            database_menu
+            ;;
+        4)
+            clear
+            debug "\"Return to System Menu\" was selected"
+            remote_menu
+            ;;
+        5)
+            clear
+            debug "\"Help Manual\" was selected"
+            display_help "database_menu"
+            ;;
+        6)
+            clear
+            debug "\"Exit ${app_name}\" was selected"
+            bye
+            ;;
+    esac
+}
+
+function modify_db_menu() {
+    clear
+    header "center" "Database Modification Menu"
+    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    draw_center_line_with_info
+    unset menu_choice
+    
+    menu=(
+        "Add a Server" #0
+        "Remove a Server" #1
+        "Modify a Server" #2
+        "Edit a DB File" #3
+        "🔙${light_green} Return to System Menu${default}" #4
+        "❓${light_blue} Help Manual${default}" #5
+        "⏹️${light_red} Exit ${app_name}${default}" #6
+    )
+
+    select_option "${menu[@]}"
+    menu_choice=$?
+
+    case "${menu_choice}" in
+        0)
+            clear
+            debug "\"Add a Server\" was selected"
+            modify_db_menu
+            ;;
+        1)
+            clear
+            debug "\"Remove a Server\" was selected"
+            modify_db_menu
+            ;;
+        2)
+            clear
+            debug "\"Modify a Server\" was selected"
+            modify_db_menu
+            ;;
+        2)
+            clear
+            debug "\"Edit a DB File\" was selected"
+            modify_db_menu
+            ;;
+        4)
+            clear
+            debug "\"Return to Database Menu\" was selected"
+            database_menu
+            ;;
+        5)
+            clear
+            debug "\"Help Manual\" was selected"
+            display_help "database_menu"
+            ;;
+        6)
+            clear
+            debug "\"Exit ${app_name}\" was selected"
+            bye
+            ;;
+    esac
+}
 
