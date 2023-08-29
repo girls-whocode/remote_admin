@@ -253,7 +253,7 @@ function app_menu() {
 #              host(s) and performs the selected action.
 function action_menu {
     # To get to this menu, a hostname or hostgroup must be specified.
-    if [ "${hostname}" == "" ] || [ "${hostgroup}" == "" ]; then
+    if [ "${hostname}" == "" ]; then
         remote_menu
     fi
     clear
@@ -287,27 +287,24 @@ function action_menu {
     select_option "${menu[@]}"
     action_choice=$?
 
-    if [ "${username}" = "" ]; then
-        username=${USER}
-    fi
-
     case "$action_choice" in
-        0) # Shell to host
-            debug "SSH to ${display_host}"
+        0) # Shell to host - Completed
+            info "SSH to ${hostname}"
             shell_hosts
             action_menu
             ;;
-        1) # Test Connection
-            debug "Test connection to ${display_host}"
-            test_connections
+        1) # Test Connection - Completed
+            debug "Test connection to ${hostname}"
+            do_connection_test
+            action_menu
             ;;
         2) # Copy SSH Key
-            debug "Copy SSH Key to ${display_host}"
+            debug "Copy SSH Key to ${hostname}"
             copy_sshkey
             action_menu
             ;;
         3) # Refresh Subscription Manager
-            debug "Refresh subscription on ${display_host}"
+            debug "Refresh subscription on ${hostname}"
             refresh_supscription
             action_menu
             ;;
@@ -513,4 +510,3 @@ function modify_db_menu() {
             ;;
     esac
 }
-

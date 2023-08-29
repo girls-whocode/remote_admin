@@ -6,17 +6,37 @@
 CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~],config*[!~]/*})
 
 function do_ssh {
-    # Filter out any bad characters by enclosing it in quotes
-    cmd=$(filter_cmd_action "${1}")
-    local ssh_command="ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=5 -p ${port} -i ${identity_file} -A -J ${username}@qaspvpilnxjmp01 ${username}@${hostname} '${cmd}'"
-    
-    debug "ssh command: ${ssh_command}"
-    eval "${ssh_command}"
+    if [ "$connection_result" == "true" ]; then
+        [ -n ${port+x} ] && cmd_port="-p ${port}" || cmd_port=""
+        [ -n "${identity_file+x}" ] && cmd_identity="-i ${identity_file_location}/${identity_file}" || cmd_identity=""
+        [ -n "${jump_host+x}" ] && cmd_jump_host="-A -J ${username}@qaspvpilnxjmp01" || cmd_jump_host=""
+
+        # Filter out any bad characters by enclosing it in quotes
+        cmd=$(filter_cmd_action "${1}")
+
+        local ssh_command="ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=5 ${cmd_port} ${cmd_identity} ${cmd_jump_host} ${username}@${hostname} ${cmd}"
+        debug "ssh command: ${ssh_command}"
+        eval "${ssh_command}"
+    else
+        info "ssh to ${hostname} failed with no connection"
+        clear
+        header "center" "There was an error"
+        footer "right" "${app_name} v.${app_ver}" "left" "Press ESC to return to the menu"
+        show_message "${hostname} was unable to connect."
+        while $keep_running; do
+            handle_input "remote_menu"
+        done
+    fi
 }
 
 function copy_ssh_key {
-    debug "Copy SSH Key command: ssh-copy-id -f -o StrictHostKeychecking=no -o ConnectTimeout=5 -p ${port} -i ${identity_file} ${username}@${hostname}"
-    ssh-copy-id -f -o StrictHostKeychecking=no -o ConnectTimeout=5 -p ${port} -i ${identity_file} ${username}@${hostname}
+    [ -n ${port+x} ] && cmd_port="-p ${port}" || cmd_port=""
+    [ -n "${identity_file+x}" ] && cmd_identity="-i ${identity_file_location}/${identity_file}" || cmd_identity=""
+    [ -n "${jump_host+x}" ] && cmd_jump_host="-A -J ${username}@qaspvpilnxjmp01" || cmd_jump_host=""
+
+    local scp_command="ssh-copy-id -f -o StrictHostKeychecking=no -o ConnectTimeout=5 ${cmd_port} ${cmd_identity} ${username}@${hostname}"
+    debug "scp command: ${scp_command}"
+    eval "${scp_command}"
 }
 
 function generate_ssh_key {
@@ -30,31 +50,21 @@ function backup_ssh_keys {
 
 function shell_hosts {
     setup_action
-    if [ "${hostname}" = "" ]; then
+   
+    if [ ${#host_array[@]} -gt 1 ]; then
         # More than one host, loop through them
+        debug "Shell into multiple hosts"
         for hostname in "${host_array[@]}"; do
-            if [ ! "${hostname}" = "" ]; then
-                # Test if the hostname is accessable
-                # # do_connection_test
-                if [[ $? -eq 0 ]]; then
-                    do_ssh
-                    ((host_counter++))
-                else
-                    hosts_no_connect+=("${hostname}")
-                    ((counter++))
-                fi
+            if [ -n "${hostname}" ]; then
+                do_ssh
+                ((host_counter++))
             fi
         done
     else
-        # Test if the hostname is accessable
-        # # do_connection_test
-        if [[ $? -eq 0 ]]; then      
-            clear
-            do_ssh
-        else
-            hosts_no_connect+=("${hosts_no_connect[@]}")
-            ((counter++))
-        fi
+        debug "Shell into single host: ${hostname}"
+        clear
+        do_ssh
     fi
+
     finish_action
 }

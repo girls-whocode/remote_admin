@@ -23,10 +23,13 @@ function finish_action {
 }
 
 function filter_cmd_action {
-    if [ "${1}" == "" ]; then
+    local forbidden_chars='[&<>()|;]'
+
+    if [[ -z "${1}" ]]; then
         return
     else
-        return "${1}"
+        local filtered_cmd=$(echo "${1}" | grep -vqE "${forbidden_chars}" && echo "${1}")
+        echo "${filtered_cmd}"
     fi
 }
 

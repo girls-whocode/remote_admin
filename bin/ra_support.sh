@@ -44,24 +44,6 @@ function handle_input() {
     unset key
 }
 
-# Function to draw a simple border
-function draw_border() {
-  printf "\e[47;30m" # Set background to white and text to black
-  printf "\e[H" # Move to the top-left corner
-
-  for i in $(seq 1 $(tput lines)); do
-    for j in $(seq 1 $(tput cols)); do
-      if [ $i -eq 1 ] || [ $i -eq $(tput lines) ] || [ $j -eq 1 ] || [ $j -eq $(tput cols) ]; then
-        printf "#"
-      else
-        printf " "
-      fi
-    done
-    printf "\n"
-  done
-  printf "\e[0m" # Reset the terminal
-}
-
 # Function to display a message in the center of the screen
 function show_message() {
   local message=$1
@@ -73,7 +55,7 @@ function show_message() {
   local middle_col=$((cols / 2))
 
   tput cup $middle_line $((middle_col - half_message_length))
-  printf "\e[47;30m$message\e[0m"
+  printf "\e[1;31m$message\e[0m"
 }
 
 # Function to wrap text by spaces and preserve ANSI colors
@@ -173,7 +155,7 @@ function draw_center_line_with_info() {
             ;;
         6)
             tput cup $row $((middle_col + 2))
-            if [[ $hostname != "" ]]; then
+            if [[ ${hostname} != "" ]]; then
                 echo -ne "${cyan}Hostname: ${light_green}${hostname}${default}"
             fi
             ;;
@@ -190,6 +172,9 @@ function draw_center_line_with_info() {
                 
             fi
             ;;
+        8)
+            tput cup $row $((middle_col + 2))
+            echo -ne "${dark_gray}$(find ${ra_script_location} -type f -name "*.sh" -exec cat {} + | wc -l) lines"
         esac
     done
     tput rc
