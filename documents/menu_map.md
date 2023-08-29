@@ -15,7 +15,7 @@ Triggered from the Main Menu to perform remote actions on servers
 * 🆎 Enter a Host: Input the host you wish to work with.
 * 📂 Server Databases: Navigate to the Server Database Menu to load or modify host databases.
 * 🗳️ Load from SSH Config: Load host information from the SSH configuration.
-* 🔙 Return to System Menu: Navigate back to the Main Menu.
+* 🔙 Return to Main Menu: Navigate back to the Main Menu.
 * ❓ Help Manual: Display the Help Manual for the Remote Systems Menu.
 * ⏹️ Exit: Exit the application.
 
@@ -91,38 +91,90 @@ Triggered from the Database Menu to make changes to a server database.
 
 # Remote Admin v(2.0) Flowchart
 
-Main Menu --> Remote Systems Menu --> Action Menu
-            --> Local Systems Menu
-            --> Settings Menu
+```mermaid
+flowchart LR
+    mm["Main Menu"] --> rm
+    mm["Main Menu"] --> lm
+    mm["Main Menu"] --> sm
+    rm["☁️ Remote Menu"] --> rm_1
+    rm["☁️ Remote Menu"] --> rm_2
+    rm["☁️ Remote Menu"] --> rm_3
+    lm["🏣 Local Menu"] --> lm_1
+    lm["🏣 Local Menu"] --> lm_2
+    lm["🏣 Local Menu"] --> lm_3
+    lm["🏣 Local Menu"] --> lm_4
+    lm["🏣 Local Menu"] --> lm_5
+    sm["⚙️ Settings"] --> sm_1
+    sm["⚙️ Settings"] --> sm_2
+    sm["⚙️ Settings"] --> sm_3
+    sm["⚙️ Settings"] --> sm_4
+    sm["⚙️ Settings"] --> sm_5
+    rm_2 --> sdm_1
+    rm_2 --> sdm_2
+    rm_2 --> sdm_3
+    rm_2 --> sdm_4
+    sdm_3 --> dmm_1
+    sdm_3 --> dmm_2
+    sdm_3 --> dmm_3
+    sdm_3 --> dmm_4
+    sdm_1 --> Actions
+    rm_1 --> Actions
+    rm_3 --> Actions
 
-Remote Systems Menu --> Enter a Host --> Action Menu
-                     --> Server Databases --> Load a Database --> Action Menu
-                                         --> Create a Database --> Database Modification Menu
-                     --> Load from SSH Config --> Action Menu
-                     --> Return to System Menu --> Main Menu
+    subgraph Remote Menu
+        rm_1("🆎 Enter a Host")
+        rm_2("📂 Server Databases")
+        rm_3("🗳️ Load SSH Config")
+    end
 
-Local Systems Menu --> Run a Diagnostic --> Local Systems Menu
-                   --> Check Resources --> Local Systems Menu
-                   --> Create a Snapshot --> Local Systems Menu
-                   --> System Information --> Local Systems Menu
-                   --> Check for Errors --> Local Systems Menu
-                   --> Check for Updates --> Local Systems Menu
-                   --> Return to System Menu --> Main Menu
+    subgraph Local Menu
+        lm_1("🏥 Run a Diagnostic")
+        lm_2("💻 Check Resources")
+        lm_3("📷 Create a Snapshot")
+        lm_4("💡 System Information")
+        lm_5("🛠️ Check for Errors")
+        lm_6("🔄 Check for Updates")
+    end
 
-Settings Menu --> Interactive Config
-               --> Edit Config
-               --> Edit SSH Config
-               --> Change Username
-               --> Change Identity
-               --> Return to System Menu --> Main Menu
+    subgraph Settings Menu
+        sm_1("🧠 Interactive Config")
+        sm_2("📝 Edit Config")
+        sm_3("📝 Edit SSH Config")
+        sm_4("🧖 Change Username")
+        sm_5("🆔 Change Identity")
+    end
 
-Server Databases --> Load a Database --> Action Menu
-                --> Create a Database --> Database Modification Menu
-                --> Modify a Database --> Database Modification Menu
-                --> Delete a Database --> Server Databases
+    subgraph Server Database Menu
+        direction TB
+        sdm_1("📂 Load a Database")
+        sdm_2("✨ Create a Database")
+        sdm_3("✏️ Modify a Database")
+        sdm_4("🗑️ Delete a Database")
+    end
 
-Database Modification Menu --> Add a Server --> Database Modification Menu
-                          --> Remove a Server --> Database Modification Menu
-                          --> Modify a Server --> Database Modification Menu
-                          --> Edit a DB File --> Database Modification Menu
-                          --> Return to Database Menu --> Server Databases
+    subgraph Database Modifications
+        dmm_1("🆕 Add a Server")
+        dmm_2("❌ Remove a Server")
+        dmm_3("🛠️ Modify a Server")
+        dmm_4("✏️ Edit a DB File")
+    end
+
+    subgraph Actions
+        direction TB
+        am_1("🐚 Shell into Systems")
+        am_2("📶 Test Connection")
+        am_3("🔑 Copy SSH Key")
+        am_4("🔄 Refresh Subscription Manager")
+        am_5("🏥 Run a Diagnostic")
+        am_6("💻 Check Resources")
+        am_7("📷 Create a Snapshot")
+        am_8("💡 System Information")
+        am_9("🛠️ Check for Errors")
+        am_10("🔄 Check for Updates")
+        am_11("🚀 Deploy Updates")
+        am_12("📋 Copy File")
+        am_13("📥 Get File")
+        am_14("🛡️ Vulnerability Scan")
+        am_15("🔃 Reboot Host")
+        am_16("⏹️ Shutdown Host")
+    end
