@@ -91,43 +91,38 @@ Triggered from the Database Menu to make changes to a server database.
 
 # Remote Admin v(2.0) Flowchart
 
-```mermaid
-graph LR
-    A[Main Menu]
-    B[Remote Systems Menu]
-    C[Local Systems Menu]
-    D[Settings Menu]
-    E[Action Menu]
-    F[Server Database Menu]
-    G[Database Modification Menu]
+Main Menu --> Remote Systems Menu --> Action Menu
+            --> Local Systems Menu
+            --> Settings Menu
 
-    A -->|Select "Remote Systems"| B
-    A -->|Select "Local System"| C
-    A -->|Select "Settings"| D
-    B -->|Enter a Host| E
-    B -->|Server Databases| F
-    B -->|Load from SSH Config| E
-    B -->|Return to System Menu| A
-    C -->|Run a Diagnostic| C
-    C -->|Check Resources| C
-    C -->|Create a Snapshot| C
-    C -->|System Information| C
-    C -->|Check for Errors| C
-    C -->|Check for Updates| C
-    C -->|Return to System Menu| A
-    D -->|Interactive Config| D
-    D -->|Edit Config| D
-    D -->|Edit SSH Config| D
-    D -->|Change Username| D
-    D -->|Change Identity| D
-    D -->|Return to System Menu| A
-    E -->|Select Action| E
-    F -->|Load a Database| E
-    F -->|Create a Database| E
-    F -->|Modify a Database| G
-    F -->|Delete a Database| E
-    G -->|Add a Server| G
-    G -->|Remove a Server| G
-    G -->|Modify a Server| G
-    G -->|Edit a DB File| G
-    G -->|Return to Database Menu| F
+Remote Systems Menu --> Enter a Host --> Action Menu
+                     --> Server Databases --> Load a Database --> Action Menu
+                                         --> Create a Database --> Database Modification Menu
+                     --> Load from SSH Config --> Action Menu
+                     --> Return to System Menu --> Main Menu
+
+Local Systems Menu --> Run a Diagnostic --> Local Systems Menu
+                   --> Check Resources --> Local Systems Menu
+                   --> Create a Snapshot --> Local Systems Menu
+                   --> System Information --> Local Systems Menu
+                   --> Check for Errors --> Local Systems Menu
+                   --> Check for Updates --> Local Systems Menu
+                   --> Return to System Menu --> Main Menu
+
+Settings Menu --> Interactive Config
+               --> Edit Config
+               --> Edit SSH Config
+               --> Change Username
+               --> Change Identity
+               --> Return to System Menu --> Main Menu
+
+Server Databases --> Load a Database --> Action Menu
+                --> Create a Database --> Database Modification Menu
+                --> Modify a Database --> Database Modification Menu
+                --> Delete a Database --> Server Databases
+
+Database Modification Menu --> Add a Server --> Database Modification Menu
+                          --> Remove a Server --> Database Modification Menu
+                          --> Modify a Server --> Database Modification Menu
+                          --> Edit a DB File --> Database Modification Menu
+                          --> Return to Database Menu --> Server Databases
