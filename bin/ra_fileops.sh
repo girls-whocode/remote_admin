@@ -1,4 +1,6 @@
 #!/bin/bash
+# shellcheck disable=SC2034  # variables are used in other files
+# shellcheck disable=SC2154  # variables are sourced from other files
 
 # Function: select_file
 # Description: This function allows the user to select a file from the list of files
@@ -16,12 +18,6 @@ function copy_file() {
     select_file
     cp_file_name="${search_dir[$file_choice]}"
     return
-}
-
-function copy_file {
-    start_action
-    echo "To be implimented"
-    finish_action
 }
 
 function get_file {
@@ -62,3 +58,4 @@ function get_osver {
     echo -e "All OS Version information is stored in ./reports/systems/{HOSTNAME}"
     finish_action
 }
+

@@ -252,6 +252,10 @@ function app_menu() {
 # Description: This function prompts the user to select an action to perform on the 
 #              host(s) and performs the selected action.
 function action_menu {
+    # To get to this menu, a hostname or hostgroup must be specified.
+    if [ "${hostname}" == "" ] || [ "${hostgroup}" == "" ]; then
+        remote_menu
+    fi
     clear
     header "center" "Application Settings Menu"
     footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
@@ -275,7 +279,7 @@ function action_menu {
         "🛡️ Vulnerability Scan" #13
         "🔃 Reboot Host" #14
         "⏹️ Shutdown Host" #15
-        "🔙${light_green} Return to System Menu${default}" #16
+        "🔙${light_green} Return to Remote Menu${default}" #16
         "❓${light_blue} Help Manual${default}" #17
         "⏹️${light_red} Exit ${app_name}${default}" #18
     )
@@ -373,7 +377,7 @@ function action_menu {
             ;;
         16) 
             clear
-            debug "\"Return to System Menu\" was selected"
+            debug "\"Return to Remote Menu\" was selected"
             remote_menu
             ;;
         17)

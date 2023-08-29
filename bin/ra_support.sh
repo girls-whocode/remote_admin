@@ -167,6 +167,29 @@ function draw_center_line_with_info() {
             tput cup $row $((middle_col + 2))
             echo -ne "${cyan}Logging Level: ${light_green}${logging}${default}"
             ;;
+        5)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        6)
+            tput cup $row $((middle_col + 2))
+            if [[ $hostname != "" ]]; then
+                echo -ne "${cyan}Hostname: ${light_green}${hostname}${default}"
+            fi
+            ;;
+        7)
+            tput cup $row $((middle_col + 2))
+            if [[ $hostname != "" ]]; then
+                do_connection_test "${hostname}"
+                if [ "$connection_result" == "true" ]; then
+                    connect_test="${light_green}OK${default}"
+                else
+                    connect_test="${light_red}FAILED${default}"
+                fi
+                echo -ne "${cyan}Connection: ${connect_test}"
+                
+            fi
+            ;;
         esac
     done
     tput rc
