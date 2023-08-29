@@ -26,7 +26,7 @@ function menu() {
             debug "\"Remote Systems\" was selected"
             remote_menu
             ;;
-        1) # COmpleted
+        1) # Completed
             clear
             debug "\"Local System\" was selected"
             local_menu

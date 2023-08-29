@@ -1,12 +1,8 @@
 #!/bin/bash
-# shellcheck disable=SC2034  # Unused variables left for readability
 # shellcheck disable=SC2162  # Backslashes are used for ESC characters
 # shellcheck disable=SC2181  # mycmd #? is used for return value of ping
 # shellcheck disable=SC2154  # variables are sourced from other files
 
-# Description: Open the ssh config file, look for any includes, and include each file, seperate
-#              all hosts, place them into an array.
-CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~],config*[!~]/*})
 app_name="Remote Admin"
 script_name="ra.sh"
 app_ver="2.0"

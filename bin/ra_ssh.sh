@@ -1,6 +1,10 @@
 #!/bin/bash
 # shellcheck disable=SC2154  # variables are sourced from other files
 
+# Description: Open the ssh config file, look for any includes, and include each file, seperate
+#              all hosts, place them into an array.
+CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~],config*[!~]/*})
+
 function do_ssh {
     # Filter out any bad characters by enclosing it in quotes
     cmd=$(filter_cmd_action "${1}")

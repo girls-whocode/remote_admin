@@ -1,0 +1,3 @@
+var/logs/*.log
+var/server_lists/*
+var/conf/*.conf
