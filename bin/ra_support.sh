@@ -272,7 +272,9 @@ function enter_identityfile() {
 }
 
 function line() {
-    printf -v _L %$2s; printf -- "${_L// /$1}";
+    local line_length=$1  # Get the desired line length from the function argument
+    printf -v _L %-${line_length}s  # Create a string with the desired line length
+    printf -- "${_L// /$2}\n"  # Print the line using the specified character
 }
 
 function save_tmp(){

@@ -212,7 +212,7 @@ function local_system_info() {
             os_name="Unknown"
         fi
         kernel_version=$(uname -r)
-        hostname=$(hostname)
+        si_hostname=$(hostname)
         ip_address=$(hostname -I | awk '{print $1}')
         uptime=$(uptime -p)
         total_cpus=$(lscpu | grep '^CPU(s):' | awk '{print $2}')
@@ -244,10 +244,15 @@ function local_system_info() {
         }
 
         # Create colored text for each column and print
-        print_columns "${white}Hostname:${default} ${light_green}$hostname${default}" "${white}IP Address:${default} ${light_green}$ip_address${default}" "${white}Uptime:${default} ${light_green}$uptime${default}"
-        print_columns "${white}OS Name:${default} ${light_green}$os_name${default}" "${white}Kernel Version:${default} ${light_green}$kernel_version${default}" "${white}Total Memory:${default} ${light_green}${total_mem}MB${default} (Used: ${used_mem}MB)"
-        print_columns "${white}CPU:${default} ${light_green}$total_cpus${default} cores ${light_green}$cpu_model${default}" "${white}Load Average:${default} ${light_green}$load_avg${default}" "${white}Disk Space:${default} ${light_green}$disk_space${default} (Used: $used_disk_space)"
-        print_columns "${white}Active Network Cards:${default} ${light_green}$num_active_network_cards${default}" "${white}Open TCP Ports:${default} ${light_green}$open_tcp_ports${default}" "${white}Reserved for future metrics${default}"
+        print_columns "${white}Hostname:${default} ${light_green}$si_hostname${default}"
+        print_columns "${white}IP Address:${default} ${light_green}$ip_address${default}" 
+        print_columns "${white}Uptime:${default} ${light_green}$uptime${default}"
+        line 100 "-"
+        print_columns "${white}OS Name:${default} ${light_green}$os_name${default}" "${white}Kernel Version:${default} ${light_green}$kernel_version${default}"
+        print_columns "${white}CPU:${default} ${light_green}$total_cpus${default} cores ${light_green}$cpu_model${default}" "${white}Load Average:${default} ${light_green}$load_avg${default}"
+        print_columns "${white}Disk Space:${default} ${light_green}$disk_space${default} (Used: $used_disk_space)" "${white}Total Memory:${default} ${light_green}${total_mem}MB${default} (Used: ${used_mem}MB)"
+        line 100 "-"
+        print_columns "${white}Active Network Cards:${default} ${light_green}$num_active_network_cards${default}" "${white}Open TCP Ports:${default} ${light_green}$open_tcp_ports${default}"
 
         # Check for user input
         handle_input "local_menu"
