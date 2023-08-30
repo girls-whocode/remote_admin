@@ -41,18 +41,6 @@ function select_hosts() {
     return
 }
 
-function check_host_exists() {
-    local host=$1
-    # Ping the host with a timeout of 1 second
-    if ping -c 1 -W 1 "${host}" &> /dev/null; then
-        echo "Host exists and is reachable."
-        return 0
-    else
-        echo "Could not reach host."
-        return 1
-    fi
-}
-
 # Function: type_host function
 # Description: Prompts the user to type in a hostname to
 function type_host() {
@@ -69,9 +57,7 @@ function type_host() {
     footer "right" "${app_name} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
 
     echo -en "${light_blue}🌐 Enter a Host:${default} "
-    read -r remote_host
-    check_host_exists "${remote_host}"
-    hostname="$remote_host"
+    read -r hostname
     return
 }
 
@@ -108,7 +94,7 @@ function get_host() {
         hostname=$2
         print host, hostname, desc
         strt=0
-    }' $CONFILES)
+    }' "$CONFILES")
 
     # Assign all hosts found to a variable
     host_options=( "${fullist[@]}" )
