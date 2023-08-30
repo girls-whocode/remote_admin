@@ -60,59 +60,60 @@ function show_message() {
 
 # Function to wrap text by spaces and preserve ANSI colors
 function wrap_text() {
-  local text="$1"
+    local text="$1"
 
-  # Get the terminal width
-  local wrap_at=$(tput cols)
+    # Get the terminal width
+    local wrap_at=$(tput cols)
 
-  # Initialize empty wrapped text string and other variables
-  local wrapped_text=""
-  local line_length=0
-  local word_length=0
-  local word=""
-  local ansi_escape=""
-  local in_ansi_escape=false
+    # Initialize variables
+    local wrapped_text=""
+    local line_length=0
+    local word_length=0
+    local word=""
+    local ansi_escape=""
+    local in_ansi_escape=false
 
-  # Add a space at the end of the text to catch the last word
-  text+=" "
+    # Add a space at the end of the text to catch the last word
+    text+=" "
 
-  # Process each character in the input string
-  for (( i=0; i<${#text}; i++ )); do
-    char="${text:$i:1}"
+    # Process each character
+    for (( i=0; i<${#text}; i++ )); do
+        char="${text:$i:1}"
 
-    if [ "$char" == $'\033' ]; then
-      in_ansi_escape=true
-    fi
-
-    if [ "$in_ansi_escape" == true ]; then
-      ansi_escape+="$char"
-      if [ "$char" == "m" ]; then
-        in_ansi_escape=false
-        continue
-      fi
-    else
-      word+="$ansi_escape$char"
-      ansi_escape=""
-      # Calculate word length without ANSI escape codes
-      word_length=$(echo -e "$word" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)
-
-      if [[ "$char" == " " || "$char" == $'\n' ]]; then
-        if (( line_length + word_length > wrap_at )); then
-          wrapped_text+="\n"
-          line_length=0
+        if [ "$char" == $'\033' ]; then
+            in_ansi_escape=true
         fi
 
-        wrapped_text+="$word"
-        line_length=$((line_length + word_length))
-        word=""
-        word_length=0
-      fi
-    fi
-  done
+        if [ "$in_ansi_escape" == true ]; then
+            ansi_escape+="$char"
+            if [ "$char" == "m" ]; then
+                in_ansi_escape=false
+                continue
+            fi
+        else
+            word+="$ansi_escape$char"
+            ansi_escape=""
+            # Calculate word length without ANSI escape codes
+            word_length=$(echo -e "$word" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)
 
-  # Print the wrapped text
-  echo -e "$wrapped_text"
+            if [[ "$char" == " " || "$char" == $'\n' ]]; then
+                if (( line_length + word_length > wrap_at )); then
+                    wrapped_text+="\n"
+                    line_length=0
+                fi
+
+                wrapped_text+="$word"
+                line_length=$((line_length + word_length - 1))
+                word=""
+                word_length=0
+            fi
+        fi
+    done
+
+    # Print the wrapped text
+    echo -e "$wrapped_text"
 }
+
 
 function draw_center_line_with_info() {
     tput sc
@@ -255,6 +256,11 @@ function get_identity {
     return
 }
 
+function strip_ansi() {
+    local text="$1"
+    echo -e "$text" | sed 's/\x1b\[[0-9;]*m//g'
+}
+
 # Function to create a header with alignment
 function header() {
     cols=$(tput cols)
@@ -329,8 +335,10 @@ function footer() {
     align1="$1"
     text2="$4"
     align2="$3"
-    text1_length=${#text1}
-    text2_length=${#text2}
+    text1_stripped=$(strip_ansi "$text1")
+    text1_length=${#text1_stripped}
+    text2_stripped=$(strip_ansi "$text2")
+    text2_length=${#text2_stripped}
     decorative_length=8  # Length of --][-- characters
 
     # Save the current cursor position

@@ -1,9 +1,13 @@
 #!/bin/bash
 # shellcheck disable=SC2162  # Backslashes are used for ESC characters
 # shellcheck disable=SC2181  # mycmd #? is used for return value of ping
-# shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 
+app_name="ARROW"
+script_name="arrow.sh"
+app_logo="--- A.R.R.O.W ==>"
+app_logo_color="${dark_gray}--- ${light_blue}A.R.R.O.W ${dark_gray}==>${default}"
+app_ver="2.0"
 ra_start_time=$(date +%s.%3N)
 org_prompt=${PS1}
 ra_script_location="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -53,15 +57,6 @@ done
 
 config
 assign_colors
-
-app_name="A.R.R.O.W."
-app_acronym="Advanced Remote Resource and Operations Workflow"
-app_emoji="🏹"
-script_name="arrow.sh"
-app_logo=" --/A.R.R.O.W/==>"
-app_logo_color="${dark_gray}--${light_red}/${light_blue}A.R.R.O.W${dark_gray}${light_red}/${dark_gray}=>${default}"
-app_ver="2.0"
-
 debug "${app_name} v.${app_ver} configuration file loaded from ${config_path}/${config_file}"
 debug "${app_name} is located in ${ra_script_location} and started at ${ra_start_time}"
 debug "${app_name} is reporting ${LINES} lines and ${COLS} columns"

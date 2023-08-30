@@ -59,7 +59,7 @@ function do_ssh {
         info "ssh to ${hostname} failed with no connection"
         clear
         header "center" "There was an error"
-        footer "right" "${app_name} v.${app_ver}" "left" "Press ESC to return to the menu"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press ESC to return to the menu"
         show_message "${hostname} was unable to connect."
         while $keep_running; do
             handle_input "remote_menu"

@@ -128,7 +128,7 @@ function check_disk_usage() {
   echo -ne " $bar"
 }
 
-function local_system_info() {
+function local_resources() {
     # Get the terminal height
     term_height=$(tput lines)
 
@@ -146,7 +146,7 @@ function local_system_info() {
     echo -ne "${cursor_to_start}"
 
     header "center" "System Status Report"
-    footer "right" "${app_name} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
     while $keep_running; do
         # Move the cursor to the third row
         echo -ne "${cursor_to_third_row}"
@@ -162,6 +162,10 @@ function local_system_info() {
         # Check for user input
         handle_input "local_menu"
     done
+}
+
+function local_system_info() {
+
 }
 
 # Function to run hardware diagnostics
@@ -249,7 +253,7 @@ function local_diagnostics_main() {
     clear
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
-    footer "right" "${app_name} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
 
     while $keep_running; do
         # Move the cursor to the third row

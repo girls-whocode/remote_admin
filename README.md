@@ -1,5 +1,5 @@
 
-# ARROW 2.0 - A Glimpse into Empowered Management
+# 🏹 ARROW 2.0 - A Glimpse into Empowered Management
 
 ## Table of Contents
 

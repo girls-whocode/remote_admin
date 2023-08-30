@@ -5,7 +5,7 @@
 function menu() {
     clear
     header "center" "System Administration Menu"
-    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
     draw_center_line_with_info
     unset menu_choice
     
@@ -52,7 +52,7 @@ function menu() {
 function remote_menu() {
     clear
     header "center" "Remote Systems Menu"
-    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
     draw_center_line_with_info
     unset menu_choice
     
@@ -106,7 +106,7 @@ function remote_menu() {
 function local_menu() {
     clear
     header "center" "Local Systems Menu"
-    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
     draw_center_line_with_info
     unset menu_choice
     
@@ -135,7 +135,7 @@ function local_menu() {
         1)
             clear
             debug "\"Check Resources\" was selected"
-            check_resources
+            local_resources
             local_menu
             ;;
         2)
@@ -181,7 +181,7 @@ function local_menu() {
 function app_menu() {
     clear
     header "center" "Application Settings Menu"
-    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
     draw_center_line_with_info
     unset menu_choice
     
@@ -258,7 +258,7 @@ function action_menu {
     fi
     clear
     header "center" "Application Settings Menu"
-    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
     draw_center_line_with_info
     unset menu_choice
 
@@ -394,7 +394,7 @@ function action_menu {
 function database_menu() {
     clear
     header "center" "Server Database Menu"
-    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
     draw_center_line_with_info
     unset menu_choice
     
@@ -455,7 +455,7 @@ function database_menu() {
 function modify_db_menu() {
     clear
     header "center" "Database Modification Menu"
-    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
     draw_center_line_with_info
     unset menu_choice
     

@@ -61,7 +61,7 @@ function add_server_to_database() {
 #              prefixed with "radb_".
 function create_database() {
     header "center" "Server Database Menu"
-    footer "right" "${app_name} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
     draw_center_line_with_info
     echo -en "${light_blue}📦 Enter the name of the new database:${default}"
     read -r db_name
