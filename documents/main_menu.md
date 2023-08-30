@@ -1,5 +1,6 @@
-# Remote Administrator 2.0 - Elevating Server Management to New Horizons
-
+# ARROW - Elevating Server Management to New Horizons
+#### Advanced Remote Resource and Operations Workflow
+---
 ## Welcome to the Remote Administrator Main Menu
 Experience the epitome of efficient server management with the Remote Administrator (RA) application, version 2.0. Our interface is your gateway to a world of seamless system control, where each selection is an invitation to productivity. The RA application simplifies complexities, guiding you through an array of options presented with precision. Let's explore the main menu, a launchpad to streamlined administration.
 
