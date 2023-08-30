@@ -202,8 +202,15 @@ function local_system_info() {
         echo -ne "${cursor_to_third_row}"
 
         # Fetching system information
-        # Fetching system information
-        os_name=$(lsb_release -d | awk -F ':' '{print $2}' | xargs)
+        if command -v lsb_release &>/dev/null; then
+            os_name=$(lsb_release -d | awk -F ':' '{print $2}' | xargs)
+        elif [ -f /etc/redhat-release ]; then
+            os_name=$(cat /etc/redhat-release)
+        elif [ -f /etc/os-release ]; then
+            os_name=$(grep '^PRETTY_NAME' /etc/os-release | cut -d '=' -f 2 | sed 's/"//g')
+        else
+            os_name="Unknown"
+        fi
         kernel_version=$(uname -r)
         hostname=$(hostname)
         ip_address=$(hostname -I | awk '{print $1}')
