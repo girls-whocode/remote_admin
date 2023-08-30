@@ -133,43 +133,52 @@ function local_resources() {
     header "center" "System Status Report"
     footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
 
+    # Initial reading for total bytes in and out
+    prev_total_bytes_in=0
+    prev_total_bytes_out=0
+
     while $keep_running; do
         # Initialize screen and place cursor at the beginning
         echo -ne "${cursor_to_start}"
         header "center" "System Status Report"
         footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
 
+        total_bytes_in=0
+        total_bytes_out=0
+
         # Store the system checks in variables
         check_cpu_output=$(check_cpu_usage)
         check_memory_output=$(check_memory_usage)
         check_disk_output=$(check_disk_usage)
 
-        total_bytes_in=0
-        total_bytes_out=0
+        # Capture network stats
         while read -r line; do
-            # echo "Raw line: $line"
-            # echo "Debug Line: $line"
-            
             bytes_in=$(echo "$line" | awk '{print $2}')
-            bytes_out=$(echo "$line" | awk '{print $3}') # Changing to $3 because it's a reduced AWK output
-            
-            # echo "Temp Debug: bytes_in = $bytes_in, bytes_out = $bytes_out"
-            
+            bytes_out=$(echo "$line" | awk '{print $3}')
             total_bytes_in=$((total_bytes_in + bytes_in))
             total_bytes_out=$((total_bytes_out + bytes_out))
         done < <(awk 'NR > 2 {print $1, $2, $10}' /proc/net/dev)
 
-        # echo "Final: Total bytes in = $total_bytes_in, Total bytes out = $total_bytes_out"
+        # Calculate bytes transmitted and received since last sample
+        bytes_in_interval=$((total_bytes_in - prev_total_bytes_in))
+        bytes_out_interval=$((total_bytes_out - prev_total_bytes_out))
+
+        # Update previous total bytes for the next cycle
+        prev_total_bytes_in=$total_bytes_in
+        prev_total_bytes_out=$total_bytes_out
 
         # Convert to human-readable format
-        human_bytes_in=$(bytes_to_human $total_bytes_in)
-        human_bytes_out=$(bytes_to_human $total_bytes_out)
+        human_bytes_in=$(bytes_to_human $bytes_in_interval)
+        human_bytes_out=$(bytes_to_human $bytes_out_interval)
 
         # Concatenate the gathered information
-        complete_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\nDisk Usage: ${check_disk_output}\n\n${white}Total Network Bytes In: ${light_green}${human_bytes_in}\n${white}Total Network Bytes Out: ${light_green}${human_bytes_out}${default}"
+        complete_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\nDisk Usage: ${check_disk_output}\n\n${white}Network Bytes In: ${light_green}${human_bytes_in}/sec        \n${white}Network Bytes Out: ${light_green}${human_bytes_out}/sec        ${default}"
 
         # Print all the gathered info in one go
         echo -e "$complete_info"
+
+        # Sleep for 1 second before the next cycle
+        sleep 1
 
         # Check for user input
         handle_input "local_menu"
@@ -258,8 +267,6 @@ function local_system_info() {
         handle_input "local_menu"
     done
 }
-
-
 
 function local_system_info_ver() {
     info "Local System Information Started"

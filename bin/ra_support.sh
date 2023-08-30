@@ -272,9 +272,18 @@ function enter_identityfile() {
 }
 
 function line() {
-    local line_length=$1  # Get the desired line length from the function argument
-    printf -v _L %-${line_length}s  # Create a string with the desired line length
-    printf -- "${_L// /$2}\n"  # Print the line using the specified character
+    local percentage=$1  # Get the desired percentage from the function argument
+    local char=$2  # Get the character to be used for the line
+
+    # Get the width of the terminal in columns
+    local term_width=$(tput cols)
+
+    # Calculate the line length based on the percentage
+    local line_length=$((term_width * percentage / 100))
+
+    # Create and print the line using the specified character and length
+    printf -v line_str "%-${line_length}s"
+    printf -- "${line_str// /$char}\n"
 }
 
 function save_tmp(){
