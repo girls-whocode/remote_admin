@@ -14,7 +14,7 @@
 - [Menu Map](documents/menu_map.md)
 
 ---
-Welcome to the world of Advanced Remote Resource and Operations Workflow (ARROW) 2.0 — where efficiency meets empowerment, and system management becomes a nuanced art. Our application is your conduit to a streamlined, tailored, and effective approach to server administration.
+Welcome to the world of Advanced Remote Resource and Operations Workflow (--/ARROW/==>) 2.0 — where efficiency meets empowerment, and system management becomes a nuanced art. Our application is your conduit to a streamlined, tailored, and effective approach to server administration.
 
 ## Overview: Navigating the Alpha State
 [NOTE *]: As you explore this interface, bear in mind that it's in an EXTREME ALPHA state. Many functions are yet to be developed or fully operational. Being crafted to elevate my professional responsibilities, I commit to daily updates. Last update: [AUG, 29th, 2023]

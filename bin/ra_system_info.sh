@@ -2,21 +2,6 @@
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 
-# end_time: Calculates the time elapsed from a given start time to the current time.
-# The function expects one parameter: the start time in the 'seconds.milliseconds' format.
-# The elapsed time is calculated in hours, minutes, and seconds, and then formatted as a string.
-# The function stores the formatted elapsed time string in the variable 'elapsed_time_formatted'.
-#
-# Usage:
-#     end_time Start_Time
-# Where:
-#     "Start_Time" is the start time in 'seconds.milliseconds' format.
-#
-# Example:
-#     ra_start_time=$(date +%s.%3N)
-#     end_time "${ra_start_time}"
-#     echo $elapsed_time_formatted  # Output will be in HH MM SS.mmm format
-#
 declare -A issues       # Associative array to hold current issues
 declare -A last_issues  # Associative array to hold last known issues
 declare -A prev_total prev_idle
@@ -129,8 +114,9 @@ function check_disk_usage() {
 }
 
 function local_resources() {
-    # Get the terminal height
+    # Get the terminal height and width
     term_height=$(tput lines)
+    term_width=$(tput cols)
 
     # Hide the cursor
     echo -ne "\033[?25l"
@@ -138,7 +124,6 @@ function local_resources() {
     # ANSI escape sequences
     ESC="\033"
     cursor_to_start="${ESC}[H"
-    cursor_to_third_row="${ESC}[3;1H"  # Move to 3rd row, 1st column
     keep_running=true
 
     # Initialize screen and place cursor at the beginning
@@ -146,18 +131,45 @@ function local_resources() {
     echo -ne "${cursor_to_start}"
 
     header "center" "System Status Report"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+
     while $keep_running; do
-        # Move the cursor to the third row
-        echo -ne "${cursor_to_third_row}"
-        
+        # Initialize screen and place cursor at the beginning
+        echo -ne "${cursor_to_start}"
+        header "center" "System Status Report"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+
         # Store the system checks in variables
         check_cpu_output=$(check_cpu_usage)
         check_memory_output=$(check_memory_usage)
         check_disk_output=$(check_disk_usage)
 
+        total_bytes_in=0
+        total_bytes_out=0
+        while read -r line; do
+            # echo "Raw line: $line"
+            # echo "Debug Line: $line"
+            
+            bytes_in=$(echo "$line" | awk '{print $2}')
+            bytes_out=$(echo "$line" | awk '{print $3}') # Changing to $3 because it's a reduced AWK output
+            
+            # echo "Temp Debug: bytes_in = $bytes_in, bytes_out = $bytes_out"
+            
+            total_bytes_in=$((total_bytes_in + bytes_in))
+            total_bytes_out=$((total_bytes_out + bytes_out))
+        done < <(awk 'NR > 2 {print $1, $2, $10}' /proc/net/dev)
+
+        # echo "Final: Total bytes in = $total_bytes_in, Total bytes out = $total_bytes_out"
+
+        # Convert to human-readable format
+        human_bytes_in=$(bytes_to_human $total_bytes_in)
+        human_bytes_out=$(bytes_to_human $total_bytes_out)
+
+        # Concatenate the gathered information
+        complete_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\nDisk Usage: ${check_disk_output}\n\n${white}Total Network Bytes In: ${light_green}${human_bytes_in}\n${white}Total Network Bytes Out: ${light_green}${human_bytes_out}${default}"
+
         # Print all the gathered info in one go
-        echo -e "${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\nDisk Usage: ${check_disk_output}${default}"
+        echo -e "$complete_info"
 
         # Check for user input
         handle_input "local_menu"
@@ -165,7 +177,181 @@ function local_resources() {
 }
 
 function local_system_info() {
+    info "Local System Information Started"
 
+    # Get the terminal height and width
+    term_height=$(tput lines)
+    term_width=$(tput cols)-2
+
+    # ANSI escape sequences
+    ESC="\033"
+    cursor_to_start="${ESC}[H"
+    cursor_to_third_row="${ESC}[3;1H"  # Move to 3rd row, 1st column
+    keep_running=true
+
+    # Hide the cursor
+    echo -ne "\033[?25l"
+
+    clear
+    echo -ne "${cursor_to_start}"
+    header "center" "System Diagnostics"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+
+    while $keep_running; do
+        # Move the cursor to the third row
+        echo -ne "${cursor_to_third_row}"
+
+        # Fetching system information
+        # Fetching system information
+        os_name=$(lsb_release -d | awk -F ':' '{print $2}' | xargs)
+        kernel_version=$(uname -r)
+        hostname=$(hostname)
+        ip_address=$(hostname -I | awk '{print $1}')
+        uptime=$(uptime -p)
+        total_cpus=$(lscpu | grep '^CPU(s):' | awk '{print $2}')
+        cpu_model=$(lscpu | grep 'Model name:' | awk -F ':' '{print $2}' | sed -r 's/(Intel|AMD|Ryzen|Core|CPU)//g' | awk -F '@' '{print $1}' | xargs)
+        load_avg=$(uptime | awk -F 'load average:' '{print $2}' | xargs)
+        total_mem=$(free -m | grep Mem | awk '{print $2}')
+        used_mem=$(free -m | grep Mem | awk '{print $3}')
+        disk_space=$(df -h --total | grep 'total' | awk '{print $2}')
+        used_disk_space=$(df -h --total | grep 'total' | awk '{print $3}')
+        num_active_network_cards=$(ip link | grep 'state UP' -c)
+        open_tcp_ports=$(ss -tuln | grep 'LISTEN' | wc -l)
+
+        # Column width calculation based on terminal width
+        col_width=$((term_width / 3))
+
+        # Function to print the column data
+        print_columns() {
+            local col1=$1
+            local col2=$2
+            local col3=$3
+
+            col1_len=$(strip_ansi "$col1" | wc -c)
+            col2_len=$(strip_ansi "$col2" | wc -c)
+            col3_len=$(strip_ansi "$col3" | wc -c)
+            max_col_width=$(($col1_len > $col2_len ? $col1_len : $col2_len))
+            max_col_width=$(($max_col_width > $col3_len ? $max_col_width : $col3_len))
+
+            printf "%-${max_col_width}b %-${max_col_width}b %-${max_col_width}b\n" "$col1" "$col2" "$col3"
+        }
+
+        # Create colored text for each column and print
+        print_columns "${white}Hostname:${default} ${light_green}$hostname${default}" "${white}IP Address:${default} ${light_green}$ip_address${default}" "${white}Uptime:${default} ${light_green}$uptime${default}"
+        print_columns "${white}OS Name:${default} ${light_green}$os_name${default}" "${white}Kernel Version:${default} ${light_green}$kernel_version${default}" "${white}Total Memory:${default} ${light_green}${total_mem}MB${default} (Used: ${used_mem}MB)"
+        print_columns "${white}CPU:${default} ${light_green}$total_cpus${default} cores ${light_green}$cpu_model${default}" "${white}Load Average:${default} ${light_green}$load_avg${default}" "${white}Disk Space:${default} ${light_green}$disk_space${default} (Used: $used_disk_space)"
+        print_columns "${white}Active Network Cards:${default} ${light_green}$num_active_network_cards${default}" "${white}Open TCP Ports:${default} ${light_green}$open_tcp_ports${default}" "${white}Reserved for future metrics${default}"
+
+        # Check for user input
+        handle_input "local_menu"
+    done
+}
+
+
+
+function local_system_info_ver() {
+    info "Local System Information Started"
+
+    # Get the terminal height and width
+    term_height=$(tput lines)
+    term_width=$(tput cols)-2
+
+    # ANSI escape sequences
+    ESC="\033"
+    cursor_to_start="${ESC}[H"
+    cursor_to_third_row="${ESC}[3;1H"  # Move to 3rd row, 1st column
+    keep_running=true
+
+    # Hide the cursor
+    echo -ne "\033[?25l"
+
+    clear
+    echo -ne "${cursor_to_start}"
+    header "center" "System Diagnostics"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+
+    while $keep_running; do
+        # Move the cursor to the third row
+        echo -ne "${cursor_to_third_row}"
+
+        # Fetching system information
+        os_name=$(lsb_release -d | awk -F ':' '{print $2}' | xargs)
+        kernel_version=$(uname -r)
+        hostname=$(hostname)
+        ip_address=$(hostname -I | awk '{print $1}')
+        uptime=$(uptime -p)
+        total_cpus=$(lscpu | grep '^CPU(s):' | awk '{print $2}')
+        cpu_model=$(lscpu | grep 'Model name:' | awk -F ':' '{print $2}' | sed -r 's/(Intel|AMD|Ryzen|Core|CPU)//g' | awk -F '@' '{print $1}' | xargs)
+        load_avg=$(uptime | awk -F 'load average:' '{print $2}' | xargs)
+        total_mem=$(free -m | grep Mem | awk '{print $2}')
+        used_mem=$(free -m | grep Mem | awk '{print $3}')
+        disk_space=$(df -h --total | grep 'total' | awk '{print $2}')
+        used_disk_space=$(df -h --total | grep 'total' | awk '{print $3}')
+        num_active_network_cards=$(ip link | grep 'state UP' -c)
+        open_tcp_ports=$(ss -tuln | grep 'LISTEN' | wc -l)
+
+        # Column width calculation based on terminal width
+        col_width=$((term_width / 3))
+
+        # Displaying the information
+        printf "%-${col_width}s %-${col_width}s %-${col_width}s\n" "Hostname: $hostname" "IP Address: $ip_address" "Uptime: $uptime"
+        printf "%-${col_width}s %-${col_width}s %-${col_width}s\n" "OS Name: $os_name" "Kernel Version: $kernel_version" "Total Memory: ${total_mem}MB (Used: ${used_mem}MB)"
+        printf "%-${col_width}s %-${col_width}s %-${col_width}s\n" "CPU: $total_cpus cores $cpu_model" "Load Average: $load_avg" "Disk Space: $disk_space (Used: $used_disk_space)"
+        printf "%-${col_width}s %-${col_width}s %-${col_width}s\n" "Active Network Cards: $num_active_network_cards" "Open TCP Ports: $open_tcp_ports" "Reserved for future metrics"
+
+        # Check for user input
+        handle_input "local_menu"
+    done
+}
+
+function local_check_errors() {
+    info "Local Check Errors Started"
+    # ANSI escape sequences
+    ESC="\033"
+    cursor_to_start="${ESC}[H"
+    cursor_to_third_row="${ESC}[3;1H"  # Move to 3rd row, 1st column
+    keep_running=true
+
+    # Hide the cursor
+    echo -ne "\033[?25l"
+
+    clear
+    echo -ne "${cursor_to_start}"
+    header "center" "System Diagnostics"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
+
+    while $keep_running; do
+        # Move the cursor to the third row
+        echo -ne "${cursor_to_third_row}"
+       
+        # Check for user input
+        handle_input "local_menu"
+    done
+}
+
+function local_check_updates() {
+    info "Local Check Updates Started"
+    # ANSI escape sequences
+    ESC="\033"
+    cursor_to_start="${ESC}[H"
+    cursor_to_third_row="${ESC}[3;1H"  # Move to 3rd row, 1st column
+    keep_running=true
+
+    # Hide the cursor
+    echo -ne "\033[?25l"
+
+    clear
+    echo -ne "${cursor_to_start}"
+    header "center" "System Diagnostics"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
+
+    while $keep_running; do
+        # Move the cursor to the third row
+        echo -ne "${cursor_to_third_row}"
+       
+        # Check for user input
+        handle_input "local_menu"
+    done
 }
 
 # Function to run hardware diagnostics
@@ -267,4 +453,36 @@ function local_diagnostics_main() {
     done
 }
 
+function get_osver {
+    setup_action
+    if [ "${hostname}" = "" ]; then
+        # More than one host, loop through them
+        for hostname in "${host_array[@]}"; do
+            if [ ! "${hostname}" = "" ]; then
+                # Test if the hostname is accessable
+                # do_connection_test
+                if [[ $? -eq 0 ]]; then
+                    [ ! -d "./reports/systems/$(date +"%Y-%m-%d")/${hostname}" ] && mkdir "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/"
+                    do_scp "/etc/os-release" "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/${hostname}-os-version-$(date +"%Y-%m-%d").txt"
+                    ((host_counter++))
+                else
+                    hosts_no_connect+=("${hosts_no_connect[@]}")
+                    ((counter++))
+                fi
+            fi
+        done
+    else
+        # do_connection_test
+        if [[ $? -eq 0 ]]; then      
+            clear
+            [ ! -d "./reports/systems/$(date +"%Y-%m-%d")/${hostname}" ] && mkdir -p "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/"
+            do_scp "/etc/os-release" "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/${hostname}-os-version-$(date +"%Y-%m-%d").txt"
+        else
+            hosts_no_connect+=("${hosts_no_connect[@]}")
+            ((counter++))
+        fi
+    fi
+    echo -e "All OS Version information is stored in ./reports/systems/{HOSTNAME}"
+    finish_action
+}
 

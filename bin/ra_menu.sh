@@ -153,11 +153,13 @@ function local_menu() {
         4)
             clear
             debug "\"Check for Errors\" was selected"
+            local_check_errors
             local_menu
             ;;
         5)
             clear
             debug "\"Check for Updates\" was selected"
+            local_check_updates
             local_menu
             ;;
         6) 

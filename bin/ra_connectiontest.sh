@@ -4,8 +4,10 @@
 
 function do_connection_test {
     if ping -c 1 "$hostname" > /dev/null 2>&1; then
+        debug "Connection test succeeded"
         connection_result="true"
     else
+        debug "Connection test failed"
         connection_result="false"
     fi
 }

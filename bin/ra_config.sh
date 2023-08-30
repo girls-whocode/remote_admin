@@ -2,6 +2,7 @@
 # shellcheck disable=SC2154  # variables are sourced from other files
 
 function build_config() {
+    info "Building configuration file ${config_path}/${config_file}"
     declare -a config_lines=(
         "# ${app_name} v${app_ver} automated configurations"
         "default_editor=${default_editor}"
@@ -54,10 +55,6 @@ function config() {
         logging_level
         info "Created and loaded configuration file ${config_path}/${config_file}"
     fi
-}
-
-function interactive_config() {
-    return
 }
 
 function save_config() {

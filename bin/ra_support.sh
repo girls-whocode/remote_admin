@@ -2,6 +2,21 @@
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 
+# end_time: Calculates the time elapsed from a given start time to the current time.
+# The function expects one parameter: the start time in the 'seconds.milliseconds' format.
+# The elapsed time is calculated in hours, minutes, and seconds, and then formatted as a string.
+# The function stores the formatted elapsed time string in the variable 'elapsed_time_formatted'.
+#
+# Usage:
+#     end_time Start_Time
+# Where:
+#     "Start_Time" is the start time in 'seconds.milliseconds' format.
+#
+# Example:
+#     ra_start_time=$(date +%s.%3N)
+#     end_time "${ra_start_time}"
+#     echo $elapsed_time_formatted  # Output will be in HH MM SS.mmm format
+#
 function end_time() {
     endtime_sec=$(date +%s)
     endtime_millis=$(date +%3N)
@@ -65,7 +80,7 @@ function wrap_text() {
     # Get the terminal width
     local wrap_at=$(tput cols)
 
-    # Initialize variables
+    # Initialize empty wrapped text string and other variables
     local wrapped_text=""
     local line_length=0
     local word_length=0
@@ -76,7 +91,7 @@ function wrap_text() {
     # Add a space at the end of the text to catch the last word
     text+=" "
 
-    # Process each character
+    # Process each character in the input string
     for (( i=0; i<${#text}; i++ )); do
         char="${text:$i:1}"
 
@@ -94,7 +109,7 @@ function wrap_text() {
             word+="$ansi_escape$char"
             ansi_escape=""
             # Calculate word length without ANSI escape codes
-            word_length=$(echo -e "$word" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)
+            word_length=$(echo -e "$word" | strip_ansi | wc -c)
 
             if [[ "$char" == " " || "$char" == $'\n' ]]; then
                 if (( line_length + word_length > wrap_at )); then
@@ -103,7 +118,7 @@ function wrap_text() {
                 fi
 
                 wrapped_text+="$word"
-                line_length=$((line_length + word_length - 1))
+                line_length=$((line_length + word_length))
                 word=""
                 word_length=0
             fi
@@ -114,6 +129,47 @@ function wrap_text() {
     echo -e "$wrapped_text"
 }
 
+function pad_to_width() {
+    local text="$1"
+    local width="$2"
+    local stripped_text=$(strip_ansi "$text")
+    local stripped_length=${#stripped_text}
+    local num_spaces=$(($width - $stripped_length))
+    printf "%b" "$text"
+    printf "%${num_spaces}s" " "
+}
+
+function add_commas() {
+    echo "${1}" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta'
+}
+
+function bytes_to_human() {
+    local bytes=${1}
+    if [[ bytes -lt 1024 ]]; then
+        echo "$(add_commas ${bytes}).00 B"
+    elif [[ bytes -lt 1048576 ]]; then
+        echo "$(add_commas $(awk "BEGIN { printf \"%.2f\", ${bytes}/1024 }")) KiB"
+    elif [[ bytes -lt 1073741824 ]]; then
+        echo "$(add_commas $(awk "BEGIN { printf \"%.2f\", ${bytes}/1048576 }")) MiB"
+    else
+        echo "$(add_commas $(awk "BEGIN { printf \"%.2f\", ${bytes}/1073741824 }")) GiB"
+    fi
+}
+
+function draw_bar() {
+    local value=$1
+    local max_value=$2
+    local bar_length=$3
+
+    # Calculate the ratio as an integer
+    local ratio=$(( value * 100 / max_value ))
+    local bar_count=$(( bar_length * ratio / 100 ))
+    
+    # Draw the bar using hash symbols
+    local bar=$(printf "%-${bar_count}s" "" | tr ' ' '#')
+
+    echo -n "$bar"
+}
 
 function draw_center_line_with_info() {
     tput sc

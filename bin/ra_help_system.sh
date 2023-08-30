@@ -8,6 +8,7 @@ function display_help() {
   keep_running=true
   case "$1" in
     "main_menu")
+        debug "Displaying Main Menu Help"
         header "center" "Main Menu Help"
         footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
         mm_p1="What is ${light_blue}${app_name}${default}? ${app_name} stands for '${app_acronym}'. The name was derived from the application's focus on remote systems. Its primary function is to simplify the execution of various operations across one or more servers. It achieves this by offering a user-friendly menu interface designed for handling repetitive and multiple tasks."
@@ -27,6 +28,7 @@ function display_help() {
         done
         ;;
     "remote_menu")
+        debug "Displaying Remote Menu Help"
         header "center" "Remote Menu Help"
         footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
         echo ""
@@ -39,6 +41,7 @@ function display_help() {
         done
         ;;
     "local_menu")
+        debug "Displaying Local Menu Help"
         header "center" "Local Menu Help"
         footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
         lm_p1="The ${light_blue}${app_name}${default} Local Menu focuses on providing a suite of utilities aimed at diagnosing and managing the server on which the application is running. This menu serves as a one-stop solution for your local server management needs."
@@ -70,6 +73,7 @@ function display_help() {
         done
         ;;
     "app_menu")
+        debug "Displaying App Menu Help"
         header "center" "Settings Menu Help"
         footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
         am_p1="🧠 ${light_magenta}Interactive Config${default}"
@@ -102,8 +106,10 @@ function display_help() {
         done
         ;;
     "action_menu")
+        debug "Displaying Action Menu Help"
         ;;
     "snapshot")
+        debug "Displaying Snapshot Help"
         header "center" "Snapshot Help"
         footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
         ss_p1="Choice of Snapshot Technology\nFilesystem: Check whether you are using LVM, ZFS, or Btrfs, as each has its own snapshotting method.\nVirtual Machines: If you're running a VM, then the hypervisor may have its own snapshot capabilities.\nSimple Backup: If you're not using any of the above, rsync or dd can also be used, although they may not provide true snapshot functionality."
@@ -123,8 +129,9 @@ function display_help() {
         done
         ;;
     *)
-      echo "Invalid argument. Accepted arguments are 'main_menu', 'remote_menu', 'local_menu', or 'app_menu'."
-      ;;
+        debug "Displaying Invalid Argument Help"
+        echo "Invalid argument. Accepted arguments are 'main_menu', 'remote_menu', 'local_menu', or 'app_menu'."
+        ;;
   esac
 }
 
@@ -135,6 +142,7 @@ function display_help() {
 function display_arg_help() {
     # Define the padding size for option descriptions
     local option_padding=25
+    debug "Displaying Argument Help"
 
     # Display the application name, version, and header for arguments and examples
     printf "%b%s %bv%s %b- Arguments and Examples\n" "${light_red}" "${app_name}" "${light_blue}" "${app_ver}" "${default}"

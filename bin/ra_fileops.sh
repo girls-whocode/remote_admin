@@ -25,37 +25,3 @@ function get_file {
     echo "To be implimented"
     finish_action
 }
-
-function get_osver {
-    setup_action
-    if [ "${hostname}" = "" ]; then
-        # More than one host, loop through them
-        for hostname in "${host_array[@]}"; do
-            if [ ! "${hostname}" = "" ]; then
-                # Test if the hostname is accessable
-                # do_connection_test
-                if [[ $? -eq 0 ]]; then
-                    [ ! -d "./reports/systems/$(date +"%Y-%m-%d")/${hostname}" ] && mkdir "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/"
-                    do_scp "/etc/os-release" "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/${hostname}-os-version-$(date +"%Y-%m-%d").txt"
-                    ((host_counter++))
-                else
-                    hosts_no_connect+=("${hosts_no_connect[@]}")
-                    ((counter++))
-                fi
-            fi
-        done
-    else
-        # do_connection_test
-        if [[ $? -eq 0 ]]; then      
-            clear
-            [ ! -d "./reports/systems/$(date +"%Y-%m-%d")/${hostname}" ] && mkdir -p "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/"
-            do_scp "/etc/os-release" "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/${hostname}-os-version-$(date +"%Y-%m-%d").txt"
-        else
-            hosts_no_connect+=("${hosts_no_connect[@]}")
-            ((counter++))
-        fi
-    fi
-    echo -e "All OS Version information is stored in ./reports/systems/{HOSTNAME}"
-    finish_action
-}
-

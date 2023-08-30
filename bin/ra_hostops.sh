@@ -8,6 +8,7 @@
 #              user selects the "Type in # Hostname" option, it prompts the user to 
 #              enter a custom hostname.
 function select_hosts() {
+    debug "select_hosts function"
     target=()
     colmax=5
     offset=$(( COLS / colmax ))
@@ -44,7 +45,7 @@ function select_hosts() {
 # Function: type_host function
 # Description: Prompts the user to type in a hostname to
 function type_host() {
-    info "System Diagnostics Started"
+    debug "type_host function"
     # ANSI escape sequences
     ESC="\033"
     cursor_to_start="${ESC}[H"
@@ -58,6 +59,7 @@ function type_host() {
 
     echo -en "${light_blue}🌐 Enter a Host:${default} "
     read -r hostname
+    info "Hostname changed to ${hostname}"
     return
 }
 

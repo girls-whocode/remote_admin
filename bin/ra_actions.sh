@@ -28,6 +28,7 @@ function filter_cmd_action {
     if [[ -z "${1}" ]]; then
         return
     else
+        debug "Filtering command: ${1}"
         local filtered_cmd=$(echo "${1}" | grep -vqE "${forbidden_chars}" && echo "${1}")
         echo "${filtered_cmd}"
     fi
@@ -118,12 +119,14 @@ function vulnerability_scan {
 
 function reboot_host_server {
     start_action
+    info "Rebooting ${hostname} server"
     echo "To be implimented"
     finish_action
 }
 
 function shutdown_host_server {
     start_action
+    info "Shutting down ${hostname} server"
     echo "To be implimented"
     finish_action
 }
