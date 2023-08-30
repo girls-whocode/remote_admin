@@ -1,4 +1,4 @@
-# Remote Admin v(2.0)
+# ARROW v(2.0)
 
 ## Main Menu
 The main entry point for interacting with the system.
@@ -89,7 +89,7 @@ Triggered from the Database Menu to make changes to a server database.
 * ❓ Help Manual
 * ⏹️ Exit the application
 
-# Remote Admin v(2.0) Flowchart
+# ARROW v(2.0) Flowchart
 
 ```mermaid
 flowchart LR

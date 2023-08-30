@@ -13,7 +13,7 @@ function display_help() {
         mm_p1="${light_yellow}${app_name}${default} serves as a streamlined utility designed for System Administrators and Engineers. Its purpose is to simplify repetitive tasks through a user-friendly menu interface, making it easier to execute various operations on one or more servers."
         mm_p2="In addition to its interactive menus, ${light_yellow}${app_name}${default} offers command-line arguments that can be utilized for automating tasks via cron jobs. These automation features enable the generation of reports, which can be accessed either from the command line or directly within the application."
         mm_p3="Each menu within ${light_yellow}${app_name}${default} is crafted to enable a range of actions with minimal user input. Comprehensive descriptions for each available action are provided upon navigating through the respective menus."
-        mm_p4="The Main Menu presents you with three primary choices: ☁️ ${light_magenta}Remote Administration${default}, 🏣 ${light_magenta}Local Administration${default}, and ⚙️ ${light_magenta}Settings${default}. Each menu option has it's own help system for more detailed information."
+        mm_p4="The Main Menu presents you with three primary choices: ☁️ ${light_magenta}ARROW${default}, 🏣 ${light_magenta}Local Administration${default}, and ⚙️ ${light_magenta}Settings${default}. Each menu option has it's own help system for more detailed information."
         echo ""
         wrap_text "${mm_p1}"
         echo ""

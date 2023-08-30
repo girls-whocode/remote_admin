@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# title					:Remote Admin Logging System
-# description			:
+# title					:ARROW Logging System
+# description		:
 # author				:Jessica Brown
 # date					:2022-04-21
 # version				:3.0.0

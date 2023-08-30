@@ -1,5 +1,5 @@
 
-# Remote Administrator 2.0 - A Glimpse into Empowered Management
+# ARROW 2.0 - A Glimpse into Empowered Management
 
 ## Table of Contents
 
@@ -14,15 +14,15 @@
 - [Menu Map](documents/menu_map.md)
 
 ---
-Welcome to the world of Remote Administrator 2.0—where efficiency meets empowerment, and system management becomes a nuanced art. Our application is your conduit to a streamlined, tailored, and effective approach to server administration.
+Welcome to the world of Advanced Remote Resource and Operations Workflow (ARROW) 2.0 — where efficiency meets empowerment, and system management becomes a nuanced art. Our application is your conduit to a streamlined, tailored, and effective approach to server administration.
 
 ## Overview: Navigating the Alpha State
 [NOTE *]: As you explore this interface, bear in mind that it's in an EXTREME ALPHA state. Many functions are yet to be developed or fully operational. Being crafted to elevate my professional responsibilities, I commit to daily updates. Last update: [AUG, 29th, 2023]
 
-Remote Admin 2.0 stands as a comprehensive utility tailor-made for system administrators. It's designed to facilitate remote management of servers and local systems, presenting a sleek menu-driven interface for an effortless experience.
+ARROW 2.0 stands as a comprehensive utility tailor-made for system administrators. It's designed to facilitate remote management of servers and local systems, presenting a sleek menu-driven interface for an effortless experience.
 
 ## Prerequisites: Pathways to Access
-The journey to Remote Admin 2.0 begins in a Bash shell environment, 5.16 to be exact. Ensure this prerequisite is met to fully engage with the application's potential.
+The journey to ARROW 2.0 begins in a Bash shell environment, 5.16 to be exact. Ensure this prerequisite is met to fully engage with the application's potential.
 
 ## Usage: The Pathway to Empowerment
 Liberate the power of control by invoking the "./ra.sh" command, the key to unlocking a multitude of functionalities.
@@ -45,7 +45,7 @@ Liberate the power of control by invoking the "./ra.sh" command, the key to unlo
 - **Local System**: Progress to the 'Local Systems Menu'.
 - **Settings**: Tailor application settings.
 - **Help Manual**: Access the inbuilt help manual.
-- **Exit**: Bid adieu to the Remote Admin application.
+- **Exit**: Bid adieu to the ARROW application.
 
 ---
 
@@ -53,7 +53,7 @@ Liberate the power of control by invoking the "./ra.sh" command, the key to unlo
 
 <img src="documents/images/remote_menu.png" alt="Main Menu" width="250px" style="float: right;" />
 
-- **Enter a Host**: Provide the hostname for remote administration.
+- **Enter a Host**: Provide the hostname for ARROWistration.
 - **Load Server Database**: Infuse an existing server database.
 - **Load from SSH Config**: Inhale hosts from SSH configuration.
 - **Create a New Database**: Forge a novel server database.
@@ -109,23 +109,23 @@ Liberate the power of control by invoking the "./ra.sh" command, the key to unlo
 For guidance, consult the built-in Help Manual or raise an issue. Contributions are an embrace; feel free to present pull requests to become part of the journey.
 
 ### Development: Crafting in Bash Symphony
-Remote Admin thrives in the realm of BASH, meticulously designed for minimalism and independence from third-party tools. The application, as of BASH version 5.1.16, stands unburdened by external software, championing the philosophy of streamlined and self-sufficient operation.
+ARROW thrives in the realm of BASH, meticulously designed for minimalism and independence from third-party tools. The application, as of BASH version 5.1.16, stands unburdened by external software, championing the philosophy of streamlined and self-sufficient operation.
 
 ### Development Environment
 Primary Development: Ubuntu
 Deployment Target: RHEL 8
 
 ### Compatibility Aspiration
-Our vision is broad—striving to embrace diverse shell environments beyond BASH. We aspire to extend compatibility to ZSH, FSH, ASH, and beyond, fostering Remote Admin's utility for administrators across shell preferences.
+Our vision is broad—striving to embrace diverse shell environments beyond BASH. We aspire to extend compatibility to ZSH, FSH, ASH, and beyond, fostering ARROW's utility for administrators across shell preferences.
 
 ### The Harmonious Note of Contributions
 Those versed in these environments are invited to fork the repository, contributing pull requests to propel us toward our compatibility ambitions.
 
-## Contributing to Remote Admin 2.0: Your Pathway
-Join the symphony of advancement! If enhancing Remote Admin captivates you, myriad avenues await your contributions. Here's a guide to orient your journey:
+## Contributing to ARROW 2.0: Your Pathway
+Join the symphony of advancement! If enhancing ARROW captivates you, myriad avenues await your contributions. Here's a guide to orient your journey:
 
 ### Getting Started
-**Fork the Repository**: Visit the Remote Admin GitHub Repository and click "Fork" on the upper right.
+**Fork the Repository**: Visit the ARROW GitHub Repository and click "Fork" on the upper right.
 
 **Clone Your Fork**: In the command line, run git clone https://github.com/your-github-username/Remote-Admin.git.
 

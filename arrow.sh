@@ -3,8 +3,8 @@
 # shellcheck disable=SC2181  # mycmd #? is used for return value of ping
 # shellcheck disable=SC2154  # variables are sourced from other files
 
-app_name="Remote Admin"
-script_name="ra.sh"
+app_name="ARROW"
+script_name="arrow.sh"
 app_ver="2.0"
 ra_start_time=$(date +%s.%3N)
 org_prompt=${PS1}
