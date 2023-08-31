@@ -53,9 +53,10 @@ function multiselect {
         printf "\n"
     done
 
+
     cursor_to $(( LINES - 2 ))
     printf "_%.s" $(seq "$COLS")
-    echo -e "${light_blue} ${title} | ${white}[space]${light_green} select | (${white}[n]${light_green})${white}[a]${light_green} (un)select all | ${white}up/down/left/right${light_green} or ${white}k/j/l/h${light_green} move" 
+    echo -e "${light_blue} ${title} | ${white}[space]${light_green} select | (${white}[n]${light_green})${white}[a]${light_green} (un)select all | ${white}up/down/left/right${light_green} or ${white}k/j/l/h${light_green} move" | column 
 
     # determine current screen position for overwriting the options
     local lastrow=$(get_cursor_row)
