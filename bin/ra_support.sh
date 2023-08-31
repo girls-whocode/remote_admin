@@ -2,21 +2,6 @@
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 
-# Function end_time: Calculates the time elapsed from a given start time to the current time.
-# The function expects one parameter: the start time in the 'seconds.milliseconds' format.
-# The elapsed time is calculated in hours, minutes, and seconds, and then formatted as a string.
-# The function stores the formatted elapsed time string in the variable 'elapsed_time_formatted'.
-#
-# Usage:
-#     end_time Start_Time
-# Where:
-#     "Start_Time" is the start time in 'seconds.milliseconds' format.
-#
-# Example:
-#     ra_start_time=$(date +%s.%3N)
-#     end_time "${ra_start_time}"
-#     echo $elapsed_time_formatted  # Output will be in HH MM SS.mmm format
-#
 function end_time() {
     endtime_sec=$(date +%s)
     endtime_millis=$(date +%3N)
@@ -40,9 +25,6 @@ function end_time() {
     elapsed_time_formatted=$(printf "%02dh %02dm %02d.%03ds" $elapsed_hours $elapsed_minutes $remaining_seconds $elapsed_millis)
 }
 
-# Function: pause
-# Description: This function allows the script to stop running and wait for the user
-#              to press the enter key before continuing.
 function pause() {
     read -rp "Press Enter to continue..."
 }
@@ -59,7 +41,6 @@ function handle_input() {
     unset key
 }
 
-# Function to display a message in the center of the screen
 function show_message() {
   local message=$1
   local lines=$(tput lines)
@@ -73,7 +54,6 @@ function show_message() {
   printf "\e[1;31m$message\e[0m"
 }
 
-# Function to wrap text by spaces and preserve ANSI colors
 function wrap_text() {
     local text="$1"
     local wrap_at=$(tput cols)
@@ -295,8 +275,6 @@ function new_list() {
     [[ ${list[*]} ]] && save_tmp "filter='$filter'" || { list=( "${fullist[@]}" ); rm "$tmpfile"; }
 }
 
-# Get the user from the config file, and ask if it needs to
-# change
 function get_user {
     # The user is specified in the config file, use it, if not then get current user
     if [[ ${username} == "" ]]; then
@@ -305,9 +283,6 @@ function get_user {
     return
 }
 
-# Get the identity from the config file, if it is empty, ask
-# if they want to use on, else ask if they want to use the
-# identity in the config file
 function get_identity {
     # The identity is specified in the config file, use it
     echo "Get Identity"
@@ -319,7 +294,6 @@ function strip_ansi() {
     echo -e "$text" | sed 's/\x1b\[[0-9;]*m//g'
 }
 
-# Function to create a header with alignment
 function header() {
     cols=$(tput cols)
     text="$2"
@@ -376,17 +350,14 @@ function header() {
     esac
 }
 
-# Save the current cursor position
 function save_cursor_position() {
     echo -ne "\033[s"
 }
 
-# Restore the cursor to the previously saved position
 function restore_cursor_position() {
     echo -ne "\033[u"
 }
 
-# Function to create a footer with alignment
 function footer() {
     cols=$(tput cols)
     text1="$2"
