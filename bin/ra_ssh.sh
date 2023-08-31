@@ -7,7 +7,8 @@
 #              all hosts, place them into an array.
 CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~],config*[!~]/*})
 
-# Function: do_ssh
+# Function: 
+#   do_ssh
 #
 # Description:
 # Execute SSH commands to connect to a remote host. This function establishes an SSH connection based on the provided parameters,
@@ -76,7 +77,8 @@ function do_ssh {
     fi
 }
 
-# copy_ssh_key
+# Function:
+#   copy_ssh_key
 #
 # Overview:
 #   Copies the SSH key to the selected host or hosts.
@@ -140,7 +142,8 @@ function copy_ssh_key {
     done
 }
 
-# Function: generate_ssh_key
+# Function: 
+#   generate_ssh_key
 #
 # Overview:
 #   Generates an RSA SSH key and appends the identity configuration to the SSH config file.
@@ -231,7 +234,8 @@ function backup_ssh_keys {
     debug "Backup SSH Keys command"
 }
 
-# Function: shell_hosts
+# Function: 
+#   shell_hosts
 #
 # Overview:
 #   Initiates SSH sessions into hosts provided in the host_array.
@@ -288,7 +292,8 @@ function shell_hosts {
     finish_action
 }
 
-# Function: read_ssh_config
+# Function: 
+#   read_ssh_config
 #
 # Overview:
 #   This function reads the SSH configuration file for the current user

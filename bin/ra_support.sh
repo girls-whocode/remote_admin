@@ -76,22 +76,16 @@ function show_message() {
 # Function to wrap text by spaces and preserve ANSI colors
 function wrap_text() {
     local text="$1"
-
-    # Get the terminal width
     local wrap_at=$(tput cols)
 
-    # Initialize empty wrapped text string and other variables
     local wrapped_text=""
     local line_length=0
-    local word_length=0
     local word=""
     local ansi_escape=""
     local in_ansi_escape=false
 
-    # Add a space at the end of the text to catch the last word
     text+=" "
 
-    # Process each character in the input string
     for (( i=0; i<${#text}; i++ )); do
         char="${text:$i:1}"
 
@@ -108,8 +102,7 @@ function wrap_text() {
         else
             word+="$ansi_escape$char"
             ansi_escape=""
-            # Calculate word length without ANSI escape codes
-            word_length=$(echo -e "$word" | strip_ansi | wc -c)
+            local word_length=$(echo -n "$word" | strip_ansi | wc -c)
 
             if [[ "$char" == " " || "$char" == $'\n' ]]; then
                 if (( line_length + word_length > wrap_at )); then
@@ -120,12 +113,10 @@ function wrap_text() {
                 wrapped_text+="$word"
                 line_length=$((line_length + word_length))
                 word=""
-                word_length=0
             fi
         fi
     done
 
-    # Print the wrapped text
     echo -e "$wrapped_text"
 }
 
