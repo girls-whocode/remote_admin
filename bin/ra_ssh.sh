@@ -76,38 +76,103 @@ function do_ssh {
     fi
 }
 
-
-# Function: copy_ssh_key
+# copy_ssh_key
 #
-# Description:
-# Copy the local SSH key to a remote host, enabling passwordless authentication.
-# This function constructs and executes an SSH command using the provided parameters.
-# It copies the local SSH public key to the remote host's authorized_keys file.
+# Overview:
+#   Copies the SSH key to the selected host or hosts.
 #
-# Globals Used:
-#   - port: Port number for SSH connection (if set)
-#   - identity_file: Identity file for SSH connection (if set)
-#   - identity_file_location: Location of identity files directory
-#   - jump_host: Jump host configuration (if set)
-#   - username: Username for SSH connection
-#   - hostname: Hostname of the remote system
+# Usage:
+#   copy_ssh_key
+#
+# Globals Modified:
+#   host_array - Array of hostnames to copy the SSH key to.
+#   port - SSH port number.
+#   identity_file - SSH identity file.
+#   host_counter - Counter to keep track of the number of hosts processed.
 #
 # Dependencies:
-#   - debug: A function to output debug messages
+#   Calls 'setup_action' and 'finish_action' for pre and post action setup.
+#   Calls 'debug' for debugging information.
 #
-# Example Usage:
-#   copy_ssh_key
+# Side Effects:
+#   1. Copies the SSH key to all the selected hosts.
+#   2. Updates the host_counter.
+#
+# Note:
+#
 function copy_ssh_key {
-    [ -n "${port}" ] && cmd_port="-p ${port}" || cmd_port=""
-    [ -n "${identity_file}" ] && cmd_identity="-i ${identity_file_location}/${identity_file}" || cmd_identity=""
-    [ -n "${jump_host}" ] && cmd_jump_host="-A -J ${username}@qaspvpilnxjmp01" || cmd_jump_host=""
+    setup_action  # Pre-action setup
+    clear
+    header "center" "Copy SSH Key to ${hostname}"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press ESC to return to the menu"
 
-    local scp_command="ssh-copy-id -f -o StrictHostKeychecking=no -o ConnectTimeout=5 ${cmd_port} ${cmd_identity} ${username}@${hostname}"
-    debug "scp command: ${scp_command}"
-    eval "${scp_command}"
+    if [ ${#host_array[@]} -gt 1 ]; then  # If multiple hosts are selected
+        debug "Copy SSH key to multiple hosts"
+        
+        for hostname in "${host_array[@]}"; do  # Loop through each host
+            if [ -n "${hostname}" ]; then
+                debug "Attempting to copy SSH key to host: ${hostname}"
+                debug "Port is: ${port}"
+                debug "Identity File is: ${identity_file}"
+                
+                ssh_copy_command="ssh-copy-id -i ${identity_file_location}/${identity_file} -p ${port} ${username}@${hostname}"
+                debug "SSH Copy Command: ${ssh_copy_command}"
+                
+                eval "${ssh_copy_command}"  # Execute the SSH key copy
+                
+                ((host_counter++))  # Increment the counter
+            fi
+        done
+    else  # If a single host is selected
+        debug "Copy SSH key to single host: ${hostname}"
+        debug "Port is: ${port}"
+        debug "Identity File is: ${identity_file}"
+        
+        ssh_copy_command="ssh-copy-id -i ${identity_file_location}/${identity_file} -p ${port} ${username}@${hostname}"
+        debug "SSH Copy Command: ${ssh_copy_command}"
+        
+        eval "${ssh_copy_command}"  # Execute the SSH key copy
+    fi
+
+    finish_action  # Post-action finish
+    while $keep_running; do
+        handle_input "remote_menu"
+    done
 }
 
-# Allow the user to generate an SSH key and add it to the config file
+# Function: generate_ssh_key
+#
+# Overview:
+#   Generates an RSA SSH key and appends the identity configuration to the SSH config file.
+#
+# Usage:
+#   generate_ssh_key
+#
+# Globals Modified:
+#   term_height - Stores the terminal height.
+#   term_width  - Stores the terminal width.
+#   ssh_folder  - Path to the .ssh folder in the user's home directory.
+#   ssh_key_file - Name of the generated SSH key file.
+#   ssh_config_file - Path to the SSH config file.
+#   keep_running - Control flag for input handling loop.
+#
+# Dependencies:
+#   Calls 'header' and 'footer' for visual UI elements.
+#   Calls 'handle_input' for handling user input.
+#
+# Side Effects:
+#   1. Checks if .ssh folder exists and creates one if it doesn't.
+#   2. Generates an RSA SSH key.
+#   3. Checks if the SSH config file exists and creates one if it doesn't.
+#   4. Appends identity configuration to the SSH config file.
+#   5. Checks for duplicate entries in the SSH config file.
+#   6. Optionally deletes generated key if the user chooses not to overwrite existing entry.
+#
+# Example:
+#   generate_ssh_key
+#
+# Note:
+#
 function generate_ssh_key() {
     # Get the terminal height and width
     term_height=$(tput lines)
@@ -166,6 +231,38 @@ function backup_ssh_keys {
     debug "Backup SSH Keys command"
 }
 
+# Function: shell_hosts
+#
+# Overview:
+#   Initiates SSH sessions into hosts provided in the host_array.
+#   Depending on the number of hosts, it either shells into a single host or multiple hosts.
+#
+# Usage:
+#   shell_hosts
+#
+# Globals Modified:
+#   host_array    - Array containing the hostnames to SSH into.
+#   hostname      - Stores the current hostname being processed.
+#   port          - Stores the port number for the SSH connection.
+#   identity_file - Stores the identity file used for authentication.
+#   host_counter  - Counter to keep track of the number of hosts processed.
+#
+# Dependencies:
+#   Calls the 'do_ssh' function to initiate the SSH connection.
+#   Calls 'setup_action' and 'finish_action' for pre and post action setups.
+#
+# Side Effects:
+#   1. Logs debugging information about what the function is attempting to do.
+#   2. Calls 'do_ssh' to initiate the SSH connection.
+#   3. If multiple hosts are present, the function will loop through each host in the host_array.
+#   4. Increments host_counter after successfully processing each host.
+#
+# Example:
+#   shell_hosts
+#
+# Note:
+#   Assumes that 'host_array', 'port', and 'identity_file' have been set prior to calling this function.
+#
 function shell_hosts {
     setup_action
 
@@ -191,6 +288,33 @@ function shell_hosts {
     finish_action
 }
 
+# Function: read_ssh_config
+#
+# Overview:
+#   This function reads the SSH configuration file for the current user
+#   and extracts the IdentityFile path corresponding to the generic 'Host *'.
+#
+# Usage:
+#   read_ssh_config
+#
+# Globals Modified:
+#   ssh_config_file       - Stores the path to the user's SSH configuration file.
+#   identity_file         - Stores the IdentityFile specified for 'Host *' in the SSH config.
+#   identity_file_location- Stores the directory where the IdentityFile is located.
+#
+# Side Effects:
+#   1. Checks if the SSH config file exists in the user's HOME directory.
+#   2. If found, it uses awk to read the file and extract the IdentityFile corresponding to 'Host *'.
+#   3. The function then processes this file path, replacing any %d with $HOME and $(username) with the actual username.
+#   4. It then extracts the folder and file from the path and stores them in the respective variables.
+#
+# Example:
+#   read_ssh_config
+#
+# Note:
+#   The function expects that the SSH config file is formatted according to standard conventions,
+#   particularly with the 'IdentityFile' line indented and appearing after 'Host *'.
+#
 function read_ssh_config() {
     ssh_config_file="${HOME}/.ssh/config"
 
@@ -210,7 +334,7 @@ function read_ssh_config() {
             identity_file_location=$(dirname "$identity_file")
             identity_file=$(basename "$identity_file")
             debug "Identity File: ${identity_file}"
-            debug "Identity Location: ${identity_file_location}
+            debug "Identity Location: ${identity_file_location}"
         fi
     fi
 }

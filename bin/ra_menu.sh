@@ -327,7 +327,7 @@ function action_menu {
             ;;
         2) # Copy SSH Key
             debug "Copy SSH Key to ${hostname}"
-            copy_sshkey
+            copy_ssh_key
             action_menu
             ;;
         3) # Refresh Subscription Manager
