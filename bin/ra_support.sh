@@ -2,7 +2,7 @@
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 
-# end_time: Calculates the time elapsed from a given start time to the current time.
+# Function end_time: Calculates the time elapsed from a given start time to the current time.
 # The function expects one parameter: the start time in the 'seconds.milliseconds' format.
 # The elapsed time is calculated in hours, minutes, and seconds, and then formatted as a string.
 # The function stores the formatted elapsed time string in the variable 'elapsed_time_formatted'.
@@ -186,7 +186,7 @@ function draw_center_line_with_info() {
         tput cup $row $middle_col
 
         # Print the '|' character
-        echo -ne "${dark_gray}|${default}"
+        echo -ne "${dark_gray}│${default}"
 
         # Insert text at specified rows
         case $row in
@@ -333,7 +333,7 @@ function header() {
     cols=$(tput cols)
     text="$2"
     text_length=${#text}
-    decorative_length=8  # Length of --][-- characters
+    decorative_length=12  # Length of ----][---- characters
 
     # Get components of the date
     year=$(date +%Y)
@@ -347,35 +347,35 @@ function header() {
     case "$1" in
         "left")
             # Prepare the prefix with title
-            echo -ne "--] ${text} [--"
+            echo -ne "${dark_gray}----${white}] ${light_cyan}${text} ${white}[${dark_gray}----${default}"
             
             # Prepare the suffix with date
             suffix_length=$((cols - text_length - fixed_date_length - (decorative_length * 2)))
-            printf '%*s' "${suffix_length}" | tr ' ' '-'
-            echo -ne "--] ${fixed_date} [--"
+            printf '%b%*s%b' "${dark_gray}" "${suffix_length}" | tr ' ' "-"
+            echo -ne "${dark_gray}----${white}] ${light_green}${fixed_date} ${white}[${dark_gray}----${default}"
             echo  # Add a newline at the end
             ;;
         "center")
             padding_length=$(( (cols - text_length - fixed_date_length - (decorative_length * 2)) / 2 ))
             
             # Prepare the prefix with title
-            printf '%*s' "${padding_length}" | tr ' ' '-'
-            echo -ne "--] ${text} [--"
+            printf '%b%*s%b' "${dark_gray}" "${padding_length}" | tr ' ' "-"
+            echo -ne "${dark_gray}----${white}] ${light_cyan}${text} ${white}[${dark_gray}----${default}"
             
             # Prepare the suffix with date
             suffix_length=$((cols - text_length - fixed_date_length - padding_length - (decorative_length * 2)))
-            printf '%*s' "${suffix_length}" | tr ' ' '-'
-            echo -ne "--] ${fixed_date} [--"
+            printf '%b%*s%b' "${dark_gray}" "${suffix_length}" | tr ' ' "-"
+            echo -ne "${dark_gray}----${white}] ${light_green}${fixed_date} ${white}[${dark_gray}----${default}"
             echo  # Add a newline at the end
             ;;
         "right")
             # Prepare the prefix with date
             prefix_length=$((cols - text_length - fixed_date_length - (decorative_length * 2)))
-            printf '%*s' "${prefix_length}" | tr ' ' '-'
-            echo -ne "--] ${fixed_date} [--"
+            printf '%b%*s%b' "${dark_gray}" "${prefix_length}" | tr ' ' "-"
+            echo -ne "${dark_gray}----${white}] ${light_green}${fixed_date} ${white}[${dark_gray}----${default}"
             
             # Prepare the title
-            echo -ne "--] ${text} [--"
+            echo -ne "${dark_gray}----${white}] ${light_cyan}${text} ${white}[${dark_gray}----${default}"
             echo  # Add a newline at the end
             ;;
         *)
@@ -406,7 +406,7 @@ function footer() {
     text1_length=${#text1_stripped}
     text2_stripped=$(strip_ansi "$text2")
     text2_length=${#text2_stripped}
-    decorative_length=8  # Length of --][-- characters
+    decorative_length=12  # Length of --][-- characters
 
     # Save the current cursor position
     save_cursor_position
@@ -417,7 +417,7 @@ function footer() {
 
     case "${align1}" in
         "left")
-            echo -ne "${dark_gray}--${white}[ ${light_cyan}${text1}${white} ]${dark_gray}--${default}"
+            echo -ne "${dark_gray}----${white}[ ${light_cyan}${text1}${white} ]${dark_gray}----${default}"
             suffix_length=$((cols - text1_length - decorative_length))
             echo -ne "${dark_gray}"
             printf '%*s' "${suffix_length}" | tr ' ' '-'
@@ -428,7 +428,7 @@ function footer() {
             padding_length=$(( (cols - text1_length - decorative_length) / 2 ))
             echo -ne "${dark_gray}"
             printf '%*s' "${padding_length}" | tr ' ' '-'
-            echo -ne "--${white}[ ${light_cyan}${text1}${white} ]${dark_gray}--${default}"
+            echo -ne "----${white}[ ${light_cyan}${text1}${white} ]${dark_gray}----${default}"
             suffix_length=$((cols - text1_length - padding_length - decorative_length))
             echo -ne "${dark_gray}"
             printf '%*s' "${suffix_length}" | tr ' ' '-'
@@ -439,7 +439,7 @@ function footer() {
             prefix_length=$((cols - text1_length - decorative_length))
             echo -ne "${dark_gray}"
             printf '%*s' "${prefix_length}" | tr ' ' '-'
-            echo -ne "--${white}[ ${light_cyan}${text1}${white} ]${dark_gray}--${default}"
+            echo -ne "----${white}[ ${light_cyan}${text1}${white} ]${dark_gray}----${default}"
             echo
             ;;
         *)

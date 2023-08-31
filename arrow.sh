@@ -56,9 +56,6 @@ done
 config
 assign_colors
 
-# Look for HostName * and read the identityfile
-read_ssh_config
-
 # Assign the basic variables for the application
 app_name="A.R.R.O.W."
 app_acronym="Advanced Remote Resource and Operations Workflow"
@@ -68,9 +65,22 @@ app_logo=" --/A.R.R.O.W/==>"
 app_logo_color="${dark_gray}--${light_red}/${light_blue}A.R.R.O.W${dark_gray}${light_red}/${dark_gray}=>${default}"
 app_ver="2.0"
 
+# Look for HostName * and read the identityfile
+if [ -z "${identity_file}" ]; then
+    read_ssh_config
+    dbg_identity="${identity_file} Loaded from SSH Config file"
+elif [ -n "${identity_file}" ]; then
+    dbg_identity="${identity_file} Loaded from ${app_name} Config file"
+else
+    dbg_identity="No identity found"
+fi
+
 # Start logging and load the main menu
+debug "-------------------------------] ${app_name} started $(LC_ALL=C date +"%Y-%m-%d %H:%M:%S") [-------------------------------"
 debug "${app_name} v.${app_ver} configuration file loaded from ${config_path}/${config_file}"
 debug "${app_name} is located in ${ra_script_location} and started at ${ra_start_time}"
 debug "${app_name} is reporting ${LINES} lines and ${COLS} columns"
 info "${app_name} v.${app_ver} startup completed"
+debug "Username: ${username}"
+debug "${dbg_identity}"
 menu
