@@ -196,17 +196,21 @@ function read_ssh_config() {
 
     # Check if the SSH config file exists
     if [ -f "${ssh_config_file}" ]; then
-        # Find the IdentityFile corresponding to 'Hostname *'
+        debug "SSH config file exists"
+        # Find the IdentityFile corresponding to 'Host *'
         identity_file=$(awk '/^Host \*/{flag=1; next} flag && /^    IdentityFile /{print $2; flag=0}' "${ssh_config_file}")
 
         # If an IdentityFile is found
         if [ -n "$identity_file" ]; then
+            debug "An identity has been found, let's process it"
             # Replace %d with $HOME and $(username) with the username
             identity_file=$(echo "${identity_file}" | sed "s|%d|${HOME}|g;s|\\${username}|$(whoami)|g")
 
             # Extract folder and file from the path
             identity_file_location=$(dirname "$identity_file")
             identity_file=$(basename "$identity_file")
+            debug "Identity File: ${identity_file}"
+            debug "Identity Location: ${identity_file_location}
         fi
     fi
 }

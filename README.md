@@ -17,7 +17,7 @@
 Welcome to the world of Advanced Remote Resource and Operations Workflow (--/ARROW/==>) 2.0 — where efficiency meets empowerment, and system management becomes a nuanced art. Our application is your conduit to a streamlined, tailored, and effective approach to server administration.
 
 ## Overview: Navigating the Alpha State
-[NOTE *]: As you explore this interface, bear in mind that it's in an EXTREME ALPHA state. Many functions are yet to be developed or fully operational. Being crafted to elevate my professional responsibilities, I commit to daily updates. Last update: [AUG, 30th, 2023]
+[NOTE *]: As you explore this interface, bear in mind that it's in an EXTREME ALPHA state. Many functions are yet to be developed or fully operational. Being crafted to elevate my professional responsibilities, I commit to daily updates. Last update: [AUG, 31st, 2023]
 
 ARROW 2.0 stands as a comprehensive utility tailor-made for system administrators. It's designed to facilitate remote management of servers and local systems, presenting a sleek menu-driven interface for an effortless experience.
 
