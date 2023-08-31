@@ -4,6 +4,7 @@
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 
+# Assign default variables
 ra_start_time=$(date +%s.%3N)
 org_prompt=${PS1}
 ra_script_location="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -51,9 +52,14 @@ for filename in "${ra_script_location}"/mods/ramod_*; do
     fi
 done
 
+# Load the config and assign colors based on the option set
 config
 assign_colors
 
+# Look for HostName * and read the identityfile
+read_ssh_config
+
+# Assign the basic variables for the application
 app_name="A.R.R.O.W."
 app_acronym="Advanced Remote Resource and Operations Workflow"
 app_emoji="🏹"
@@ -62,6 +68,7 @@ app_logo=" --/A.R.R.O.W/==>"
 app_logo_color="${dark_gray}--${light_red}/${light_blue}A.R.R.O.W${dark_gray}${light_red}/${dark_gray}=>${default}"
 app_ver="2.0"
 
+# Start logging and load the main menu
 debug "${app_name} v.${app_ver} configuration file loaded from ${config_path}/${config_file}"
 debug "${app_name} is located in ${ra_script_location} and started at ${ra_start_time}"
 debug "${app_name} is reporting ${LINES} lines and ${COLS} columns"

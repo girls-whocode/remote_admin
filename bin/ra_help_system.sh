@@ -109,7 +109,7 @@ function display_help() {
         debug "Displaying Action Menu Help"
         ;;
     "snapshot")
-        debug "Displaying Snapshot Help"
+        debug "Snapshot Help"
         header "center" "Snapshot Help"
         footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
         ss_p1="Choice of Snapshot Technology\nFilesystem: Check whether you are using LVM, ZFS, or Btrfs, as each has its own snapshotting method.\nVirtual Machines: If you're running a VM, then the hypervisor may have its own snapshot capabilities.\nSimple Backup: If you're not using any of the above, rsync or dd can also be used, although they may not provide true snapshot functionality."
@@ -127,6 +127,11 @@ function display_help() {
         while $keep_running; do
             handle_input "app_menu"
         done
+        ;;
+    "key_menu")
+        debug "SSH Key Management Help"
+        header "center" "Snapshot Help"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
         ;;
     *)
         debug "Displaying Invalid Argument Help"

@@ -91,7 +91,7 @@ BLA::stop_loading_animation() {
 ## Put these lines at the top of your script:
 ## (replace /path/to/bash_loading_animations.sh with the appropriate filepath)
 # Load in the functions and animations
-source /path/to/bash_loading_animations.sh
+# source /path/to/bash_loading_animations.sh
 # Run BLA::stop_loading_animation if the script is interrupted
 trap BLA::stop_loading_animation SIGINT
 

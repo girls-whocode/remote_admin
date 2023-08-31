@@ -12,6 +12,7 @@ function menu() {
     menu=(
         "☁️ Remote Systems" #0
         "🏣 Local System" #1
+        "🔑 SSH Key Management" #2
         "⚙️ Settings" #2
         "❓${light_blue} Help Manual${default}" #3
         "⏹️${light_red} Exit ${app_name}${default}" #4
@@ -33,15 +34,20 @@ function menu() {
             ;;
         2) # Completed
             clear
+            debug "\"SSH Key Management\" was selected"
+            ssh_key_menu
+            ;;
+        3) # Completed
+            clear
             debug "\"Settings\" was selected"
             app_menu
             ;;
-        3) # Completed
+        4) # Completed
             clear
             debug "\"Help Manual\" was selected"
             display_help "main_menu"
             ;;
-        4) # Completed
+        5) # Completed
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
@@ -55,20 +61,39 @@ function remote_menu() {
     footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
     draw_center_line_with_info
     unset menu_choice
-    
-    menu=(
-        "🆎 Enter a Host" #0
-        "📂 Server Databases" #1
-        "🗳️ Load from SSH Config" #2
-        "🔙${light_green} Return to System Menu${default}" #3
-        "❓${light_blue} Help Manual${default}" #4
-        "⏹️${light_red} Exit ${app_name}${default}" #5
+
+    # Dynamic part of the menu
+    dynamic_menu=()
+
+    if [ "$connection_result" == "true" ]; then
+        dynamic_menu+=("🔜 Action Menu")
+    fi
+
+    # Constant part of the menu
+    constant_menu=(
+        "🆎 Enter a Host"
+        "📂 Server Databases"
+        "🗳️ Load from SSH Config"
+        "🔙${light_green} Return to System Menu${default}"
+        "❓${light_blue} Help Manual${default}"
+        "⏹️${light_red} Exit ${app_name}${default}"
     )
+
+    # Combine the dynamic and constant parts
+    menu=("${dynamic_menu[@]}" "${constant_menu[@]}")
 
     select_option "${menu[@]}"
     menu_choice=$?
 
-    case "${menu_choice}" in
+    # Calculate the offset for the case options
+    offset=${#dynamic_menu[@]}
+
+    case $((menu_choice - offset)) in
+        -1)
+            clear
+            debug "\"Action Menu\" was selected"
+            action_menu
+            ;;
         0)
             clear
             debug "\"Enter a Host\" was selected"
@@ -126,13 +151,13 @@ function local_menu() {
     menu_choice=$?
 
     case "${menu_choice}" in
-        0)
+        0) # Completed
             clear
             debug "\"Run a diagnostic\" was selected"
             local_diagnostics_main
             local_menu
             ;;
-        1)
+        1) # Completed
             clear
             debug "\"Check Resources\" was selected"
             local_resources
@@ -144,7 +169,7 @@ function local_menu() {
             snapshot
             local_menu
             ;;
-        3)
+        3) # Completed
             clear
             debug "\"System Information\" was selected"
             local_system_info
@@ -281,16 +306,16 @@ function action_menu {
         "🛡️ Vulnerability Scan" #13
         "🔃 Reboot Host" #14
         "⏹️ Shutdown Host" #15
-        "🔙${light_green} Return to Remote Menu${default}" #16
-        "❓${light_blue} Help Manual${default}" #17
-        "⏹️${light_red} Exit ${app_name}${default}" #18
+        "🔙${light_green} Return to Remote Menu${default}" #17
+        "❓${light_blue} Help Manual${default}" #18
+        "⏹️${light_red} Exit ${app_name}${default}" #19
     )
 
     select_option "${menu[@]}"
     action_choice=$?
 
     case "$action_choice" in
-        0) # Shell to host - Completed
+        0) # Shell to host
             info "SSH to ${hostname}"
             shell_hosts
             action_menu
@@ -319,7 +344,7 @@ function action_menu {
         5)
             clear
             debug "\"Check Resources\" was selected"
-            check_resources
+            remote_resources
             action_menu
             ;;
         6)
@@ -506,6 +531,60 @@ function modify_db_menu() {
             display_help "database_menu"
             ;;
         6)
+            clear
+            debug "\"Exit ${app_name}\" was selected"
+            bye
+            ;;
+    esac
+}
+
+function ssh_key_menu() {
+    clear
+    header "center" "SSH Key Management Menu"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    draw_center_line_with_info
+    unset menu_choice
+
+    menu=(
+        "🔐 Generate Key" #0
+        "📤 Copy Key to Remote Host" #1
+        "🗑️ Delete Key from Local System" #2
+        "🔙${light_green} Return to System Menu${default}" #3
+        "❓${light_blue} Help Manual${default}" #4
+        "⏹️${light_red} Exit ${app_name}${default}" #5
+    )
+
+    select_option "${menu[@]}"
+    menu_choice=$?
+
+    case "${menu_choice}" in
+        0)
+            clear
+            debug "\"Generate Key\" was selected"
+            generate_ssh_key
+            menu
+            ;;
+        1)
+            clear
+            debug "\"Copy Key to Remote Host\" was selected"
+            local_menu
+            ;;
+        2)
+            clear
+            debug "\"Delete Key from Local System\" was selected"
+            ssk_key_menu
+            ;;
+        3) # Completed
+            clear
+            debug "\"Return to System Menu\" was selected"
+            menu
+            ;;
+        4)
+            clear
+            debug "\"Help Manual\" was selected"
+            display_help "key_menu"
+            ;;
+        5)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye

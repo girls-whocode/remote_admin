@@ -196,7 +196,7 @@ function draw_center_line_with_info() {
             ;;
         2)
             tput cup $row $((middle_col + 2))
-            echo -ne "${cyan}Identity: ${light_green}${identity_file##*/}${default}"
+            echo -ne "${cyan}Identity: ${light_green}${identity_file}${default}"
             ;;
         3)
             tput cup $row $((middle_col + 2))
