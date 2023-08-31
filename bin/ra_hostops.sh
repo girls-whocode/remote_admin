@@ -113,6 +113,7 @@ function get_host() {
 #              to the `host_array` array.
 function get_host_file() {
     declare -A preselection
+    debug "get_host_file function started"
     select_file
 
     # Read each non-empty line from the selected file and add it to the host_options array

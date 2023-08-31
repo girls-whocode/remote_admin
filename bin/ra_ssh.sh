@@ -62,9 +62,7 @@ function do_ssh {
         fi
 
         info "ssh command: ${ssh_command}"
-        set -x  # Enable debugging
         eval "${ssh_command}"
-        set +x  # Disable debugging
     else
         info "ssh to ${hostname} failed with no connection"
         clear
@@ -341,5 +339,38 @@ function read_ssh_config() {
             debug "Identity File: ${identity_file}"
             debug "Identity Location: ${identity_file_location}"
         fi
+    fi
+}
+
+function do_scp() {
+    if [ "$connection_result" == "true" ]; then
+        [ -n "${port}" ] && cmd_port="-p ${port}" || cmd_port=""
+        [ -n "${identity_file}" ] && cmd_identity="-i \"${identity_file_location}/${identity_file}\"" || cmd_identity=""
+        [ -n "${jump_host}" ] && cmd_jump_host="-A -J \"${username}@qaspvpilnxjmp01\"" || cmd_jump_host=""
+
+        cmd=$(filter_cmd_action "${1}")
+
+        if [ -z "$cmd_identity" ]; then
+            show_message "No identity file was provided. ${hostname} was unable to connect."
+            while $keep_running; do
+                handle_input "remote_menu"
+            done
+        else
+            local scp_command="scp -q -o StrictHostKeyChecking=no -o ConnectTimeout=3 ${cmd_port} ${cmd_identity} ${cmd_jump_host} \"${username}@${hostname}\" ${cmd}"
+        fi
+
+        info "scp command: ${scp_command}"
+        set -x  # Enable debugging
+        # eval "${scp_command}"
+        set +x  # Disable debugging
+    else
+        info "ssh to ${hostname} failed with no connection"
+        clear
+        header "center" "There was an error"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press ESC to return to the menu"
+        show_message "${hostname} was unable to connect."
+        while $keep_running; do
+            handle_input "remote_menu"
+        done
     fi
 }

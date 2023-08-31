@@ -7,31 +7,55 @@
 #              directory. If files are found, it loads them; otherwise, it prints a 
 #              message indicating that no database files exist.
 function load_database() {
+    clear
+    header "center" "Loading a Server Database"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+
     # Initialize an array to hold the names of found database files
     db_files=()
     keep_running=true
+    debug "Loading load_database function"
 
     # Check if the directory exists
     if [[ ! -d "${search_dir}" ]]; then
-        error "Database directory does not exist."
+        debug "Database directory does not exist."
         echo -e "${red}Error: Database directory does not exist.${default}"
+        return
     fi
 
+    # Initialize a flag to check if any files were found
+    files_found=false
+
     # Read through the directory and add file names to the db_files array
-    for file in "$search_dir"/???_*; do
-        # Check if the directory is empty; if so, break out of the loop
+    for file in "${search_dir}"/ra_*; do
+        debug "Checking file: $file"
         if [[ -e "$file" ]]; then 
-            echo -e "${yellow}No database files exist.${default}"
-            pause
+            debug "Found file: $file"
+            db_files+=("$file")
+            files_found=true
         else
-            get_host_file
+            debug "Skipping file: $file (not found)"
         fi
-        
-        # You can add further checks here to verify that the file meets your criteria
-        # for being a "database file", for example, checking its file extension.
-        db_files+=("$file")
     done
+
+    # Show count of found files for debugging
+    debug "Number of files found: ${#db_files[@]}"
+
+    # If no files were found, display a message
+    if [[ "$files_found" == false ]]; then
+        debug "No database files exist."
+        echo -e "${yellow}No database files exist.${default}"
+        pause
+    else
+        debug "Processing found files"
+        for db_file in "${db_files[@]}"; do
+            debug "Loading get_host_file function for $db_file"
+            get_host_file "$db_file"
+        done
+    fi
 }
+
+
 
 # Function: add_server_to_database
 # Description: Adds server information to an existing database

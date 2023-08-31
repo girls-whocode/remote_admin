@@ -1,7 +1,29 @@
 #!/bin/bash
 
-# Function: multiselect
+# Function: 
+#   multiselect
 # Description: 
+#   Presents a multi-column, multi-choice selection interface to the user. 
+#   Allows for the selection of multiple options from an array of choices.
+# 
+# Parameters: 
+# - return_value: Reference to a local array to store the selection statuses (true/false) of each option.
+# - colmax: Maximum number of columns to display.
+# - offset: Column offset for display alignment.
+# - options: Array of option strings to be displayed.
+# - defaults: Array of default selection statuses (true/false) for each option.
+# - title: Title text to display at the bottom.
+#
+# Dependencies: 
+# - ESC sequences are used for cursor manipulation.
+# - Requires a terminal that supports ANSI escape codes.
+# 
+# Side Effects:
+# - Modifies the terminal display.
+# - Modifies the referenced local array with selection statuses.
+# 
+# Returns: 
+# - Modifies the 'return_value' array to reflect selected options.
 function multiselect {
     ESC=$(printf "\033")
     cursor_blink_on()   { printf "%b" "${ESC}[?25h"; }
@@ -33,7 +55,7 @@ function multiselect {
 
     cursor_to $(( LINES - 2 ))
     printf "_%.s" $(seq "$COLS")
-    echo -e "${light_blue} ${title} | ${white}[space]${light_green} select | (${white}[n]${light_green})${white}[a]${light_green} (un)select all | ${white}up/down/left/right${light_green} or ${white}k/j/l/h${light_green} move" | column 
+    echo -e "${light_blue} ${title} | ${white}[space]${light_green} select | (${white}[n]${light_green})${white}[a]${light_green} (un)select all | ${white}up/down/left/right${light_green} or ${white}k/j/l/h${light_green} move" 
 
     # determine current screen position for overwriting the options
     local lastrow=$(get_cursor_row)

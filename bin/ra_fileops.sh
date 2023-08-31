@@ -7,6 +7,7 @@
 #              in the current directory
 function select_file() {
     # Prompt the user to select a host file
+    debug "Selecting a file from this list of files: ${db_files[*]}"
     select_option "${db_files[@]}"
     file_choice=$?
 }
@@ -18,10 +19,4 @@ function copy_file() {
     select_file
     cp_file_name="${search_dir[$file_choice]}"
     return
-}
-
-function get_file {
-    start_action
-    echo "To be implimented"
-    finish_action
 }
