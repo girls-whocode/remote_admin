@@ -89,19 +89,19 @@ info "${app_name} v.${app_ver} startup completed"
 debug "Username: ${username}"
 debug "${dbg_identity}"
 
-if [ ${COLS} -lt 115 ]; then
+if [ "${COLS}" -lt 115 ]; then
     error "Terminal columns must be at least 115 characters"
-    echo -e "${RED}Please resize your terminal to at least 115 characters wide${default}"
+    echo -e "${RED}Please resize your terminal to at least 115 characters wide (125 Recommended).${default} Current size is ${COLS}"
     exit 1
-elif [ ${COLS} -lt 125 ]; then
+elif [ "${COLS}" -lt 125 ]; then
     notice "Terminal columns are less than 125 characters wide, screen may not render successfully"
 fi
 
-if [ ${LINES} -lt 30 ]; then
+if [ "${LINES}" -lt 30 ]; then
     error "Terminal lines must be at least 30 characters"
-    echo -e "${RED}Please resize your terminal to at least 30 characters tall${default}"
+    echo -e "${RED}Please resize your terminal to at least 30 characters tall (40 Recommended).${default} Current size is ${LINES}"
     exit 1
-elif [ ${LINES} -lt 40 ]; then
+elif [ "${LINES}" -lt 40 ]; then
     notice "Terminal lines are less than 35 characters, screen may not render successfully"
 fi
 
