@@ -95,22 +95,28 @@ function local_top_processes() {
 #   CPU Usage:     10.20% |
 #
 function local_check_cpu_usage() {
+    # Get total number of CPU cores
+    total_cores=$(grep -c "^processor" /proc/cpuinfo)
+
+    # Get current number of active cores
+    active_cores=$(grep "processor" /proc/cpuinfo | awk '{print $3}' | wc -l)
+
     # Get CPU usage and extract integer part
     cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
     cpu_usage_integer=${cpu_usage%.*}
 
     # Determine the color based on the CPU usage
     if [ "${cpu_usage_integer}" -gt 80 ]; then
-    color="${light_red}"
+        color="${light_red}"
     elif [ "${cpu_usage_integer}" -gt 50 ]; then
-    color="${yellow}"
+        color="${yellow}"
     else
-    color="${light_green}"
+        color="${light_green}"
     fi
 
     # Right-align the CPU value in a 9-character field, colored accordingly
     printf "\r${white}CPU Usage: ${color}%9.2f%%${default}" "$cpu_usage"
-    
+
     # Create a simple ASCII bar graph for used CPU
     bar=""
     for (( i=0; i<cpu_usage_integer+1; i+=10 )); do
@@ -123,7 +129,7 @@ function local_check_cpu_usage() {
             bar+="${light_green}|${default}"
         fi
     done
-    
+
     # Create a simple ASCII bar graph for remaining CPU
     for (( i=cpu_usage_integer; i<100; i+=10 )); do
         bar+="${dark_gray}|${default}"
@@ -135,6 +141,9 @@ function local_check_cpu_usage() {
     else
         echo -ne " ${light_green}$bar${default}"
     fi
+
+    # Add total cores and active cores after the bar
+    printf "${dark_gray} Total Cores:%3d${default} ${dark_gray}Active Cores:%3d${default}" $total_cores $active_cores
 }
 
 # Function:
@@ -186,12 +195,15 @@ function local_check_memory_usage() {
         bar+="${light_green}|${default}"
     fi
   done
-  
+
   for (( i=$memory_percentage; i<100; i+=10 )); do
     bar+="${dark_gray}|${default}"
   done
-  
+
   echo -ne " $bar"
+
+  # Add total memory and used memory after the bar
+  printf "${dark_gray} Total Memory:${default} ${total_memory}M  ${dark_gray}Used Memory:${default} ${used_memory}M"
 }
 
 # Function:
@@ -246,7 +258,7 @@ function local_check_disk_usage() {
     bar+="${dark_gray}|${default}"
   done
   
-  echo -ne " $bar"
+  echo -ne " $bar${dark_gray} Total Disk Space: ${default}$(df -h / | awk '/\// {print $2}')${dark_gray} Used Disk Space: ${default}$(df -h / | awk '/\// {print $3}')"
 }
 
 # Function:

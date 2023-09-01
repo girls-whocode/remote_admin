@@ -8,7 +8,7 @@
 #              user selects the "Type in # Hostname" option, it prompts the user to 
 #              enter a custom hostname.
 function select_hosts() {
-    debug "select_hosts function"
+    debug "select_hosts function with ${#host_options[@]} hosts"
     target=()
     colmax=5
     offset=$(( COLS / colmax ))
@@ -36,10 +36,8 @@ function select_hosts() {
         host_array=("${target[@]}")
     else
         echo -e "${light_green} No items selected... ${default}"
-        exit 0
+        remote_menu
     fi
-
-    return
 }
 
 # Function: type_host function
@@ -113,17 +111,17 @@ function get_host() {
 #              to the `host_array` array.
 function get_host_file() {
     declare -A preselection
-    debug "get_host_file function started"
     select_file
+    debug "get_host_file function started with select_file function '${db_files[$file_choice]}' database"
 
-    # Read each non-empty line from the selected file and add it to the host_options array
+    # Read each non-empty line from the selected file and extract the hostname
     while IFS= read -r line; do
-        if [[ -n $line ]]; then
-            if [[ ${line:0:1} != "#" ]]; then
-                host_options+=("$line")
-            fi
+        if [[ -n $line ]] && [[ ${line:0:1} != "#" ]]; then
+            hostname=$(echo "$line" | cut -d ',' -f 1)
+            host_options+=("$hostname")
         fi
-    done < "${search_dir[$file_choice]}"
+    done < "${db_files[$file_choice]}"
+
     host_count=${#host_options[@]}
     
     for ((i=0; i<host_count; i++)); do
