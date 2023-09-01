@@ -61,8 +61,8 @@ app_name="A.R.R.O.W."
 app_acronym="Advanced Remote Resource and Operations Workflow"
 app_emoji="🏹"
 script_name="arrow.sh"
-app_logo=" --/A.R.R.O.W/==>"
-app_logo_color="${dark_gray}--${light_red}/${green}A.R.R.O.W${dark_gray}${light_red}/${dark_gray}=>${default}"
+app_logo=" --/A.R.R.O.W./==>"
+app_logo_color="${dark_gray}--${light_red}/${green}A.R.R.O.W.${dark_gray}${light_red}/${dark_gray}=>${default}"
 app_ver="2.0"
 
 # Look for HostName * and read the identityfile

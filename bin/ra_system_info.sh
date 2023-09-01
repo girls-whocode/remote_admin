@@ -66,7 +66,7 @@ function get_osver {
 #
 function local_top_processes() {
     # Fetch and format top 5 processes sorted by %CPU
-    ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n 6 | awk '{ printf "%-8s %-8s %-8s %-30s\n", $1, $2, $3, $4 }'
+    ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n 16 | awk '{ printf "%-8s %-8s %-8s %-30s                                 \n", $1, $2, $3, $4 }'
 }
 
 # Function:
@@ -143,7 +143,7 @@ function local_check_cpu_usage() {
     fi
 
     # Add total cores and active cores after the bar
-    printf "${dark_gray} Total Cores:%3d${default} ${dark_gray}Active Cores:%3d${default}" $total_cores $active_cores
+    printf "${dark_gray} Total Cores:${white}%3d${default} ${dark_gray}Active Cores:${white}%3d${default}" $total_cores $active_cores
 }
 
 # Function:
