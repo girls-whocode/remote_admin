@@ -66,8 +66,52 @@ function get_osver {
 #
 function local_top_processes() {
     # Fetch and format top 5 processes sorted by %CPU
-    ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n 16 | awk '{ printf "%-8s %-8s %-8s %-30s                                 \n", $1, $2, $3, $4 }'
+    ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n 16 | awk '{ printf "%-8s %-8s %-8s %-30s                              \n", $1, $2, $3, $4 }'
 }
+
+get_active_cores() {
+    # Initialize count of active cores
+    active_cores_count=0
+    
+    # Your threshold for considering a CPU core active (percentage)
+    threshold=5
+    
+    # Take the first snapshot
+    declare -A cpu_stat_t1
+    while read -r line; do
+        if [[ $line =~ ^cpu([0-9]+)\ .+ ]]; then
+            cpu_stat_t1[${BASH_REMATCH[1]}]=$(awk '{print $2+$3+$4+$5+$6+$7+$8}' <<< "$line")
+        fi
+    done < /proc/stat
+
+    # Wait for 1 second
+    sleep .1
+
+    # Take the second snapshot
+    declare -A cpu_stat_t2
+    while read -r line; do
+        if [[ $line =~ ^cpu([0-9]+)\ .+ ]]; then
+            cpu_stat_t2[${BASH_REMATCH[1]}]=$(awk '{print $2+$3+$4+$5+$6+$7+$8}' <<< "$line")
+        fi
+    done < /proc/stat
+
+    # Calculate the usage for each core
+    for core in "${!cpu_stat_t1[@]}"; do
+        total_t1=${cpu_stat_t1[$core]}
+        total_t2=${cpu_stat_t2[$core]}
+        
+        # Calculate the CPU usage since the last check.
+        let "delta_total = total_t2 - total_t1"
+        
+        # Check if usage is greater than threshold
+        if (( delta_total >= threshold )); then
+            ((active_cores_count++))
+        fi
+    done
+
+    echo $active_cores_count
+}
+
 
 # Function:
 #   local_check_cpu_usage
@@ -142,6 +186,8 @@ function local_check_cpu_usage() {
         echo -ne " ${light_green}$bar${default}"
     fi
 
+    active_cores=$(get_active_cores)
+    
     # Add total cores and active cores after the bar
     printf "${dark_gray} Total Cores:${white}%3d${default} ${dark_gray}Active Cores:${white}%3d${default}" $total_cores $active_cores
 }

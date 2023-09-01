@@ -62,7 +62,7 @@ app_acronym="Advanced Remote Resource and Operations Workflow"
 app_emoji="🏹"
 script_name="arrow.sh"
 app_logo=" --/A.R.R.O.W./==>"
-app_logo_color="${dark_gray}--${light_red}/${green}A.R.R.O.W.${dark_gray}${light_red}/${dark_gray}=>${default}"
+app_logo_color="${dark_gray}--${light_blue}/${green}A.R.R.O.W.${light_blue}/${dark_gray}=>${default}"
 app_ver="2.0"
 
 # Look for HostName * and read the identityfile
@@ -83,4 +83,21 @@ debug "${app_name} is reporting ${LINES} lines and ${COLS} columns"
 info "${app_name} v.${app_ver} startup completed"
 debug "Username: ${username}"
 debug "${dbg_identity}"
+
+if [ ${COLS} -lt 115 ]; then
+    error "Terminal columns must be at least 115 characters"
+    echo -e "${RED}Please resize your terminal to at least 115 characters wide${default}"
+    exit 1
+elif [ ${COLS} -lt 125 ]; then
+    warn "Terminal columns are less than 125 characters wide, screen may not be readable"
+fi
+
+if [ ${LINES} -lt 30 ]; then
+    error "Terminal lines must be at least 30 characters"
+    echo -e "${RED}Please resize your terminal to at least 30 characters tall${default}"
+    exit 1
+elif [ ${LINES} -lt 40 ]; then
+    warn "Terminal lines are less than 35 characters, screen may not be readable"
+fi
+
 menu

@@ -202,7 +202,79 @@ function draw_center_line_with_info() {
             ;;
         8)
             tput cup $row $((middle_col + 2))
-            echo -ne "${dark_gray}$(find ${ra_script_location} -type f -name "*.sh" -exec cat {} + | wc -l) lines"
+            echo ""
+            ;;
+        9)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        10)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        11)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        12)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        13)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        14)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        15)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        16)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        17)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        18)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        19)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        20)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        21)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        22)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        23)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        24)
+            tput cup $row $((middle_col + 2))
+            echo ""
+            ;;
+        25)
+            tput cup $((height - 6)) $((middle_col + 2))
+            echo -ne "${dark_gray}$(find ${ra_script_location} -type f -name "*.sh" -exec cat {} + | wc -l) lines of code"
+            ;;
+        26)
+            tput cup $((height - 5)) $((middle_col + 2))
+            echo -ne "${light_cyan}[I]: ${dark_gray}${#info} - ${yellow}[W]: ${dark_gray}${#warnings} - ${light_red}[E]: ${dark_gray}${#errors}${default}"
         esac
     done
     tput rc
