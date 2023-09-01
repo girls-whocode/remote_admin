@@ -3,14 +3,62 @@
 # shellcheck disable=SC2154  # variables are sourced from other files
 # shellcheck disable=SC2155  # variables may be declared and assigned together
 
+# Function Name:
+#   end_time
+#
+# Description:
+#   This function calculates the elapsed time between a provided start time and the current time.
+#   Both the start time and end time are in the format of seconds and milliseconds since the Unix epoch.
+#   The function takes into account edge cases like millisecond rollovers.
+#
+# Steps:
+#   1. Retrieve the current time in seconds and milliseconds since the Unix epoch.
+#   2. Extract the start time in seconds and milliseconds passed as an argument.
+#   3. Typecast the variables to ensure they are treated as base-10 integers.
+#   4. Calculate the elapsed time in seconds and milliseconds.
+#   5. Handle the edge case where elapsed milliseconds go negative due to rollover.
+#   6. Calculate the elapsed time in hours, minutes, and seconds.
+#   7. Build a formatted time string representing the elapsed time.
+#
+# Globals Modified:
+#   - None
+#
+# Globals Read:
+#   - Reads system time via the `date` command.
+#
+# Parameters:
+#   - Takes the start time as a parameter, in the format of seconds.milliseconds since Unix epoch (e.g., 1622524800.123).
+#
+# Returns:
+#   - It doesn't return any value in the function as written, but the calculated elapsed time is stored in the variable `elapsed_time_formatted`.
+#
+# Called By:
+#   Any part of the script that requires calculation of elapsed time between two points.
+#
+# Calls:
+#   - date: to get the current time in seconds and milliseconds.
+#   - printf: to format the elapsed time string.
+#
+# Example:
+#   end_time 1622524800.123
+#
 function end_time() {
     endtime_sec=$(date +%s)
     endtime_millis=$(date +%3N)
     ra_start_time_sec=${1%.*}
     ra_start_time_millis=${1#*.}
 
-    elapsed_sec=$(( endtime_sec - ra_start_time_sec ))
-    elapsed_millis=$(( endtime_millis - ra_start_time_millis ))
+    # Explicitly typecasting as integers, although this should not be necessary
+    endtime_sec=$((10#$endtime_sec))
+    endtime_millis=$((10#$endtime_millis))
+    ra_start_time_sec=$((10#$ra_start_time_sec))
+    ra_start_time_millis=$((10#$ra_start_time_millis))
+
+    debug "endtime_sec=$endtime_sec, ra_start_time_sec=$ra_start_time_sec"
+    debug "endtime_millis=$endtime_millis, ra_start_time_millis=$ra_start_time_millis"
+
+    elapsed_sec=$(( 10#$endtime_sec - 10#$ra_start_time_sec ))
+    elapsed_millis=$(( 10#$endtime_millis - 10#$ra_start_time_millis ))
 
     if (( elapsed_millis < 0 )); then
         elapsed_sec=$(( elapsed_sec - 1 ))
@@ -26,10 +74,82 @@ function end_time() {
     elapsed_time_formatted=$(printf "%02dh %02dm %02d.%03ds" $elapsed_hours $elapsed_minutes $remaining_seconds $elapsed_millis)
 }
 
+# Function Name:
+#   pause
+#
+# Description:
+#   This function halts the execution of the script and waits for the user to press the Enter key.
+#   It displays a prompt message to inform the user to press Enter to continue.
+#
+# Steps:
+#   1. Display a prompt message "Press Enter to continue..." on the terminal.
+#   2. Wait for the user to press the Enter key.
+#
+# Globals Modified:
+#   - None
+#
+# Globals Read:
+#   - None
+#
+# Parameters:
+#   - None
+#
+# Returns:
+#   - None. It resumes the script execution after the user presses Enter.
+#
+# Called By:
+#   Any part of the script that requires user intervention to continue.
+#
+# Calls:
+#   - read: to wait for user input.
+#
+# Example:
+#   pause
+#
 function pause() {
     read -rp "Press Enter to continue..."
 }
 
+# Function Name:
+#   handle_input
+#
+# Description:
+#   This function listens for specific key inputs from the user, namely 'q', 'Q', or the 'ESC' key.
+#   If one of these keys is pressed, it resets terminal settings to sane values and then runs a specified command.
+#
+# Steps:
+#   1. Initialize the ASCII code for the ESC key.
+#   2. Listen for a keypress for 0.75 seconds.
+#   3. Compare the keypress to predefined exit keys ('q', 'Q', or 'ESC').
+#   4. If an exit key is pressed, reset terminal visibility and behavior.
+#   5. Execute the command passed as an argument to the function.
+#   6. Set the variable `keep_running` to `false`.
+#
+# Globals Modified:
+#   - Modifies the `keep_running` variable to control script loop behavior.
+#
+# Globals Read:
+#   - None
+#
+# Parameters:
+#   - The command to be executed when an exit key is pressed (passed as the first positional parameter).
+#
+# Returns:
+#   - None. Modifies global variables and runs the passed command.
+#
+# Called By:
+#   Any part of the script that needs to handle user input for quitting or executing a specific command.
+#
+# Calls:
+#   - read: to capture user input.
+#   - echo: to modify terminal settings.
+#   - stty: to restore terminal settings to default.
+#   - eval: to execute the passed command.
+#   - printf: to get the ASCII code for the ESC key.
+#
+# Example:
+#   handle_input "exit_script_function"
+#
 function handle_input() {
     esc_key=$(printf "\033")
     read -rs -t 0.75 -n 3 key
@@ -42,6 +162,46 @@ function handle_input() {
     unset key
 }
 
+# Function Name:
+#   show_message
+#
+# Description:
+#   This function displays a message at the center of the terminal screen.
+#   It calculates the center based on terminal dimensions and then uses tput to position the cursor.
+#   The message is displayed in light red color and is also logged using the `info` function.
+#
+# Steps:
+#   1. Take the message as a local variable.
+#   2. Get the terminal dimensions (lines and columns) using tput.
+#   3. Calculate the half length of the message string.
+#   4. Find the middle line and column of the terminal.
+#   5. Position the cursor to the calculated middle position.
+#   6. Display the message in light red color.
+#   7. Log the message using the `info` function.
+#
+# Globals Modified:
+#   - None
+#
+# Globals Read:
+#   - Reads terminal dimensions using tput.
+#
+# Parameters:
+#   - The message to be displayed (passed as the first positional parameter).
+#
+# Returns:
+#   - None. Outputs the message to the terminal and logs it.
+#
+# Called By:
+#   Any part of the script that needs to display a centralized message on the terminal.
+#
+# Calls:
+#   - tput: for getting terminal dimensions and positioning the cursor.
+#   - printf: for displaying the message.
+#   - info: for logging the message.
+#
+# Example:
+#   show_message "Operation Completed Successfully"
+#
 function show_message() {
   local message=$1
   local lines=$(tput lines)

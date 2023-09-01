@@ -45,7 +45,7 @@ function load_database() {
 
     # Check if the directory exists
     if [[ ! -d "${search_dir}" ]]; then
-        debug "Database directory does not exist."
+        error "Database directory does not exist."
         echo -e "${red}Error: Database directory does not exist.${default}"
         return
     fi
@@ -70,15 +70,12 @@ function load_database() {
 
     # If no files were found, display a message
     if [[ "$files_found" == false ]]; then
-        debug "No database files exist."
+        notice "No database files exist."
         echo -e "${yellow}No database files exist.${default}"
         pause
     else
         debug "Processing found files"
-        for db_file in "${db_files[@]}"; do
-            debug "Loading get_host_file function for $db_file"
-            get_host_file "$db_file"
-        done
+        get_host_file "${db_files[@]}"
     fi
 }
 
