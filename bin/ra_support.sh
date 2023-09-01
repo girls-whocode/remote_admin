@@ -1,6 +1,7 @@
 #!/bin/bash
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
+# shellcheck disable=SC2155  # variables may be declared and assigned together
 
 function end_time() {
     endtime_sec=$(date +%s)
@@ -51,7 +52,8 @@ function show_message() {
   local middle_col=$((cols / 2))
 
   tput cup $middle_line $((middle_col - half_message_length))
-  printf "\e[1;31m$message\e[0m"
+  printf "%b${message}%b" "${light_red}" "${default}"
+  info "${message}"
 }
 
 function wrap_text() {
@@ -108,6 +110,7 @@ function pad_to_width() {
     local num_spaces=$(($width - $stripped_length))
     printf "%b" "$text"
     printf "%${num_spaces}s" " "
+    debug "Padded text: $text - Width: $width - Length: $stripped_length - Spaces: $num_spaces"
 }
 
 function add_commas() {
@@ -265,8 +268,8 @@ function draw_center_line_with_info() {
             echo ""
             ;;
         24)
-            tput cup $row $((middle_col + 2))
-            echo ""
+            tput cup $((height - 7)) $((middle_col + 2))
+            echo -ne "${dark_gray}Screen (WxH): ${width}x${height}${default}"
             ;;
         25)
             tput cup $((height - 6)) $((middle_col + 2))
@@ -274,7 +277,7 @@ function draw_center_line_with_info() {
             ;;
         26)
             tput cup $((height - 5)) $((middle_col + 2))
-            echo -ne "${light_cyan}[I]: ${dark_gray}${#info} - ${yellow}[W]: ${dark_gray}${#warnings} - ${light_red}[E]: ${dark_gray}${#errors}${default}"
+            echo -ne "${light_yellow}[N]: ${dark_gray}${note_count} - ${yellow}[W]: ${dark_gray}${warn_count} - ${light_red}[E]: ${dark_gray}${error_count}${default}"
         esac
     done
     tput rc
@@ -285,9 +288,9 @@ function enter_username() {
     username="$custom_option"
     echo -en "${default}Do you wish to save to the configuration? ${light_blue}(${light_red}y${default}/${light_green}N${light_blue})${default} "
     read save_username
-    info "Username was changed to ${username}" >> "${ra_log_file}"
+    success "Username was changed to ${username}"
     if [[ ${save_username} == "y" ]]; then
-        debug "Username ${username} was written to config file" >> "${ra_log_file}"
+        debug "Username ${username} was written to config file"
         save_config
     fi
     return
@@ -301,9 +304,9 @@ function enter_identityfile() {
     if [ -f ${identity_file} ]; then
         echo -en "${default}Do you wish to save to the configuration? ${light_blue}(${light_red}y${default}/${light_green}N${light_blue})${default} "
         read save_identity
-        info "Identity file was changed from ${old_identity} to ${identity_file}" >> "${ra_log_file}"
+        success "Identity file was changed from ${old_identity} to ${identity_file}"
         if [[ ${save_identity} == "y" ]]; then
-            debug "Identity file ${identity_file} was written to config file" >> "${ra_log_file}"
+            debug "Identity file ${identity_file} was written to config file"
             save_config
         fi
     else
@@ -332,7 +335,8 @@ function line() {
 function save_tmp(){
     echo "$1" > "$tmpfile"
     chmod 600 "$tmpfile"
-}
+    debug "$tmpfile Temporary file created"
+} 
 
 function new_list() {
     list=(); match=
@@ -351,7 +355,9 @@ function get_user {
     # The user is specified in the config file, use it, if not then get current user
     if [[ ${username} == "" ]]; then
         username=${USER}
+        debug "No user was found assigning to Linux user ${username}"
     fi
+    debug "User was found assigning to ${username}"
     return
 }
 

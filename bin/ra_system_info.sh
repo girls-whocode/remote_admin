@@ -69,7 +69,47 @@ function local_top_processes() {
     ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n 16 | awk '{ printf "%-8s %-8s %-8s %-30s                              \n", $1, $2, $3, $4 }'
 }
 
-get_active_cores() {
+# Function Name:
+#   get_active_cores
+#
+# Description:
+#   This function calculates the number of active CPU cores based on a threshold value.
+#   It reads CPU statistics from the /proc/stat file twice, at two different times,
+#   to find the change in CPU utilization for each core.
+#
+# Steps:
+#   1. Initialize variables and arrays for holding CPU statistics.
+#   2. Read the first set of CPU statistics from /proc/stat.
+#   3. Wait for a short time (0.1 seconds).
+#   4. Read the second set of CPU statistics from /proc/stat.
+#   5. Calculate the change in total time for each CPU core.
+#   6. Count the cores with a change in total time greater than the threshold.
+#   7. Return the count of active cores.
+#
+# Globals Modified:
+#   - None
+#
+# Globals Read:
+#   - Reads from the /proc/stat file.
+#
+# Parameters:
+#   - None
+#
+# Returns:
+#   - Outputs the number of active cores to stdout.
+#
+# Called By:
+#   Any part of the script that requires information on the number of active CPU cores.
+#
+# Calls:
+#   - /proc/stat: for CPU statistics.
+#   - awk: for parsing CPU statistics.
+#   - sleep: to pause execution between readings.
+#
+# Example:
+#   active_cores=$(get_active_cores)
+#
+function get_active_cores() {
     # Initialize count of active cores
     active_cores_count=0
     
@@ -111,7 +151,6 @@ get_active_cores() {
 
     echo $active_cores_count
 }
-
 
 # Function:
 #   local_check_cpu_usage

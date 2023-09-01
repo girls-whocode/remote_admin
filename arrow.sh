@@ -21,6 +21,11 @@ LINES=$( tput lines )
 COLS=$( tput cols )
 non_interactive="false"
 log_level=0
+info_count=0
+warn_count=0
+note_count=0
+error_count=0
+critical_count=0
 
 export ra_script_location
 export org_prompt
@@ -76,7 +81,7 @@ else
 fi
 
 # Start logging and load the main menu
-debug "-------------------------------] ${app_name} started $(LC_ALL=C date +"%Y-%m-%d %H:%M:%S") [-------------------------------"
+notice "-------------------------------] ${app_name} started $(LC_ALL=C date +"%Y-%m-%d %H:%M:%S") [-------------------------------"
 debug "${app_name} v.${app_ver} configuration file loaded from ${config_path}/${config_file}"
 debug "${app_name} is located in ${ra_script_location} and started at ${ra_start_time}"
 debug "${app_name} is reporting ${LINES} lines and ${COLS} columns"
@@ -89,7 +94,7 @@ if [ ${COLS} -lt 115 ]; then
     echo -e "${RED}Please resize your terminal to at least 115 characters wide${default}"
     exit 1
 elif [ ${COLS} -lt 125 ]; then
-    warn "Terminal columns are less than 125 characters wide, screen may not be readable"
+    notice "Terminal columns are less than 125 characters wide, screen may not render successfully"
 fi
 
 if [ ${LINES} -lt 30 ]; then
@@ -97,7 +102,7 @@ if [ ${LINES} -lt 30 ]; then
     echo -e "${RED}Please resize your terminal to at least 30 characters tall${default}"
     exit 1
 elif [ ${LINES} -lt 40 ]; then
-    warn "Terminal lines are less than 35 characters, screen may not be readable"
+    notice "Terminal lines are less than 35 characters, screen may not render successfully"
 fi
 
 menu

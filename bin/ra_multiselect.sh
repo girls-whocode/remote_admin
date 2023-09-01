@@ -1,29 +1,48 @@
 #!/bin/bash
 
-# Function: 
+# Function Name:
 #   multiselect
-# Description: 
-#   Presents a multi-column, multi-choice selection interface to the user. 
-#   Allows for the selection of multiple options from an array of choices.
-# 
-# Parameters: 
-# - return_value: Reference to a local array to store the selection statuses (true/false) of each option.
-# - colmax: Maximum number of columns to display.
-# - offset: Column offset for display alignment.
-# - options: Array of option strings to be displayed.
-# - defaults: Array of default selection statuses (true/false) for each option.
-# - title: Title text to display at the bottom.
 #
-# Dependencies: 
-# - ESC sequences are used for cursor manipulation.
-# - Requires a terminal that supports ANSI escape codes.
-# 
-# Side Effects:
-# - Modifies the terminal display.
-# - Modifies the referenced local array with selection statuses.
-# 
-# Returns: 
-# - Modifies the 'return_value' array to reflect selected options.
+# Description:
+#   This function provides a terminal-based multi-select interface for options.
+#   It allows users to select multiple options using arrow keys and spacebar.
+#
+# Steps:
+#   1. Initialize local variables and arrays to store function arguments and other required data.
+#   2. Configure cursor visibility and terminal I/O settings.
+#   3. Display options on the terminal and enable user interaction.
+#   4. Process user keystrokes to facilitate the selection of options.
+#   5. Update the selected options array based on user input.
+#   6. Break and finalize the selections when the Enter key is pressed.
+#
+# Globals Modified:
+#   - Cursor behavior and screen contents are changed temporarily within this function.
+#
+# Globals Read:
+#   - None.
+#
+# Parameters:
+#   return_value   - The name of the variable to hold the selections after the function returns.
+#   colmax         - Maximum number of columns for displaying options.
+#   offset         - Number of characters offset for each column of options.
+#   options        - Array of options to choose from.
+#   defaults       - Array of default selections ("true" or "false").
+#   title          - A title or description for the multi-select interface.
+#
+# Returns:
+#   Updates the 'selected' array with the user's selections.
+#
+# Called By:
+#   Any part of the script that requires multi-option selection.
+#
+# Calls:
+#   - key_input: Function to capture the keyboard input.
+#   - toggle_option: Function to toggle an option on or off.
+#   - toggle_option_multicol: Function to toggle an option on or off in multi-column display.
+#   - print_options_multicol: Function to print options in a multi-column layout.
+#   - Various terminal control commands for cursor and screen manipulation.
+#
+#
 function multiselect {
     ESC=$(printf "\033")
     cursor_blink_on()   { printf "%b" "${ESC}[?25h"; }

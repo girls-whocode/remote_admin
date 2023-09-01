@@ -2,11 +2,33 @@
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 
-# Function: select_hosts function
-# Description: Prompts the user to select hostnames from the host_options array and 
-#              assigns the selected hostnames to the host_array variable. # If the
-#              user selects the "Type in # Hostname" option, it prompts the user to 
-#              enter a custom hostname.
+# Function Name: 
+#   select_hosts
+#
+# Description: 
+#   Allows the user to select hostnames from a list. The selected hostnames
+#   are then added to the "host_array" global variable for further processing.
+#
+# Steps:
+#   1. Initialize local variables including 'target' array for selected hosts,
+#      'colmax' for maximum columns, and 'offset' for UI layout.
+#   2. Call the 'multiselect' function to display available host options.
+#   3. Iterate through 'host_options' to find out which hosts have been selected.
+#   4. Populate 'target' array with the selected hosts.
+#   5. Update the 'host_array' global variable with the selected hosts.
+#   6. If no hosts are selected, call the 'remote_menu' function and inform the user.
+#
+# Globals:
+#   - host_options: An array containing the list of available hostnames.
+#   - host_array: An array to store the selected hostnames.
+#   - COLS: The terminal width, used to calculate the 'offset'.
+#
+# Parameters:
+#   None.
+#
+# Returns:
+#   None. Modifies the global 'host_array' variable and optionally calls 'remote_menu'.
+#
 function select_hosts() {
     debug "select_hosts function with ${#host_options[@]} hosts"
     target=()
@@ -40,8 +62,30 @@ function select_hosts() {
     fi
 }
 
-# Function: type_host function
-# Description: Prompts the user to type in a hostname to
+# Function Name: 
+#   type_host
+#
+# Description: 
+#   Allows the user to manually enter a hostname for further diagnostics.
+#   The function also displays headers and footers on the terminal.
+#
+# Steps:
+#   1. Clears the terminal screen.
+#   2. Uses ANSI escape sequences to navigate the terminal cursor.
+#   3. Displays a header and footer using 'header' and 'footer' functions.
+#   4. Prompts the user to enter a hostname.
+#   5. Logs the entered hostname.
+#
+# Globals:
+#   - app_logo_color: Color code for displaying the application version.
+#   - app_ver: Application version number.
+#
+# Parameters:
+#   None.
+#
+# Returns:
+#   None. Sets the user-provided hostname for further operations.
+#
 function type_host() {
     debug "type_host function"
     # ANSI escape sequences
@@ -61,10 +105,34 @@ function type_host() {
     return
 }
 
-# Function: get_host
-# Description: This function checks if the ${HOME}/.ssh/config file exists and displays 
-#              a list of hosts from it. If the file does not exist, it prompts the user 
-#              to enter a hostname manually.
+# Function Name: 
+#   get_host
+#
+# Description: 
+#   Fetches a list of hostnames and their corresponding descriptors from a 
+#   configured SSH file, allowing the user to select a host for further actions.
+#
+# Steps:
+#   1. Declare variables and arrays.
+#   2. Use gawk to parse the SSH configuration files.
+#   3. Fill an array with hostnames.
+#   4. Handle special cases for group names and comments.
+#   5. Populate the 'host_options' array with the hostnames.
+#   6. Set 'preselection' to false.
+#   7. Call the 'select_hosts' function to allow user to select hosts.
+#
+# Globals:
+#   - CONFILES: Path to the SSH configuration files.
+#   - host_options: An array to store the host options for selection.
+#   - preselection: A flag to indicate whether hosts are pre-selected.
+#   - search_dir: Array to hold file choices for searching.
+#
+# Parameters:
+#   None.
+#
+# Returns:
+#   None. Modifies the 'host_options' global variable for further use.
+#
 function get_host() {
     desclength=20
     declare -A hostnames
@@ -105,10 +173,36 @@ function get_host() {
     return
 }
 
-# Function: get_host_file
-# Description: This function prompts the user to select a host file from a list and 
-#              reads the selected file. It reads each line from the file and adds it 
-#              to the `host_array` array.
+# Function Name:
+#   get_host_file
+#
+# Description:
+#   This function is responsible for selecting a file from the available choices,
+#   parsing it to extract hostnames, and then passing those hostnames to the 
+#   'select_hosts' function for further action.
+#
+# Steps:
+#   1. Declare an associative array named 'preselection'.
+#   2. Calls 'select_file' function to select a database file.
+#   3. Reads the selected file line by line.
+#   4. Filters out empty lines and comments.
+#   5. Extracts hostnames from valid lines.
+#   6. Appends the hostnames to the 'host_options' array.
+#   7. Sets preselection for all hostnames.
+#   8. Calls 'select_hosts' function to allow the user to select hosts.
+#
+# Globals:
+#   - db_files: An associative array holding the paths to the database files.
+#   - host_options: An array to store hostnames for user selection.
+#   - file_choice: The selected file from the list of database files.
+#   - host_count: The total number of hostnames available for selection.
+#
+# Parameters:
+#   None.
+#
+# Returns:
+#   None. Modifies the 'host_options' and 'preselection' global variables for
+#   further use.
 function get_host_file() {
     declare -A preselection
     select_file

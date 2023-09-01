@@ -2,29 +2,34 @@
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 
-# The code defines a function called bye which is used to gracefully exit the script or application. 
-
-# Here's a breakdown of what the code does:
-# Calls the end_time function with the value of a variable ra_start_time as an argument. It calculates 
-# and records the end time. Prints an informational message indicating that the application is closing 
-# and displays the total run time in a formatted manner using the elapsed_time_formatted variable.
-
-# Prints a debug message indicating that used variables are being unset. Defines an array variable 
-# assigned_vars containing a list of variable names that need to be unset. Loops through each variable 
-# in the assigned_vars array and unsets them using the unset command.
-
-# Prints a message indicating successful exit using green color. Exits the script or application with a 
-# status code of 0, indicating successful termination. 
-
-# Overall, this code defines a function that performs cleanup tasks, unsetting variables, and printing 
-# messages before exiting the script or application.
-
-# Function: bye
-# Description: Close remote-admin and clean up any set variables left behind. Display exit message.
+# Function Name: 
+#   bye
+#
+# Description: 
+#   This function is responsible for finalizing the script execution 
+#   and cleaning up resources.
+#
+# Steps:
+#   1. Calculates and displays the total runtime of the script.
+#   2. Logs debugging, informational, and critical events.
+#   3. Unsets all the variables used during the script execution.
+#   4. Exits the script successfully.
+#
+# Globals:
+#   - ra_start_time: The time the script started, used to calculate runtime.
+#   - app_name: The name of the application or script.
+#   - elapsed_time_formatted: Formatted string of total runtime.
+#   - critical_count, error_count, warn_count, note_count, info_count: Counters 
+#     for various types of log events.
+#   - assigned_vars: An array of variable names that should be unset.
+#
+# Returns:
+#   None. Exits the script with status 0.
 function bye {
     end_time "${ra_start_time}"
     info "${app_name} closing - total run time: ${elapsed_time_formatted}"
     debug "Unsetting used variables"
+    notice "---------] ${app_name} closed $(LC_ALL=C date +"%Y-%m-%d %H:%M:%S") ${critical_count} Critical/${error_count} Error/${warn_count} Warning/${note_count} Notice/${info_count} Information Events [---------"
 
     assigned_vars=(
         "app_name" "script_name" "app_ver" "config_file" "config_path" "tmpfile" "sshconfig_file" 
@@ -38,10 +43,9 @@ function bye {
         "server_list_path" "filename" "log_level" "logging" "ra_log_path" "ra_log_file"
     )
 
+    echo -e "${green}Exiting successfully!${default}"
     for vars in "${assigned_vars[@]}"; do
         unset "${vars}"
     done
-
-    echo -e "${green}Exiting successfully!${default}"
     exit 0
 }

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-debug "ramod_viewlog - loaded" >> "${ra_log_file}"
 function setPattern() {
   compName=$(hostname)
   standardPattern='
