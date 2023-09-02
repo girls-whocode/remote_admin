@@ -439,7 +439,7 @@ function action_menu {
     action_choice=$?
 
     case "$action_choice" in
-        0) # Shell to host
+        0) # Shell to host - Completed
             info "SSH to ${hostname}"
             shell_hosts
             action_menu
@@ -449,7 +449,7 @@ function action_menu {
             do_connection_test
             action_menu
             ;;
-        2) # Copy SSH Key
+        2) # Copy SSH Key - Completed
             debug "Copy SSH Key to ${hostname}"
             copy_ssh_key
             action_menu
@@ -611,9 +611,9 @@ function database_menu() {
             debug "\"Delete a Database\" was selected"
             database_menu
             ;;
-        4)
+        4) # Completed
             clear
-            debug "\"Return to System Menu\" was selected"
+            debug "\"Return to Remote Menu\" was selected"
             remote_menu
             ;;
         5)
@@ -621,7 +621,7 @@ function database_menu() {
             debug "\"Help Manual\" was selected"
             display_help "database_menu"
             ;;
-        6)
+        6) # Completed
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
