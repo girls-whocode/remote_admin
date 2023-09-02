@@ -216,6 +216,48 @@ function show_message() {
   info "${message}"
 }
 
+# Function Name:
+#   wrap_text
+#
+# Description:
+#   This function wraps a given text at the terminal's column width.
+#   It also handles ANSI escape sequences to ensure that text formatting
+#   (like colors) is retained after the wrap.
+#
+# Steps:
+#   1. Accept the text to be wrapped as a local variable.
+#   2. Get the terminal column width using `tput`.
+#   3. Initialize local variables for line length, word, and ANSI escape sequences.
+#   4. Loop through each character in the text.
+#       a. Detect ANSI escape sequences and handle them separately.
+#       b. Add characters to the current word, keeping track of its length.
+#       c. Wrap text at terminal column width, respecting word boundaries.
+#   5. Output the wrapped text.
+#
+# Globals Modified:
+#   - None
+#
+# Globals Read:
+#   - Reads terminal column width using `tput`.
+#
+# Parameters:
+#   - The text to be wrapped (passed as the first positional parameter).
+#
+# Returns:
+#   - Outputs the wrapped text to stdout.
+#
+# Called By:
+#   Any part of the script that needs to wrap text to fit terminal dimensions.
+#
+# Calls:
+#   - tput: for getting terminal column width.
+#   - echo: for outputting the wrapped text.
+#   - strip_ansi: custom function for removing ANSI escape sequences (not shown in the code snippet).
+#   - wc: for counting the number of characters in a string.
+#
+# Example:
+#   wrapped_output=$(wrap_text "This is a long text that needs to be wrapped.")
+#
 function wrap_text() {
     local text="$1"
     local wrap_at=$(tput cols)
@@ -262,34 +304,115 @@ function wrap_text() {
     echo -e "$wrapped_text"
 }
 
+# Function Name:
+#   pad_to_width
+#
+# Description:
+#   Pads the given text with spaces until it reaches a specified width.
+#
+# Globals Modified:
+#   - None
+#
+# Globals Read:
+#   - strip_ansi: Assumed to be a utility function to remove ANSI escape sequences.
+#
+# Parameters:
+#   - text: The text to be padded (string)
+#   - width: The final width that the text should be padded to (integer)
+#
+# Returns:
+#   - Outputs the padded text to stdout.
+#
+# Debugging:
+#   - Outputs debug logs with details like text width, length, and the number of spaces added.
+#
+# Example:
+#   pad_to_width "Hello" 10
+#
 function pad_to_width() {
     local text="$1"
     local width="$2"
     local stripped_text=$(strip_ansi "$text")
     local stripped_length=${#stripped_text}
-    local num_spaces=$(($width - $stripped_length))
+    local num_spaces=$((width - stripped_length))
     printf "%b" "$text"
     printf "%${num_spaces}s" " "
     debug "Padded text: $text - Width: $width - Length: $stripped_length - Spaces: $num_spaces"
 }
 
+# Function Name:
+#   add_commas
+#
+# Description:
+#   Adds commas to a numerical string for easier readability.
+#
+# Globals Modified:
+#   - None
+#
+# Parameters:
+#   - A numerical string
+#
+# Returns:
+#   - Outputs the numerical string with commas added for every three digits.
+#
+# Example:
+#   add_commas "1000000" => "1,000,000"
+#
 function add_commas() {
     echo "${1}" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta'
 }
 
+# Function Name:
+#   bytes_to_human
+#
+# Description:
+#   Converts a given byte count to human-readable form.
+#
+# Globals Modified:
+#   - None
+#
+# Parameters:
+#   - bytes: The byte count to convert (integer)
+#
+# Returns:
+#   - Outputs the byte count in human-readable form (B, KiB, MiB, GiB).
+#
+# Example:
+#   bytes_to_human "1024" => "1.00 KiB"
+#
 function bytes_to_human() {
-    local bytes=${1}
-    if [[ bytes -lt 1024 ]]; then
-        echo "$(add_commas ${bytes}).00 B"
-    elif [[ bytes -lt 1048576 ]]; then
-        echo "$(add_commas $(awk "BEGIN { printf \"%.2f\", ${bytes}/1024 }")) KiB"
-    elif [[ bytes -lt 1073741824 ]]; then
-        echo "$(add_commas $(awk "BEGIN { printf \"%.2f\", ${bytes}/1048576 }")) MiB"
+    local bytes="$1"
+    if [[ "$bytes" -lt 1024 ]]; then
+        echo "$(add_commas "${bytes}").00 B"
+    elif [[ "$bytes" -lt 1048576 ]]; then
+        echo "$(add_commas "$(awk "BEGIN { printf \"%.2f\", ${bytes}/1024 }")") KiB"
+    elif [[ "$bytes" -lt 1073741824 ]]; then
+        echo "$(add_commas "$(awk "BEGIN { printf \"%.2f\", ${bytes}/1048576 }")") MiB"
     else
-        echo "$(add_commas $(awk "BEGIN { printf \"%.2f\", ${bytes}/1073741824 }")) GiB"
+        echo "$(add_commas "$(awk "BEGIN { printf \"%.2f\", ${bytes}/1073741824 }")") GiB"
     fi
 }
 
+# Function Name:
+#   draw_bar
+#
+# Description:
+#   Draws a progress bar based on a given value and max value.
+#
+# Globals Modified:
+#   - None
+#
+# Parameters:
+#   - value: Current value (integer)
+#   - max_value: Maximum value (integer)
+#   - bar_length: Length of the bar (integer)
+#
+# Returns:
+#   - Outputs a '#' character-based progress bar.
+#
+# Example:
+#   draw_bar 50 100 10 => "#####     "
+#
 function draw_bar() {
     local value=$1
     local max_value=$2
@@ -305,6 +428,30 @@ function draw_bar() {
     echo -n "$bar"
 }
 
+# Function Name:
+#   draw_center_line_with_info
+#
+# Description:
+#   Draws a vertical line on the terminal screen and adds info text next to it.
+#
+# Globals Modified:
+#   - Various, such as username, identity_file, port, logging, etc.
+#
+# Globals Read:
+#   - Uses tput to fetch terminal dimensions
+#
+# Parameters:
+#   - None
+#
+# Returns:
+#   - Alters the terminal display with lines and information.
+#
+# Called By:
+#   - Likely called by a main UI loop or event loop.
+#
+# Example:
+#   draw_center_line_with_info
+#
 function draw_center_line_with_info() {
     tput sc
     # Get terminal dimensions
@@ -317,7 +464,7 @@ function draw_center_line_with_info() {
     # Loop through each row to draw the '|'
     for (( row=1; row<height-3; row++ )); do
         # Position the cursor
-        tput cup $row $middle_col
+        tput cup "$row" $middle_col
 
         # Print the '|' character
         echo -ne "${dark_gray}│${default}"
@@ -325,33 +472,37 @@ function draw_center_line_with_info() {
         # Insert text at specified rows
         case $row in
         1)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo -ne "${cyan}User: ${light_green}${username}${default}"
             ;;
         2)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo -ne "${cyan}Identity: ${light_green}${identity_file}${default}"
             ;;
         3)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo -ne "${cyan}SSH Port: ${light_green}${port}${default}"
             ;;
         4)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo -ne "${cyan}Logging Level: ${light_green}${logging}${default}"
             ;;
         5)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         6)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             if [[ ${hostname} != "" ]]; then
-                echo -ne "${cyan}Hostname: ${light_green}${hostname}${default}"
+                if [[ ${#host_array[*]} -gt 1 ]]; then
+                    echo -ne "${cyan}Selected Hosts: ${light_green}${#host_array[*]}${default}"
+                else
+                    echo -ne "${cyan}Hostname: ${light_green}${hostname}${default}"
+                fi
             fi
             ;;
         7)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             if [[ $hostname != "" ]]; then
                 do_connection_test "${hostname}"
                 if [ "$connection_result" == "true" ]; then
@@ -364,68 +515,70 @@ function draw_center_line_with_info() {
             fi
             ;;
         8)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         9)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         10)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         11)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         12)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         13)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         14)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         15)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         16)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         17)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         18)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         19)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         20)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         21)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         22)
-            tput cup $row $((middle_col + 2))
+            tput cup "${row}" $((middle_col + 2))
             echo ""
             ;;
         23)
-            tput cup $row $((middle_col + 2))
-            echo ""
+            tput cup $((height - 8)) $((middle_col + 2))
+            if [[ ${key} != "" ]]; then
+                echo -ne "${dark_gray}Key: ${white}${key}"
+            fi
             ;;
         24)
             tput cup $((height - 7)) $((middle_col + 2))
@@ -433,7 +586,7 @@ function draw_center_line_with_info() {
             ;;
         25)
             tput cup $((height - 6)) $((middle_col + 2))
-            echo -ne "${dark_gray}$(find ${ra_script_location} -type f -name "*.sh" -exec cat {} + | wc -l) lines of code"
+            echo -ne "${dark_gray}$(find "${ra_script_location}" -type f -name "*.sh" -exec cat {} + | wc -l) lines of code"
             ;;
         26)
             tput cup $((height - 5)) $((middle_col + 2))
@@ -443,6 +596,40 @@ function draw_center_line_with_info() {
     tput rc
 }
 
+# Function Name:
+#   enter_username
+#
+# Description:
+#   This function prompts the user to enter a username and offers an option to save it.
+#
+# Steps:
+#   1. Prompt the user to enter a username.
+#   2. Save the input to the `username` variable.
+#   3. Ask the user if they want to save the username to the configuration file.
+#   4. If the user wants to save, call `save_config`.
+#
+# Globals Modified:
+#   - `username`
+#   - Calls `save_config` which likely modifies a config file.
+#
+# Globals Read:
+#   - None
+#
+# Parameters:
+#   - None
+#
+# Returns:
+#   - None, but may update global `username` and a config file.
+#
+# Called By:
+#   Various parts of the script that require user input for username.
+#
+# Calls:
+#   - save_config
+#
+# Example:
+#   enter_username
+#
 function enter_username() {
     read -p "Enter the username: " custom_option
     username="$custom_option"
@@ -456,12 +643,44 @@ function enter_username() {
     return
 }
 
+# Function Name:
+#   enter_identityfile
+#
+# Description:
+#   Prompts the user to input the path and name for an identity file, offers an option to save it.
+#
+# Steps:
+#   1. Prompt the user for the path of the identity file.
+#   2. Validate if the identity file exists.
+#   3. If the file exists, offer to save it in the configuration.
+#
+# Globals Modified:
+#   - `identity_file`
+#
+# Globals Read:
+#   - `old_identity`
+#
+# Parameters:
+#   - None
+#
+# Returns:
+#   - None, but may update `identity_file` and the configuration file.
+#
+# Called By:
+#   Various parts of the script that require identity file input.
+#
+# Calls:
+#   - save_config
+#
+# Example:
+#   enter_identityfile
+#
 function enter_identityfile() {
     # User chose the "Type in Hostname" option
     old_identity=${identity_file}
     read -p "Enter the identity file path and name: " custom_option
     identity_file="$custom_option"
-    if [ -f ${identity_file} ]; then
+    if [ -f "${identity_file}" ]; then
         echo -en "${default}Do you wish to save to the configuration? ${light_blue}(${light_red}y${default}/${light_green}N${light_blue})${default} "
         read save_identity
         success "Identity file was changed from ${old_identity} to ${identity_file}"
@@ -477,6 +696,39 @@ function enter_identityfile() {
     return
 }
 
+# Function Name:
+#   line
+#
+# Description:
+#   Prints a line of specified length and character to the terminal.
+#
+# Steps:
+#   1. Calculate terminal width.
+#   2. Calculate line length based on the specified percentage.
+#   3. Print the line.
+#
+# Globals Modified:
+#   - None
+#
+# Globals Read:
+#   - None
+#
+# Parameters:
+#   - percentage (e.g., 50 for 50% of the terminal width)
+#   - char (character to fill the line with)
+#
+# Returns:
+#   - Outputs the line to stdout.
+#
+# Called By:
+#   Various parts of the script that require a visual line.
+#
+# Calls:
+#   - tput: to get terminal width.
+#
+# Example:
+#   line 50 "-"
+#
 function line() {
     local percentage=$1  # Get the desired percentage from the function argument
     local char=$2  # Get the character to be used for the line
@@ -492,25 +744,121 @@ function line() {
     printf -- "${line_str// /$char}\n"
 }
 
+# Function Name:
+#   save_tmp
+#
+# Description:
+#   Saves a string to a temporary file and sets its permissions.
+#
+# Steps:
+#   1. Write the input string to a temporary file.
+#   2. Set permissions of the temporary file to 600.
+#
+# Globals Modified:
+#   - `tmpfile`
+#
+# Globals Read:
+#   - None
+#
+# Parameters:
+#   - The string to be saved in `tmpfile`.
+#
+# Returns:
+#   - None, but a temporary file is created or updated.
+#
+# Called By:
+#   Any part of the script that requires creating or modifying a temporary file.
+#
+# Calls:
+#   - chmod: to set file permissions.
+#
+# Example:
+#   save_tmp "example_content"
+#
 function save_tmp(){
     echo "$1" > "$tmpfile"
     chmod 600 "$tmpfile"
     debug "$tmpfile Temporary file created"
 } 
 
+# Function Name:
+#   new_list
+#
+# Description:
+#   Filters items from `fullist` based on `selected_list` and a global filter condition, saving the filtered items into `list`.
+#
+# Steps:
+#   1. Initialize local list and match variables.
+#   2. Iterate over `selected_list` and `fullist` to filter items.
+#   3. Save filtered items to `list`.
+#
+# Globals Modified:
+#   - `list`
+#
+# Globals Read:
+#   - `selected_list`
+#   - `fullist`
+#   - `filter`
+#
+# Parameters:
+#   - None
+#
+# Returns:
+#   - None, but may update `list` and a temporary file if needed.
+#
+# Called By:
+#   Any part of the script that requires filtering from a list of items.
+#
+# Calls:
+#   - save_tmp: for saving filter criteria to a temporary file.
+#
+# Example:
+#   new_list
+#
 function new_list() {
     list=(); match=
-    for item in "${selected_list[@]}" "${fullist[@]}"; {
-        case         $item:$match    in
-                 *{\ *\ }*:1) break  ;;
-           *{\ $filter\ }*:*) match=1;;
+    for item in "${selected_list[@]}" "${fullist[@]}"; do
+        case "$item:$match" in
+            *"{\\ }"*:1) break  ;;
+            *"{\\ $filter\\ }"*) match=1;;
         esac
         [[ $match ]] && list+=( "$item" )
-    }
+    done
     [[ $filter =~ Selected ]] && return
     [[ ${list[*]} ]] && save_tmp "filter='$filter'" || { list=( "${fullist[@]}" ); rm "$tmpfile"; }
 }
 
+# Function Name:
+#   get_user
+#
+# Description:
+#   Checks if a username is specified in the config file; if not, assigns the current system username.
+#
+# Steps:
+#   1. Check if `username` is empty.
+#   2. If empty, assign `username` the value of the current system user.
+#
+# Globals Modified:
+#   - `username`
+#
+# Globals Read:
+#   - `USER`: current system username
+#
+# Parameters:
+#   - None
+#
+# Returns:
+#   - None, but may update `username`.
+#
+# Called By:
+#   Any part of the script that requires a user identification.
+#
+# Calls:
+#   - None
+#
+# Example:
+#   get_user
+#
 function get_user {
     # The user is specified in the config file, use it, if not then get current user
     if [[ ${username} == "" ]]; then
@@ -527,11 +875,51 @@ function get_identity {
     return
 }
 
+# Function Name:
+#   strip_ansi
+#
+# Description:
+#   Removes ANSI escape sequences from a given text string.
+#
+# Parameters:
+#   - text: String that may contain ANSI escape sequences.
+#
+# Returns:
+#   - The text string without ANSI escape sequences.
+#
+# Called By:
+#   Any function that requires text without ANSI codes for correct functionality.
+#
+# Example:
+#   strip_ansi "\033[1;32mHello World\033[0m"
+#
 function strip_ansi() {
     local text="$1"
     echo -e "$text" | sed 's/\x1b\[[0-9;]*m//g'
 }
 
+# Function Name:
+#   header
+#
+# Description:
+#   Displays a header in the terminal with flexible alignment options for text and date.
+#
+# Parameters:
+#   - Alignment: "left", "center", or "right".
+#   - text: Text to be displayed as a title.
+#
+# Globals Read:
+#   - dark_gray, white, light_cyan, light_green, default: ANSI color codes.
+#
+# Returns:
+#   - Outputs the generated header to the terminal.
+#
+# Called By:
+#   Any function that requires a header display in the terminal.
+#
+# Example:
+#   header "left" "My Header"
+#
 function header() {
     cols=$(tput cols)
     text="$2"
@@ -554,7 +942,9 @@ function header() {
             
             # Prepare the suffix with date
             suffix_length=$((cols - text_length - fixed_date_length - (decorative_length * 2)))
-            printf '%b%*s%b' "${dark_gray}" "${suffix_length}" | tr ' ' "-"
+            echo -ne "${dark_gray}"
+            printf '%*s' "${suffix_length}" | tr ' ' '-'
+            echo -ne "${default}"
             echo -ne "${dark_gray}----${white}] ${light_green}${fixed_date} ${white}[${dark_gray}----${default}"
             echo  # Add a newline at the end
             ;;
@@ -562,19 +952,25 @@ function header() {
             padding_length=$(( (cols - text_length - fixed_date_length - (decorative_length * 2)) / 2 ))
             
             # Prepare the prefix with title
-            printf '%b%*s%b' "${dark_gray}" "${padding_length}" | tr ' ' "-"
+            echo -ne "${dark_gray}"
+            printf '%*s' "${padding_length}" | tr ' ' '-'
+            echo -ne "${default}"
             echo -ne "${dark_gray}----${white}] ${light_cyan}${text} ${white}[${dark_gray}----${default}"
             
             # Prepare the suffix with date
             suffix_length=$((cols - text_length - fixed_date_length - padding_length - (decorative_length * 2)))
-            printf '%b%*s%b' "${dark_gray}" "${suffix_length}" | tr ' ' "-"
+            echo -ne "${dark_gray}"
+            printf '%*s' "${suffix_length}" | tr ' ' '-'
+            echo -ne "${default}"
             echo -ne "${dark_gray}----${white}] ${light_green}${fixed_date} ${white}[${dark_gray}----${default}"
             echo  # Add a newline at the end
             ;;
         "right")
             # Prepare the prefix with date
             prefix_length=$((cols - text_length - fixed_date_length - (decorative_length * 2)))
-            printf '%b%*s%b' "${dark_gray}" "${prefix_length}" | tr ' ' "-"
+            echo -ne "${dark_gray}"
+            printf '%*s' "${prefix_length}" | tr ' ' '-'
+            echo -ne "${default}"
             echo -ne "${dark_gray}----${white}] ${light_green}${fixed_date} ${white}[${dark_gray}----${default}"
             
             # Prepare the title
@@ -588,14 +984,74 @@ function header() {
     esac
 }
 
+# Function Name:
+#   save_cursor_position
+#
+# Description:
+#   Saves the current cursor position in the terminal.
+#
+# Parameters:
+#   - None
+#
+# Returns:
+#   - None
+#
+# Called By:
+#   Any function that requires the cursor position to be restored later.
+#
+# Example:
+#   save_cursor_position
+#
 function save_cursor_position() {
     echo -ne "\033[s"
 }
 
+# Function Name:
+#   restore_cursor_position
+#
+# Description:
+#   Restores the cursor to a previously saved position.
+#
+# Parameters:
+#   - None
+#
+# Returns:
+#   - None
+#
+# Called By:
+#   Any function that has previously saved the cursor position and needs to restore it.
+#
+# Example:
+#   restore_cursor_position
+#
 function restore_cursor_position() {
     echo -ne "\033[u"
 }
 
+# Function Name:
+#   footer
+#
+# Description:
+#   Displays a footer in the terminal with alignment options.
+#
+# Parameters:
+#   - align1: Alignment for the first line ("left", "center", or "right").
+#   - text1: Text for the first line of the footer.
+#   - align2: Optional alignment for the second line.
+#   - text2: Optional text for the second line of the footer.
+#
+# Globals Read:
+#   - dark_gray, white, light_cyan, default: ANSI color codes.
+#
+# Returns:
+#   - Outputs the generated footer to the terminal.
+#
+# Called By:
+#   Any function that requires a footer display in the terminal.
+#
+# Example:
+#   footer "left" "My Footer" "right" "Page 1"
+#
 function footer() {
     cols=$(tput cols)
     text1="$2"
@@ -612,7 +1068,12 @@ function footer() {
     save_cursor_position
 
     # Move to the line where the footer starts, taking into account the optional second line
-    starting_line=$(( $(tput lines) - 2 - (${text2:+1}) ))
+    if [ -z "$text2" ]; then
+        starting_line=$(( $(tput lines) - 2 ))
+    else
+        starting_line=$(( $(tput lines) - 2 - 1 ))
+    fi
+
     tput cup $starting_line 0
 
     case "${align1}" in

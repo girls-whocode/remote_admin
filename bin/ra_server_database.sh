@@ -35,11 +35,12 @@
 #
 function load_database() {
     clear
-    header "center" "Loading a Server Database"
+    header "center" "Select a Server Database"
     footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
 
     # Initialize an array to hold the names of found database files
     db_files=()
+    host_options=()
     keep_running=true
     debug "Loading load_database function"
 

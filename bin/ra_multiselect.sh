@@ -60,8 +60,6 @@ function multiselect {
     local -n defaults=$5
     local title=$6
 
-    clear
-
     local selected=()
     for ((i=0; i<${#options[@]}; i++)); do
         if [[ ${defaults[i]} = "true" ]]; then
@@ -71,7 +69,6 @@ function multiselect {
         fi
         printf "\n"
     done
-
 
     cursor_to $(( LINES - 2 ))
     printf "_%.s" $(seq "$COLS")

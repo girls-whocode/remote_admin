@@ -33,10 +33,15 @@ function select_option {
     }
     
     key_input() {
-        read -s -r -n3 key 2>/dev/null >&2
+        read -s -r -n1 key 2>/dev/null >&2
+        if [[ $key = $ESC ]]; then
+            read -s -r -n2 -t 0.1 key2 2>/dev/null >&2 # Read two more chars, timeout 0.1
+            key+="$key2"  # append to existing key
+        fi
         if [[ $key = ${ESC}[A ]]; then echo up; fi
         if [[ $key = ${ESC}[B ]]; then echo down; fi
         if [[ $key = "" ]]; then echo enter; fi
+        if [[ $key = $ESC ]]; then echo escape; fi
     }
 
     # initially print empty new lines (scroll down if at bottom of screen)
@@ -80,6 +85,9 @@ function select_option {
                 if [ $selected -ge $# ]; then 
                     selected=0; 
                 fi;;
+            escape)
+                continue
+                ;;
         esac
     done
 

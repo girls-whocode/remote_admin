@@ -589,7 +589,7 @@ function database_menu() {
     menu_choice=$?
 
     case "${menu_choice}" in
-        0)
+        0) # Completed
             clear
             debug "\"Load a Database\" was selected"
             load_database

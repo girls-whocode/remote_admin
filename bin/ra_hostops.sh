@@ -31,9 +31,15 @@
 #
 function select_hosts() {
     debug "select_hosts function with ${#host_options[@]} hosts"
+    clear
+    header "center" "Select Hosts from the Database"
+    footer "right" "${app_logo_color} v.${app_ver}"
     target=()
-    colmax=5
-    offset=$(( COLS / colmax ))
+    colmax=3
+    # Calculate 70% of the total screen width
+    max_width=$(awk "BEGIN { printf \"%d\", ($COLS * 0.7) }")
+    # Calculate the width of each column
+    offset=$(( max_width / colmax ))
     idx=0
     dbg=0
     status=1
@@ -55,6 +61,7 @@ function select_hosts() {
     done
 
     if [ $status -eq 0 ] ; then
+        hostname=("${target[@]}")
         host_array=("${target[@]}")
     else
         echo -e "${light_green} No items selected... ${default}"
@@ -205,6 +212,7 @@ function get_host() {
 #   further use.
 function get_host_file() {
     declare -A preselection
+    host_options=()
     select_file
     debug "get_host_file function started with select_file function '${db_files[$file_choice]}' database"
 
@@ -218,10 +226,10 @@ function get_host_file() {
 
     host_count=${#host_options[@]}
     
-    for ((i=0; i<host_count; i++)); do
-        preselection[$i]=true
-        echo $i
-    done
+    # for ((i=0; i<host_count; i++)); do
+    #     preselection[$i]=true
+    #     echo $i
+    # done
 
     select_hosts
 }
