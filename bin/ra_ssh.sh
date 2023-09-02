@@ -185,7 +185,7 @@ function generate_ssh_key() {
     # Initialize screen and place cursor at the beginning
     clear
     header "center" "Generating SSH Key"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+    footer "right" "${app_logo_color} v.${app_ver}"
 
     ssh_folder="${HOME}/.ssh"
 

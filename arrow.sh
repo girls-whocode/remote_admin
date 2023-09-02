@@ -26,7 +26,8 @@ warn_count=0
 note_count=0
 error_count=0
 critical_count=0
-environment="development"
+environment="production"
+chg_env_mode="development"
 
 export ra_script_location
 export org_prompt

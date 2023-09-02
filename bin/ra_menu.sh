@@ -26,8 +26,9 @@
 function menu() {
     clear
     header "center" "System Administration Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
     draw_center_line_with_info
+    menu_help="main_menu"
     unset menu_choice
     
     menu=(
@@ -66,7 +67,7 @@ function menu() {
         4) # Completed
             clear
             debug "\"Help Manual\" was selected"
-            display_help "main_menu"
+            display_help "${menu_help}"
             ;;
         5) # Completed
             clear
@@ -102,8 +103,9 @@ function menu() {
 function remote_menu() {
     clear
     header "center" "Remote Systems Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
     draw_center_line_with_info
+    menu_help="remote_menu"
     unset menu_choice
 
     # Dynamic part of the menu
@@ -162,7 +164,7 @@ function remote_menu() {
         4)
             clear
             debug "\"Help Manual\" was selected"
-            display_help "remote_menu"
+            display_help "${menu_help}"
             ;;
         5)
             clear
@@ -198,8 +200,9 @@ function remote_menu() {
 function local_menu() {
     clear
     header "center" "Local Systems Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
     draw_center_line_with_info
+    menu_help="local_menu"
     unset menu_choice
     
     menu=(
@@ -262,7 +265,7 @@ function local_menu() {
         7)
             clear
             debug "\"Help Manual\" was selected"
-            display_help "local_menu"
+            display_help "${menu_help}"
             ;;
         8)
             clear
@@ -298,8 +301,9 @@ function local_menu() {
 function app_menu() {
     clear
     header "center" "Application Settings Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
     draw_center_line_with_info
+    menu_help="app_menu"
     unset menu_choice
     
     menu=(
@@ -308,9 +312,10 @@ function app_menu() {
         "📝 Edit SSH Config" #2
         "🧖 Change Username" #3
         "🆔 Change Identity" #4
-        "🔙${light_green} Return to System Menu${default}" #5
-        "❓${light_blue} Help Manual${default}" #6
-        "⏹️${light_red} Exit ${app_name}${default}" #7
+        "🎛️ Change Logging Mode" #5
+        "🔙${light_green} Return to System Menu${default}" #6
+        "❓${light_blue} Help Manual${default}" #7
+        "⏹️${light_red} Exit ${app_name}${default}" #8
     )
 
     select_option "${menu[@]}"
@@ -347,17 +352,22 @@ function app_menu() {
             enter_identityfile
             app_menu
             ;;
-        5) 
+        5)
+            clear
+            debug "\"Change Logging Mode\" was selected"
+            logging_menu
+            ;;
+        6) 
             clear
             debug "\"Return to System Menu\" was selected"
             menu
             ;;
-        6)
+        7)
             clear
             debug "\"Help Manual\" was selected"
-            display_help "app_menu"
+            display_help "${menu_help}"
             ;;
-        7)
+        8)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
@@ -409,8 +419,9 @@ function action_menu {
     fi
     clear
     header "center" "Application Settings Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
     draw_center_line_with_info
+    menu_help="action_menu"
     unset menu_choice
 
     menu=(
@@ -531,8 +542,7 @@ function action_menu {
         17)
             clear
             debug "\"Help Manual\" was selected"
-            display_help "action_menu"
-            action_menu
+            display_help "${menu_help}"
             ;;
         18)
             clear
@@ -571,8 +581,9 @@ function action_menu {
 function database_menu() {
     clear
     header "center" "Server Database Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
     draw_center_line_with_info
+    menu_help="database_menu"
     unset menu_choice
     
     menu=(
@@ -619,7 +630,7 @@ function database_menu() {
         5)
             clear
             debug "\"Help Manual\" was selected"
-            display_help "database_menu"
+            display_help "${menu_help}"
             ;;
         6) # Completed
             clear
@@ -660,8 +671,9 @@ function database_menu() {
 function modify_db_menu() {
     clear
     header "center" "Database Modification Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
     draw_center_line_with_info
+    menu_help="modify_db_menu"
     unset menu_choice
     
     menu=(
@@ -706,7 +718,7 @@ function modify_db_menu() {
         5)
             clear
             debug "\"Help Manual\" was selected"
-            display_help "database_menu"
+            display_help "${menu_help}"
             ;;
         6)
             clear
@@ -745,8 +757,9 @@ function modify_db_menu() {
 function ssh_key_menu() {
     clear
     header "center" "SSH Key Management Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and enter to select."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
     draw_center_line_with_info
+    menu_help="key_menu"
     unset menu_choice
 
     menu=(
@@ -771,7 +784,8 @@ function ssh_key_menu() {
         1)
             clear
             debug "\"Copy Key to Remote Host\" was selected"
-            local_menu
+            copy_key="true"
+            remote_menu
             ;;
         2)
             clear
@@ -786,9 +800,106 @@ function ssh_key_menu() {
         4)
             clear
             debug "\"Help Manual\" was selected"
-            display_help "key_menu"
+            display_help "${menu_help}"
             ;;
         5)
+            clear
+            debug "\"Exit ${app_name}\" was selected"
+            bye
+            ;;
+    esac
+}
+
+function logging_menu() {
+    clear
+    header "center" "Logging Level Menu"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    draw_center_line_with_info
+    menu_help="logging_menu"
+    unset menu_choice
+
+    menu=(
+        "🐛 Debug Mode" #0
+        "📖 Information Mode" #1
+        "🔔 Notice Mode" #2
+        "⚠️ Warning Mode" #3
+        "🚫 Error Mode" #4
+        "🛑 Turn off Logging" #5
+        "📄 View logs" #6
+        "🔙${light_green} Return to System Menu${default}" #7
+        "❓${light_blue} Help Manual${default}" #8
+        "⏹️${light_red} Exit ${app_name}${default}" #9
+    )
+
+    select_option "${menu[@]}"
+    menu_choice=$?
+
+    case "${menu_choice}" in
+        0)
+            clear
+            debug "\"Debug Level Turned on\" was selected"
+            info "Debug Level Turned on"
+            logging=debug
+            save_config
+            logging_menu
+            ;;
+        1)
+            clear
+            debug "\"Info Level Turned on\" was selected"
+            info "Info Level Turned on"
+            logging=info
+            save_config
+            logging_menu
+            ;;
+        2)
+            clear
+            debug "\"Notice Level Turned on\" was selected"
+            info "Notice Level Turned on"
+            logging=notice
+            save_config
+            logging_menu
+            ;;
+        3)
+            clear
+            debug "\"Warning Level Turned on\" was selected"
+            info "Warning Level Turned on"
+            logging=warning
+            save_config
+            logging_menu
+            ;;
+        4)
+            clear
+            debug "\"Error Level Turned on\" was selected"
+            info "Error Level Turned on"
+            logging=error
+            save_config
+            logging_menu
+            ;;
+        5)
+            clear
+            debug "\"Logging Level Turned off\" was selected"
+            info "Logging Level Turned off"
+            logging=0
+            save_config
+            logging_menu
+
+            ;;
+        6)
+            clear
+            debug "\"View Logs\" was selected"
+            view_logs
+            ;;
+        7) # Completed
+            clear
+            info "\"Return to System Menu\" was selected"
+            menu
+            ;;
+        8)
+            clear
+            debug "\"Help Manual\" was selected"
+            display_help "${menu_help}"
+            ;;
+        9)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye

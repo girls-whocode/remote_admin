@@ -1,4 +1,48 @@
 #!/bin/bash
+# shellcheck disable=SC2034  # variables are used in other files
+# shellcheck disable=SC2154  # variables are sourced from other files
+
+function select_menu_esc() {
+    screen_width=$(tput cols)
+    spaces=""
+    esc_key=$(printf "\033")
+    # Create a for loop to fill the string with spaces
+    for ((i=0; i<$screen_width; i++)); do
+        spaces+=" "
+    done
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${spaces}"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" ": ${white}[${light_blue}ESC${white}] ${default}to return ${white}[${light_blue}H${white}] ${default}Help System ${white}[${light_blue}Q${white}] ${default}Exit System ${white}[${light_blue}L${white}] ${default}Logging System ${white}[${light_blue}E${white}] ${default}Environment: Change to ${light_cyan}${chg_env_mode}${default} mode"
+
+    while true; do
+        read -rs -t 0.5 -n 3 key 2>/dev/null >&2
+        if [[ "${key}" == "${esc_key}" ]]; then
+            echo -ne "\033[?25h"
+            stty -icanon sane
+            footer "right" "${app_logo_color} v.${app_ver}" "left" "${spaces}"
+            footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+            return
+        elif [[ "${key}" == "q" || "${key}" == "Q" ]]; then
+            clear
+            bye
+        elif [[ "${key}" == "h" || "${key}" == "H" ]]; then
+            clear
+            display_help "${menu_help}"
+        elif [[ "${key}" == "l" || "${key}" == "L" ]]; then
+            clear
+            logging_menu
+        elif [[ "${key}" == "e" || "${key}" == "E" ]]; then
+            clear
+            if [[ $environment == "production" ]]; then
+                environment="development"
+                chg_env_mode="production"
+            else
+                environment="production"
+                chg_env_mode="development"
+            fi
+            menu
+        fi
+    done
+}
 
 # Function: select_option
 # Description: This function displays a menu of options and allows the user to select 
@@ -86,7 +130,7 @@ function select_option {
                     selected=0; 
                 fi;;
             escape)
-                continue
+                select_menu_esc
                 ;;
         esac
     done

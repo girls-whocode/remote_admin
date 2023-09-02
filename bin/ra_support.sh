@@ -485,7 +485,7 @@ function draw_center_line_with_info() {
             ;;
         4)
             tput cup "${row}" $((middle_col + 2))
-            echo -ne "${cyan}Logging Level: ${light_green}${logging}${default}"
+            echo ""
             ;;
         5)
             tput cup "${row}" $((middle_col + 2))
@@ -576,21 +576,34 @@ function draw_center_line_with_info() {
             ;;
         23)
             tput cup $((height - 8)) $((middle_col + 2))
-            if [[ ${key} != "" ]]; then
-                echo -ne "${dark_gray}Key: ${white}${key}"
+            if [[ ${environment} = "development" ]]; then
+                echo -ne "${dark_gray}Environment: ${white}${environment}"
             fi
             ;;
         24)
             tput cup $((height - 7)) $((middle_col + 2))
-            echo -ne "${dark_gray}Screen (WxH): ${width}x${height}${default}"
+            if [[ ${environment} = "development" ]]; then
+                echo -ne "${dark_gray}Screen (WxH): ${width}x${height}${default}"
+            fi
             ;;
         25)
             tput cup $((height - 6)) $((middle_col + 2))
-            echo -ne "${dark_gray}$(find "${ra_script_location}" -type f -name "*.sh" -exec cat {} + | wc -l) lines of code"
+            if [[ ${environment} = "development" ]]; then
+                echo -ne "${dark_gray}$(find "${ra_script_location}" -type f -name "*.sh" -exec cat {} + | wc -l) lines of code"
+            fi
             ;;
         26)
             tput cup $((height - 5)) $((middle_col + 2))
-            echo -ne "${light_yellow}[N]: ${dark_gray}${note_count} - ${yellow}[W]: ${dark_gray}${warn_count} - ${light_red}[E]: ${dark_gray}${error_count}${default}"
+            if [[ ${environment} = "development" ]]; then
+                echo -ne "${light_yellow}[N]: ${dark_gray}${note_count} - ${yellow}[W]: ${dark_gray}${warn_count} - ${light_red}[E]: ${dark_gray}${error_count}${default}"
+            fi
+            ;;
+        27)
+            tput cup $((height - 4)) $((middle_col + 2))
+            if [[ ${environment} = "development" ]]; then
+                echo -ne "${dark_gray}Logging Level: ${white}${logging}${default}"
+            fi
+            ;;
         esac
     done
     tput rc

@@ -1,0 +1,24 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#terminal {
+    width: 145ch;
+    height: 45em;
+    background-color: black;
+    color: white;
+    font-family: 'Courier New', monospace;
+    margin: auto;
+    padding: 1em;
+    overflow: hidden;
+}
+
+#header, #footer {
+    text-align: center;
+}
+
+#menuContainer {
+    list-style-type: none;
+    padding: 0;
+}

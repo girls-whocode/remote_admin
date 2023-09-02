@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Terminal-like Menu Example</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let selected = 0;
+            let items = document.querySelectorAll(".menu-item");
+            let footer = document.querySelector(".footer");
+        
+            function highlightItem(index) {
+                items.forEach((item, i) => {
+                    if (i === index) {
+                        item.classList.add("highlight");
+                    } else {
+                        item.classList.remove("highlight");
+                    }
+                });
+            }
+        
+            function performAction(index) {
+                switch (index) {
+                    case 0:
+                        console.log("Remote Systems was selected");
+                        // Call your remote_menu equivalent here
+                        break;
+                    case 1:
+                        console.log("Local System was selected");
+                        // Call your local_menu equivalent here
+                        break;
+                    case 2:
+                        console.log("SSH Key Management was selected");
+                        // Call your ssh_key_menu equivalent here
+                        break;
+                    case 3:
+                        console.log("Settings was selected");
+                        // Call your app_menu equivalent here
+                        break;
+                    case 4:
+                        console.log("Help Manual was selected");
+                        // Call your display_help equivalent here
+                        break;
+                    case 5:
+                        console.log("Exit was selected");
+                        // Call your exit function here
+                        break;
+                }
+            }
+        
+            highlightItem(selected);
+        
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "ArrowDown") {
+                    selected++;
+                    if (selected >= items.length) selected = 0;
+                } else if (event.key === "ArrowUp") {
+                    selected--;
+                    if (selected < 0) selected = items.length - 1;
+                } else if (event.key === "Enter") {
+                    performAction(selected);
+                    return;
+                } else if (event.key === "Escape") {
+                    footer.innerHTML = "ESC menu triggered.";
+                    return;
+                }
+                highlightItem(selected);
+            });
+        });
+            </script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        .terminal {
+            width: calc(9px * 145);
+            height: calc(19px * 45);
+            background-color: black;
+            overflow: hidden;
+            color: white;
+            font-family: monospace;
+            font-size: 16px;
+        }
+        .highlight {
+            background-color: blue;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .footer {
+            padding: 0.5em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="terminal">
+        <ul>
+            <li class="menu-item">☁️ Remote Systems</li>
+            <li class="menu-item">🏣 Local System</li>
+            <li class="menu-item">🔑 SSH Key Management</li>
+            <li class="menu-item">⚙️ Settings</li>
+            <li class="menu-item">❓ Help Manual</li>
+            <li class="menu-item">⏹️ Exit</li>
+        </ul>
+        <div class="footer">
+            Use the arrow keys to move cursor, and Enter to select. Press [ESC] for ESC menu.
+        </div>
+    </div>
+
+</body>
+</html>
