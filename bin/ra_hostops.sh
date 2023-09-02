@@ -1,6 +1,7 @@
 #!/bin/bash
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
+declare -A host_to_ip
 
 # Function Name: 
 #   select_hosts
@@ -211,25 +212,34 @@ function get_host() {
 #   None. Modifies the 'host_options' and 'preselection' global variables for
 #   further use.
 function get_host_file() {
+    # Assume the first argument passed to get_host_file is the filename
+    file_choice=$1  # This will now be just the filename, not the full path
+    full_path=${db_files["$file_choice"]}  # Look up the full path using the associative array
+
     declare -A preselection
     host_options=()
-    select_file
-    debug "get_host_file function started with select_file function '${db_files[$file_choice]}' database"
+    select_file  # If this function uses file_choice or full_path, make sure to update it accordingly
+    debug "get_host_file function started with select_file function '${full_path}' database"
 
     # Read each non-empty line from the selected file and extract the hostname
     while IFS= read -r line; do
         if [[ -n $line ]] && [[ ${line:0:1} != "#" ]]; then
             hostname=$(echo "$line" | cut -d ',' -f 1)
+            ip=$(echo "$line" | cut -d ',' -f 4)
+            
+            # Add hostname to array for selection
             host_options+=("$hostname")
+
+            # If IP exists, map it to the hostname
+            if [[ -n $ip ]]; then
+                host_to_ip["$hostname"]=$ip
+            fi
         fi
-    done < "${db_files[$file_choice]}"
+    done < "$full_path"
 
     host_count=${#host_options[@]}
-    
-    # for ((i=0; i<host_count; i++)); do
-    #     preselection[$i]=true
-    #     echo $i
-    # done
 
-    select_hosts
+    # Further code...
+    select_hosts  # If this function uses host_options or host_count, no further modification is needed
 }
+

@@ -503,6 +503,20 @@ function draw_center_line_with_info() {
             ;;
         7)
             tput cup "${row}" $((middle_col + 2))
+            if [[ ${hostname} != "" ]]; then
+                if [[ ${#host_array[*]} -gt 1 ]]; then
+                    echo -ne "${cyan}Selected Hosts: ${light_green}${#host_array[*]}${default}"
+                else
+                    ip_display=${host_to_ip["$hostname"]}
+                    host_ip=${ip_display}
+                    if [[ -n $ip_display ]]; then
+                        echo -ne "${cyan}IP: ${light_green}${ip_display}${default}"
+                    fi
+                fi
+            fi
+            ;;
+        8)
+            tput cup "${row}" $((middle_col + 2))
             if [[ $hostname != "" ]]; then
                 do_connection_test "${hostname}"
                 if [ "$connection_result" == "true" ]; then
@@ -513,10 +527,6 @@ function draw_center_line_with_info() {
                 echo -ne "${cyan}Connection: ${connect_test}"
                 
             fi
-            ;;
-        8)
-            tput cup "${row}" $((middle_col + 2))
-            echo ""
             ;;
         9)
             tput cup "${row}" $((middle_col + 2))

@@ -58,7 +58,7 @@ function do_ssh {
                 handle_input "remote_menu"
             done
         else
-            local ssh_command="ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=3 ${cmd_port} ${cmd_identity} ${cmd_jump_host} \"${username}@${hostname}\" ${cmd}"
+            local ssh_command="ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=3 ${cmd_port} ${cmd_identity} ${cmd_jump_host} \"${username}@${host_ip}\" ${cmd}"
         fi
 
         info "ssh command: ${ssh_command}"
@@ -271,8 +271,8 @@ function shell_hosts {
     if [ ${#host_array[@]} -gt 1 ]; then
         debug "Shell into multiple hosts"
         for hostname in "${host_array[@]}"; do
-            if [ -n "${hostname}" ]; then
-                debug "Attempting to shell into host: ${hostname}"
+            if [ -n "${host_ip}" ]; then
+                debug "Attempting to shell into host: ${host_ip}"
                 debug "Port is: ${port}"
                 debug "Identity File is: ${identity_file}"
                 do_ssh
@@ -280,7 +280,7 @@ function shell_hosts {
             fi
         done
     else
-        debug "Shell into single host: ${hostname}"
+        debug "Shell into single host: ${host_ip}"
         debug "Port is: ${port}"
         debug "Identity File is: ${identity_file}"
         clear

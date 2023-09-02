@@ -39,7 +39,7 @@ function load_database() {
     footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select."
 
     # Initialize an array to hold the names of found database files
-    db_files=()
+    declare -A db_files
     host_options=()
     keep_running=true
     debug "Loading load_database function"
@@ -59,7 +59,8 @@ function load_database() {
         debug "Checking file: $file"
         if [[ -e "$file" ]]; then 
             debug "Found file: $file"
-            db_files+=("$file")
+            filename=$(basename "$file")  # Extract only the filename
+            db_files["$filename"]="$file"  # Store filename as key and full path as value
             files_found=true
         else
             debug "Skipping file: $file (not found)"
@@ -76,7 +77,10 @@ function load_database() {
         pause
     else
         debug "Processing found files"
-        get_host_file "${db_files[@]}"
+        # Get filenames (keys from the associative array)
+        filenames=("${!db_files[@]}")
+        # Pass filenames to get_host_file
+        get_host_file "${filenames[@]}"
     fi
 }
 
