@@ -36,10 +36,16 @@ declare had_issues_last_run=false
 #
 function local_top_processes() {
     # Fetch and format top 10 processes sorted by %CPU or %Memory
-    if [ "${1}" = "memory" ]; then
-        ps -eo pid,%cpu,%mem,cmd --sort=-%mem | head -n 11 | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
+    if [ "${2}" = "" ]; then
+        num=10
     else
-        ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n 11 | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
+        num=${2}
+    fi
+
+    if [ "${1}" = "memory" ]; then
+        ps -eo pid,%cpu,%mem,cmd --sort=-%mem | head -n $((num+1)) | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
+    else
+        ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n $((num+1)) | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
     fi
 }
 
@@ -373,16 +379,36 @@ function local_system_info() {
     prev_total_bytes_in=0
     prev_total_bytes_out=0
 
-    # Hide the cursor
-    echo -ne "\033[?25l"
-
     clear
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
     footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
     draw_center_line_with_info
 
+    # Check for available updates
+    if command -v apt &>/dev/null; then
+        # Loading animation
+        BLA::start_loading_animation "${BLA_braille_whitespace[@]}"
+        updates=$(apt list --upgradable 2>/dev/null | wc -l)
+        BLA::stop_loading_animation
+    elif command -v yum &>/dev/null; then
+        # Loading animation
+        BLA::start_loading_animation "${BLA_braille_whitespace[@]}"
+        updates=$(yum check-update --quiet | wc -l)
+        BLA::stop_loading_animation
+    elif command -v dnf &>/dev/null; then
+        # Loading animation
+        BLA::start_loading_animation "${BLA_braille_whitespace[@]}"
+        updates=$(dnf check-update --quiet | wc -l)
+        BLA::stop_loading_animation
+    else
+        echo "Unknown"
+    fi
+
     while $keep_running; do
+        # Hide the cursor
+        echo -ne "\033[?25l"
+
         # Move the cursor to the third row
         echo -ne "${cursor_to_second_row}"
 
@@ -417,11 +443,11 @@ function local_system_info() {
         # Create colored text for each column and print
         echo -e "${white}Hostname:${default} ${light_blue}$si_hostname${default} ${white}IP Address:${default} ${light_blue}$ip_address${default} ${white}Network Interfaces:${default} ${light_blue}$num_active_network_cards${default}" "${white}Open TCP Ports:${default} ${light_blue}$open_tcp_ports${default}" 
         echo -e "${cpu_info}"
-        line 75 "-"
+        echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${white}OS Name:${default} ${light_blue}$os_name${default}" "${white}Kernel Version:${default} ${light_blue}$kernel_version${default} ${white}Uptime:${default} ${light_blue}$uptime${default}"
         echo -e "${white}CPU:${default} ${light_blue}$total_cpus${default} cores ${light_blue}$cpu_model${default}" "${white}Load Average:${default} ${light_blue}$load_avg${default}"
-        echo -e "${white}Disk Space:${default} ${light_blue}$disk_space${default} ${light_cyan}(${white}Used: ${light_blue}$used_disk_space${light_cyan})${default}" "${white}Total Memory:${default} ${light_blue}${total_mem} MB${default} ${light_cyan}(${white}Used: ${light_blue}${used_mem} ${white}MB${light_cyan})${default}"
-        line 75 "-"
+        echo -e "${white}Disk Space:${default} ${light_blue}$disk_space${default} ${light_cyan}(${white}Used: ${light_blue}$used_disk_space${light_cyan})${default}" "${white}Total Memory:${default} ${light_blue}${total_mem} MB${default} ${light_cyan}(${white}Used: ${light_blue}${used_mem} ${white}MB${light_cyan}) ${white}Updates Available: ${light_blue}${updates}${default}"
+        echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${network_activity_info}"
 
         # Store the system checks in variables
@@ -430,12 +456,12 @@ function local_system_info() {
         check_disk_output=$(local_check_disk_usage)
 
         # Print top active processes
-        line 75 "-"
+        echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${white}Top Processes (by CPU):${default}"
-        echo -e "$(local_top_processes "cpu")"
-        line 75 "-"
+        echo -e "$(local_top_processes "cpu" 10)"
+        echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${white}Top Processes (by Memory):${default}"
-        echo -e "$(local_top_processes "memory")"
+        echo -e "$(local_top_processes "memory" 10)"
 
         # Capture network stats
         while read -r line; do
@@ -459,7 +485,6 @@ function local_system_info() {
 
         # Concatenate the gathered information
         complete_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Disk Usage: ${light_green}${check_disk_output}\n\n${white}Network Bytes In: ${light_green}${human_bytes_in}/sec        \n${white}Network Bytes Out: ${light_green}${human_bytes_out}/sec        ${default}"
-
 
         # Check for user input
         handle_input "local_menu"
@@ -501,6 +526,9 @@ function local_check_errors() {
     local width=$((total_width * 7 / 10))
     local max_height=$((total_height - 6))
 
+    # Determine Linux distribution
+    local distro=$(awk -F= '/^ID=/{print $2}' /etc/*-release | tr -d '"')
+
     # Hide the cursor
     echo -ne "\033[?25l"
 
@@ -523,118 +551,50 @@ function local_check_errors() {
         draw_center_line_with_info
 
         # Fetching system error-related information
+        
+        # Perform operations that require sudo here
         if [ "$sudo_granted" == "true" ]; then
-            # Perform operations that require sudo here
-            # For example, let's assume we want to check failed attempts in auth.log
-            failed_auth=$(sudo grep -i 'failed' /var/log/auth.log | wc -l)
-            echo -e "${cyan}Failed Auth Attempts: ${default}$failed_auth"
+            if [ "$distro" == "debian" ] || [ "$distro" == "ubuntu" ]; then
+                # Debian/Ubuntu specific logs and metrics
+                if [ -e "/var/log/auth.log" ]; then
+                    auth_failures=$(sudo grep -i 'authentication failure' /var/log/auth.log | wc -l)
+                elif [ -e "/var/log/syslog" ]; then
+                    auth_failures=$(sudo grep -i 'authentication failure' /var/log/syslog | wc -l)
+                else
+                    auth_failures=0
+                fi
+            elif [ "$distro" == "rhel" ] || [ "$distro" == "centos" ] || [ "$distro" == "fedora" ]; then
+                failed_auth=$(sudo grep -i 'failed' /var/log/auth.log | wc -l)
+            fi
+
+            # Common metrics requiring sudo
             disk_space_critical=$(sudo df -h | awk '($5 ~ /[0-9]+%/) && int($5) >= 90 {print $6 " " $5}')
             oom_issues=$(sudo dmesg | grep -i 'Out of memory' | wc -l)
-            failed_ssh=$(sudo grep -i 'Permission denied' ~/.bash_history | wc -l)
             zombie_processes=$(sudo ps aux | awk '$8=="Z" {print $0}' | wc -l)
-            high_cpu_processes=$(local_top_processes "cpu")
-            high_memory_processes=$(local_top_processes "memory")
+            critical_journal=$(sudo journalctl -p 0..2 | grep -v ' -- ' | wc -l)
+            critical_journal_list=$(sudo journalctl -p 0..2 -n 5 --output=short-iso | logview | fold -w $width -s)
+            failed_services=$(sudo systemctl list-units --state=failed --no-legend | wc -l)
+            failed_services_list=$(sudo systemctl list-units --state=failed --no-legend)
+
         else
             disk_space_critical=$(df -h | awk '($5 ~ /[0-9]+%/) && int($5) >= 90 {print $6 " " $5}')
             failed_ssh=$(grep -i 'Permission denied' ~/.bash_history | wc -l)
             zombie_processes=$(ps aux | awk '$8=="Z" {print $0}' | wc -l)
-            high_cpu_processes=$(local_top_processes "cpu")
-            high_memory_processes=$(local_top_processes "memory")
         fi
 
         # Print gathered information
-        echo -e "${cyan}Disk partitions close to full{$default}:\n${disk_space_critical}"
-        echo -e "${cyan}OOM Kernel Issues: ${default}${oom_issues}"
-        echo -e "${cyan}Failed SSH Attempts: ${default}${failed_ssh}"
-        echo -e "${cyan}Zombie Processes: ${default}${zombie_processes}"
-        line 75 "-"
-        echo -e "${cyan}High CPU Processes:\n${default}${high_cpu_processes}"
-        line 75 "-"
-        echo -e "${cyan}High Memory Processes:\n${default}${high_memory_processes}"
+        echo -e "${white}Failed Auth Attempts: ${light_blue}${failed_auth}${default}"
+        echo -e "${white}Disk Space Critical: ${light_blue}${disk_space_critical}${default} ${white}Out Of Memory Issues: ${light_blue}${oom_issues}${default} ${white}Zombie Processes: ${light_blue}${zombie_processes}${default}"
+        echo -e "${white}Critical Journal Entries: ${light_blue}${critical_journal}${default} ${white}Failed Services: ${light_blue}${failed_services}${default}"
+        echo -e "${dark_gray}$(line 75 "-")${default}"
+        echo -e "${white}Critical Journal:\n${default}${critical_journal_list}${default}"
+        echo -e "${dark_gray}$(line 75 "-")${default}"
+        echo -e "${white}Failed Services:\n${default}${failed_services_list}${default}"
+        echo -e "${dark_gray}$(line 75 "-")${default}"
+        echo -e "${white}High CPU Processes:\n${default}$(local_top_processes "cpu" 1)${default}"
+        echo -e "${dark_gray}$(line 75 "-")${default}"
+        echo -e "${white}High Memory Processes:\n${default}$(local_top_processes "memory" 1)${default}"
 
-        # Check for user input
-        handle_input "local_menu"
-    done
-}
-
-# Function: 
-#   local_check_updates
-#
-# Description:
-#   This function checks for system updates for various Linux distributions.
-#   Supports Ubuntu/Debian, CentOS/RHEL, and Fedora. It displays the number of available updates.
-#
-# Parameters:
-#   None
-#
-# Returns:
-#   None; The function prints all the acquired information directly to the terminal.
-#
-# Dependencies:
-#   - Utilizes various package management tools: `apt`, `yum`, `dnf`
-#   - Calls the following local functions: `info`, `header`, `footer`, `BLA::start_loading_animation`, `BLA::stop_loading_animation`
-#
-# Interactivity:
-#   - The function keeps running until the user presses the 'ESC' key.
-#     Listens for user input through the `handle_input` function.
-#
-# Example:
-#   If run on an Ubuntu system with pending updates, it will display the number of updates and distribution information.
-#
-function local_check_updates() {
-    info "Local Check Updates Started"
-
-    # ANSI escape sequences
-    ESC="\033"
-    cursor_to_start="${ESC}[H"
-    cursor_to_third_row="${ESC}[3;1H"  # Move to 3rd row, 1st column
-    keep_running=true
-
-    # Hide the cursor
-    echo -ne "\033[?25l"
-
-    clear
-    echo -ne "${cursor_to_start}"
-    header "center" "System Diagnostics"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
-
-    # Move the cursor to the third row
-    echo -ne "${cursor_to_third_row}"
-
-    # Check for available updates
-    if command -v apt &>/dev/null; then
-        # Loading animation
-        BLA::start_loading_animation "${BLA_braille_whitespace[@]}"
-        updates=$(apt list --upgradable 2>/dev/null | wc -l)
-        BLA::stop_loading_animation
-
-        echo -ne "${cursor_to_third_row}"
-        echo -e "Ubuntu/Debian-based System"
-        echo -e "Available updates: $updates"
-    elif command -v yum &>/dev/null; then
-        # Loading animation
-        BLA::start_loading_animation "${BLA_braille_whitespace[@]}"
-        updates=$(yum check-update --quiet | wc -l)
-        BLA::stop_loading_animation
-
-        echo -ne "${cursor_to_third_row}"
-        echo -e "CentOS/RHEL System"
-        echo -e "Available updates: $updates"
-    elif command -v dnf &>/dev/null; then
-        # Loading animation
-        BLA::start_loading_animation "${BLA_braille_whitespace[@]}"
-        updates=$(dnf check-update --quiet | wc -l)
-        BLA::stop_loading_animation
-
-        echo -ne "${cursor_to_third_row}"
-        echo -e "Fedora System"
-        echo -e "Available updates: $updates"
-    else
-        echo "Unknown System: Cannot check for updates."
-    fi
-
-
-    while $keep_running; do
         # Check for user input
         handle_input "local_menu"
     done

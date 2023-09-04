@@ -207,13 +207,11 @@ function local_menu() {
     
     menu=(
         "💡 System Information" #0
-        "🏥 Run a diagnostic" #1
+        "🛠️ Check for Errors" #1
         "📷 Create a Snapshot" #2
-        "🛠️ Check for Errors" #3
-        "🔄 Check for Updates" #4
-        "🔙${light_green} Return to System Menu${default}" #5
-        "❓${light_blue} Help Manual${default}" #6
-        "⏹️${light_red} Exit ${app_name}${default}" #7
+        "🔙${light_green} Return to System Menu${default}" #3
+        "❓${light_blue} Help Manual${default}" #4
+        "⏹️${light_red} Exit ${app_name}${default}" #5
     )
 
     select_option "${menu[@]}"
@@ -226,11 +224,10 @@ function local_menu() {
             local_system_info
             local_menu
             ;;
-        1) # Completed
+        1)
             clear
-            debug "\"Run a diagnostic\" was selected"
-            local_diagnostics_main
-            local_menu
+            debug "\"Check for Errors\" was selected"
+            local_error_menu
             ;;
         2)
             clear
@@ -238,28 +235,17 @@ function local_menu() {
             snapshot
             local_menu
             ;;
-        3)
-            clear
-            debug "\"Check for Errors\" was selected"
-            local_error_menu
-            ;;
-        4)
-            clear
-            debug "\"Check for Updates\" was selected"
-            local_check_updates
-            local_menu
-            ;;
-        5) 
+        3) 
             clear
             debug "\"Return to System Menu\" was selected"
             menu
             ;;
-        6)
+        4)
             clear
             debug "\"Help Manual\" was selected"
             display_help "${menu_help}"
             ;;
-        7)
+        5)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
