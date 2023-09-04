@@ -105,7 +105,7 @@ function type_host() {
     clear
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}" 
 
     echo -en "${light_blue}🌐 Enter a Host:${default} "
     read -r hostname

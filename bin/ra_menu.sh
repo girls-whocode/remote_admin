@@ -206,15 +206,14 @@ function local_menu() {
     unset menu_choice
     
     menu=(
-        "🏥 Run a diagnostic" #0
-        "💻 Check Resources" #1
+        "💡 System Information" #0
+        "🏥 Run a diagnostic" #1
         "📷 Create a Snapshot" #2
-        "💡 System Information" #3
-        "🛠️ Check for Errors" #4
-        "🔄 Check for Updates" #5
-        "🔙${light_green} Return to System Menu${default}" #6
-        "❓${light_blue} Help Manual${default}" #7
-        "⏹️${light_red} Exit ${app_name}${default}" #8
+        "🛠️ Check for Errors" #3
+        "🔄 Check for Updates" #4
+        "🔙${light_green} Return to System Menu${default}" #5
+        "❓${light_blue} Help Manual${default}" #6
+        "⏹️${light_red} Exit ${app_name}${default}" #7
     )
 
     select_option "${menu[@]}"
@@ -223,14 +222,14 @@ function local_menu() {
     case "${menu_choice}" in
         0) # Completed
             clear
-            debug "\"Run a diagnostic\" was selected"
-            local_diagnostics_main
+            debug "\"System Information\" was selected"
+            local_system_info
             local_menu
             ;;
         1) # Completed
             clear
-            debug "\"Check Resources\" was selected"
-            local_resources
+            debug "\"Run a diagnostic\" was selected"
+            local_diagnostics_main
             local_menu
             ;;
         2)
@@ -239,35 +238,28 @@ function local_menu() {
             snapshot
             local_menu
             ;;
-        3) # Completed
-            clear
-            debug "\"System Information\" was selected"
-            local_system_info
-            local_menu
-            ;;
-        4)
+        3)
             clear
             debug "\"Check for Errors\" was selected"
-            local_check_errors
-            local_menu
+            local_error_menu
             ;;
-        5)
+        4)
             clear
             debug "\"Check for Updates\" was selected"
             local_check_updates
             local_menu
             ;;
-        6) 
+        5) 
             clear
             debug "\"Return to System Menu\" was selected"
             menu
             ;;
-        7)
+        6)
             clear
             debug "\"Help Manual\" was selected"
             display_help "${menu_help}"
             ;;
-        8)
+        7)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
@@ -728,7 +720,8 @@ function modify_db_menu() {
     esac
 }
 
-# Function: ssh_key_menu
+# Function: 
+#   ssh_key_menu
 #
 # Description:
 #   This function presents a menu for managing SSH keys. It provides options to generate an SSH key,
@@ -900,6 +893,61 @@ function logging_menu() {
             display_help "${menu_help}"
             ;;
         9)
+            clear
+            debug "\"Exit ${app_name}\" was selected"
+            bye
+            ;;
+    esac
+}
+
+function local_error_menu() {
+    clear
+    header "center" "Logging Level Menu"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    draw_center_line_with_info
+    menu_help="logging_menu"
+    sudo_access="false"
+    unset menu_choice
+
+    menu=(
+        "🛠️ Error Checks with Sudo (password required)" #0
+        "🔍 Error Checks without Sudo" #1
+        "🔙${light_green} Return to Local System Menu${default}" #7
+        "❓${light_blue} Help Manual${default}" #8
+        "⏹️${light_red} Exit ${app_name}${default}" #9
+    )
+
+    select_option "${menu[@]}"
+    menu_choice=$?
+
+    case "${menu_choice}" in
+        0)
+            debug "\"Error Checks with Sudo\" was selected"
+            info "Error Checks with Sudo"
+            request_sudo_access
+            if [ ${sudo_access} = "true" ]; then
+                local_check_errors "true"
+            fi
+            local_menu
+            ;;
+        1)
+            clear
+            debug "\"Error Checks with Sudo\" was selected"
+            info "Error Checks with Sudo"
+            local_check_errors "false"
+            local_menu
+            ;;
+        2) 
+            clear
+            debug "\"Return to System Menu\" was selected"
+            menu
+            ;;
+        3)
+            clear
+            debug "\"Help Manual\" was selected"
+            display_help "${menu_help}"
+            ;;
+        4)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye

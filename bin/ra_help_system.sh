@@ -10,7 +10,7 @@ function display_help() {
     "main_menu")
         debug "Displaying Main Menu Help"
         header "center" "Main Menu Help"
-        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
         mm_p1="What is ${light_blue}${app_name}${default}? ${app_name} stands for '${app_acronym}'. The name was derived from the application's focus on remote systems. Its primary function is to simplify the execution of various operations across one or more servers. It achieves this by offering a user-friendly menu interface designed for handling repetitive and multiple tasks."
         mm_p2="In addition to its interactive menus, ${light_blue}${app_name}${default} offers command-line arguments that can be utilized for automating tasks via cron jobs. These automation features enable the generation of reports, which can be accessed either from the command line or directly within the application."
         mm_p3="Each menu within ${light_blue}${app_name}${default} is crafted to enable a range of actions with minimal user input. Comprehensive descriptions for each available action are provided upon navigating through the respective menus."
@@ -30,7 +30,7 @@ function display_help() {
     "remote_menu")
         debug "Displaying Remote Menu Help"
         header "center" "Remote Menu Help"
-        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
         rm_p1="The ${light_blue}${app_name}${default} Constant Menu serves as a hub for navigating to various functions related to managing server connections."
         rm_p2="The following options are provided in this menu:"
         rm_p3="🆎 ${light_green}Enter a Host${default}: Allows you to manually input the hostname or IP address of the server you wish to manage. This is useful for one-off connections."
@@ -61,7 +61,7 @@ function display_help() {
     "local_menu")
         debug "Displaying Local Menu Help"
         header "center" "Local Menu Help"
-        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
         lm_p1="The ${light_blue}${app_name}${default} Local Menu focuses on providing a suite of utilities aimed at diagnosing and managing the server on which the application is running. This menu serves as a one-stop solution for your local server management needs."
         lm_p2="Here are the built-in options you can avail of:"
         lm_p3="🏥 ${magenta}Run a Diagnostic${default}: Execute a comprehensive diagnostic to identify potential issues affecting the server. This includes checking hardware status, software configurations, and network connectivity."
@@ -93,7 +93,7 @@ function display_help() {
     "app_menu")
         debug "Displaying App Menu Help"
         header "center" "Settings Menu Help"
-        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
         am_p1="🧠 ${light_magenta}Interactive Config${default}"
         am_p2="This feature launches an interactive session designed to assist you in configuring the ${light_blue}${app_name}${default} v${light_blue}${app_ver}${default} settings effortlessly. Upon selecting this option, you'll be guided through a series of questions that enable you to set your preferred text editor, color output, username, SSH identity file and location, port number, and logging level. By adjusting the granularity of log messages. The available levels range from ${light_red}critical${default} to ${dark_gray}debug${default}, and each level includes messages from the levels above it in severity. For example, setting this to ${light_blue}info${default} will display log messages flagged as ${light_blue}info${default}, ${cyan}notice${default}, ${yellow}warning${default}, ${red}error${default}, and ${light_red}critical${default}."
         am_p3="📝 ${light_magenta}Edit Config${default}"
@@ -129,7 +129,7 @@ function display_help() {
     "snapshot")
         debug "Snapshot Help"
         header "center" "Snapshot Help"
-        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
         ss_p1="Choice of Snapshot Technology\nFilesystem: Check whether you are using LVM, ZFS, or Btrfs, as each has its own snapshotting method.\nVirtual Machines: If you're running a VM, then the hypervisor may have its own snapshot capabilities.\nSimple Backup: If you're not using any of the above, rsync or dd can also be used, although they may not provide true snapshot functionality."
         ss_p2="Pre-Snapshot Preparations\nQuiesce the Filesystem: Some filesystems may need to be made read-only or applications may need to be paused to ensure data consistency.\nCheck for Existing Snapshots: Too many snapshots can fill up your storage or even make subsequent snapshots impossible.\nResource Check: Ensure that there is enough disk space and that the system load is not too high to carry out the snapshot operation."
         ss_p3="Script Workflow\nParameter Parsing: Process command-line options or configuration files.\nLogging: Decide on a logging mechanism to capture the success or failure of different steps.\nNotification: Add email notifications or system alerts in case of success/failure.\nError Handling: Implement robust error checking after each operation to make sure each step succeeds before proceeding to the next."
@@ -149,7 +149,7 @@ function display_help() {
     "key_menu")
         debug "SSH Key Management Help"
         header "center" "SSH Key Management Help"
-        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
 
         km_p1="The ${light_blue}${app_name}${default} SSH Key Management menu provides a robust interface for managing SSH keys on your system. These keys are essential for secure communication between servers."
         km_p2="The menu offers the following options for your SSH key operations:"

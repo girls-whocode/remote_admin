@@ -1,44 +1,14 @@
 #!/bin/bash
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
+# shellcheck disable=SC2181  # mycmd #? is used for return value of commands
+# shellcheck disable=SC2319  # mycmd #? is used for return value of conditions
+# shellcheck disable=SC2155  # declare and assign no longer issue in BASH 14+
 
 declare -A issues       # Associative array to hold current issues
 declare -A last_issues  # Associative array to hold last known issues
 declare -A prev_total prev_idle
 declare had_issues_last_run=false
-
-function get_osver {
-    setup_action
-    if [ "${hostname}" = "" ]; then
-        # More than one host, loop through them
-        for hostname in "${host_array[@]}"; do
-            if [ ! "${hostname}" = "" ]; then
-                # Test if the hostname is accessable
-                # do_connection_test
-                if [[ $? -eq 0 ]]; then
-                    [ ! -d "./reports/systems/$(date +"%Y-%m-%d")/${hostname}" ] && mkdir "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/"
-                    do_scp "/etc/os-release" "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/${hostname}-os-version-$(date +"%Y-%m-%d").txt"
-                    ((host_counter++))
-                else
-                    hosts_no_connect+=("${hosts_no_connect[@]}")
-                    ((counter++))
-                fi
-            fi
-        done
-    else
-        # do_connection_test
-        if [[ $? -eq 0 ]]; then      
-            clear
-            [ ! -d "./reports/systems/$(date +"%Y-%m-%d")/${hostname}" ] && mkdir -p "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/"
-            do_scp "/etc/os-release" "./reports/systems/$(date +"%Y-%m-%d")/${hostname}/${hostname}-os-version-$(date +"%Y-%m-%d").txt"
-        else
-            hosts_no_connect+=("${hosts_no_connect[@]}")
-            ((counter++))
-        fi
-    fi
-    echo -e "All OS Version information is stored in ./reports/systems/{HOSTNAME}"
-    finish_action
-}
 
 # Function:
 #   local_top_processes
@@ -65,9 +35,14 @@ function get_osver {
 #   5678     9.0      3.0      /usr/bin/another_command
 #
 function local_top_processes() {
-    # Fetch and format top 5 processes sorted by %CPU
-    ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n 16 | awk '{ printf "%-8s %-8s %-8s %-30s                              \n", $1, $2, $3, $4 }'
+    # Fetch and format top 10 processes sorted by %CPU or %Memory
+    if [ "${1}" = "memory" ]; then
+        ps -eo pid,%cpu,%mem,cmd --sort=-%mem | head -n 11 | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
+    else
+        ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n 11 | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
+    fi
 }
+
 
 # Function Name:
 #   get_active_cores
@@ -149,7 +124,7 @@ function get_active_cores() {
         fi
     done
 
-    echo $active_cores_count
+    echo "${active_cores_count}"
 }
 
 # Function:
@@ -219,7 +194,7 @@ function local_check_cpu_usage() {
     done
 
     # Display the CPU usage and bar graph
-    if [ $cpu_usage_integer -gt 80 ]; then
+    if [ "${cpu_usage_integer}" -gt 80 ]; then
         echo -ne " ${light_red}$bar${default}"
     else
         echo -ne " ${light_green}$bar${default}"
@@ -347,110 +322,6 @@ function local_check_disk_usage() {
 }
 
 # Function:
-#   local_resources
-#
-# Description:
-#   This function orchestrates a dynamic terminal display showing various resource usages of the system.
-#   It provides real-time monitoring for CPU usage, memory usage, disk usage, and network bandwidth.
-#   In addition to textual information, the function also displays ASCII bar graphs for visual representation.
-#   The function continues to run until the user presses the 'ESC' key.
-#
-# Parameters:
-#   None
-#
-# Returns:
-#   None; the function outputs real-time resource information to the terminal.
-#
-# Dependencies:
-#   Relies on various system utilities: 'tput', 'awk', and 'clear'.
-#   Calls local functions for resource checking: 'local_check_cpu_usage', 'local_check_memory_usage', 'local_check_disk_usage'.
-#   Uses global variables for ANSI color codes: ${light_red}, ${yellow}, ${light_green}, ${dark_gray}, ${white}, and ${default}.
-#   Relies on system files for network data: '/proc/net/dev'.
-#   Assumes existence of functions: 'header', 'footer', 'line', 'handle_input', 'bytes_to_human', 'local_top_processes'.
-#
-# Interactivity:
-#   The function captures and handles user input through 'handle_input'.
-#   Exits the loop and returns to the main menu when the user presses 'ESC'.
-#
-# Example:
-#   When run, the terminal will show system resource usage including CPU, Memory, Disk, and Network traffic.
-#   The header and footer are also displayed along with an ASCII bar graph for each resource metric.
-#
-function local_resources() {
-    # Get the terminal height and width
-    term_height=$(tput lines)
-    term_width=$(tput cols)
-
-    # Hide the cursor
-    echo -ne "\033[?25l"
-
-    # ANSI escape sequences
-    ESC="\033"
-    cursor_to_start="${ESC}[H"
-    keep_running=true
-
-    # Initialize screen and place cursor at the beginning
-    clear
-    echo -ne "${cursor_to_start}"
-
-    header "center" "System Status Report"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
-
-    # Initial reading for total bytes in and out
-    prev_total_bytes_in=0
-    prev_total_bytes_out=0
-
-    while $keep_running; do
-        # Initialize screen and place cursor at the beginning
-        echo -ne "${cursor_to_start}"
-        header "center" "System Status Report"
-        footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
-
-        total_bytes_in=0
-        total_bytes_out=0
-
-        # Store the system checks in variables
-        check_cpu_output=$(local_check_cpu_usage)
-        check_memory_output=$(local_check_memory_usage)
-        check_disk_output=$(local_check_disk_usage)
-
-        # Capture network stats
-        while read -r line; do
-            bytes_in=$(echo "$line" | awk '{print $2}')
-            bytes_out=$(echo "$line" | awk '{print $3}')
-            total_bytes_in=$((total_bytes_in + bytes_in))
-            total_bytes_out=$((total_bytes_out + bytes_out))
-        done < <(awk 'NR > 2 {print $1, $2, $10}' /proc/net/dev)
-
-        # Calculate bytes transmitted and received since last sample
-        bytes_in_interval=$((total_bytes_in - prev_total_bytes_in))
-        bytes_out_interval=$((total_bytes_out - prev_total_bytes_out))
-
-        # Update previous total bytes for the next cycle
-        prev_total_bytes_in=$total_bytes_in
-        prev_total_bytes_out=$total_bytes_out
-
-        # Convert to human-readable format
-        human_bytes_in=$(bytes_to_human $bytes_in_interval)
-        human_bytes_out=$(bytes_to_human $bytes_out_interval)
-
-        # Concatenate the gathered information
-        complete_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Disk Usage: ${light_green}${check_disk_output}\n\n${white}Network Bytes In: ${light_green}${human_bytes_in}/sec        \n${white}Network Bytes Out: ${light_green}${human_bytes_out}/sec        ${default}"
-
-        # Print all the gathered info in one go
-        echo -e "$complete_info"
-
-        # Print top active processes
-        line 100 "-"
-        echo -e "${white}Top Processes (by CPU):${default}"
-        echo -e "$(local_top_processes)"
-
-        # Check for user input
-        handle_input "local_menu"
-    done
-}
-
-# Function:
 #   local_system_info
 #
 # Description:
@@ -495,8 +366,12 @@ function local_system_info() {
     # ANSI escape sequences
     ESC="\033"
     cursor_to_start="${ESC}[H"
-    cursor_to_third_row="${ESC}[3;1H"  # Move to 3rd row, 1st column
+    cursor_to_second_row="${ESC}[2;1H"  # Move to 2nd row, 1st column
     keep_running=true
+
+    # Initial reading for total bytes in and out
+    prev_total_bytes_in=0
+    prev_total_bytes_out=0
 
     # Hide the cursor
     echo -ne "\033[?25l"
@@ -504,11 +379,12 @@ function local_system_info() {
     clear
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
+    draw_center_line_with_info
 
     while $keep_running; do
         # Move the cursor to the third row
-        echo -ne "${cursor_to_third_row}"
+        echo -ne "${cursor_to_second_row}"
 
         # Fetching system information
         if command -v lsb_release &>/dev/null; then
@@ -533,40 +409,57 @@ function local_system_info() {
         used_disk_space=$(df -h --total | grep 'total' | awk '{print $3}')
         num_active_network_cards=$(ip link | grep 'state UP' -c)
         open_tcp_ports=$(ss -tuln | grep 'LISTEN' | wc -l)
-
-        # Column width calculation based on terminal width
-        col_width=$((term_width / 3))
-
-        # Function to print the column data
-        print_columns() {
-            local col1=$1
-            local col2=$2
-            local col3=$3
-
-            col1_len=$(strip_ansi "$col1" | wc -c)
-            col2_len=$(strip_ansi "$col2" | wc -c)
-            col3_len=$(strip_ansi "$col3" | wc -c)
-            max_col_width=$(($col1_len > $col2_len ? $col1_len : $col2_len))
-            max_col_width=$(($max_col_width > $col3_len ? $max_col_width : $col3_len))
-
-            printf "%-${max_col_width}b %-${max_col_width}b %-${max_col_width}b\n" "$col1" "$col2" "$col3"
-        }
+        cpu_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Disk Usage: ${light_green}${check_disk_output}"
+        network_activity_info="${white}Network Bytes In: ${light_green}${human_bytes_in}/sec        \n${white}Network Bytes Out: ${light_green}${human_bytes_out}/sec        ${default}"
+        total_bytes_in=0
+        total_bytes_out=0
 
         # Create colored text for each column and print
-        print_columns "${white}Hostname:${default} ${light_green}$si_hostname${default}"
-        print_columns "${white}IP Address:${default} ${light_green}$ip_address${default}" 
-        print_columns "${white}Uptime:${default} ${light_green}$uptime${default}"
-        line 100 "-"
-        print_columns "${white}OS Name:${default} ${light_green}$os_name${default}" "${white}Kernel Version:${default} ${light_green}$kernel_version${default}"
-        print_columns "${white}CPU:${default} ${light_green}$total_cpus${default} cores ${light_green}$cpu_model${default}" "${white}Load Average:${default} ${light_green}$load_avg${default}"
-        print_columns "${white}Disk Space:${default} ${light_green}$disk_space${default} ${light_cyan}(${white}Used: ${light_green}$used_disk_space${light_cyan})${default}" "${white}Total Memory:${default} ${light_green}${total_mem} MB${default} ${light_cyan}(${white}Used: ${light_green}${used_mem} ${white}MB${light_cyan})${default}"
-        line 100 "-"
-        print_columns "${white}Active Network Cards:${default} ${light_green}$num_active_network_cards${default}" "${white}Open TCP Ports:${default} ${light_green}$open_tcp_ports${default}"
+        echo -e "${white}Hostname:${default} ${light_blue}$si_hostname${default} ${white}IP Address:${default} ${light_blue}$ip_address${default} ${white}Network Interfaces:${default} ${light_blue}$num_active_network_cards${default}" "${white}Open TCP Ports:${default} ${light_blue}$open_tcp_ports${default}" 
+        echo -e "${cpu_info}"
+        line 75 "-"
+        echo -e "${white}OS Name:${default} ${light_blue}$os_name${default}" "${white}Kernel Version:${default} ${light_blue}$kernel_version${default} ${white}Uptime:${default} ${light_blue}$uptime${default}"
+        echo -e "${white}CPU:${default} ${light_blue}$total_cpus${default} cores ${light_blue}$cpu_model${default}" "${white}Load Average:${default} ${light_blue}$load_avg${default}"
+        echo -e "${white}Disk Space:${default} ${light_blue}$disk_space${default} ${light_cyan}(${white}Used: ${light_blue}$used_disk_space${light_cyan})${default}" "${white}Total Memory:${default} ${light_blue}${total_mem} MB${default} ${light_cyan}(${white}Used: ${light_blue}${used_mem} ${white}MB${light_cyan})${default}"
+        line 75 "-"
+        echo -e "${network_activity_info}"
+
+        # Store the system checks in variables
+        check_cpu_output=$(local_check_cpu_usage)
+        check_memory_output=$(local_check_memory_usage)
+        check_disk_output=$(local_check_disk_usage)
 
         # Print top active processes
-        line 100 "-"
+        line 75 "-"
         echo -e "${white}Top Processes (by CPU):${default}"
-        echo -e "$(local_top_processes)"
+        echo -e "$(local_top_processes "cpu")"
+        line 75 "-"
+        echo -e "${white}Top Processes (by Memory):${default}"
+        echo -e "$(local_top_processes "memory")"
+
+        # Capture network stats
+        while read -r line; do
+            bytes_in=$(echo "$line" | awk '{print $2}')
+            bytes_out=$(echo "$line" | awk '{print $3}')
+            total_bytes_in=$((total_bytes_in + bytes_in))
+            total_bytes_out=$((total_bytes_out + bytes_out))
+        done < <(awk 'NR > 2 {print $1, $2, $10}' /proc/net/dev)
+
+        # Calculate bytes transmitted and received since last sample
+        bytes_in_interval=$((total_bytes_in - prev_total_bytes_in))
+        bytes_out_interval=$((total_bytes_out - prev_total_bytes_out))
+
+        # Update previous total bytes for the next cycle
+        prev_total_bytes_in=$total_bytes_in
+        prev_total_bytes_out=$total_bytes_out
+
+        # Convert to human-readable format
+        human_bytes_in=$(bytes_to_human $bytes_in_interval)
+        human_bytes_out=$(bytes_to_human $bytes_out_interval)
+
+        # Concatenate the gathered information
+        complete_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Disk Usage: ${light_green}${check_disk_output}\n\n${white}Network Bytes In: ${light_green}${human_bytes_in}/sec        \n${white}Network Bytes Out: ${light_green}${human_bytes_out}/sec        ${default}"
+
 
         # Check for user input
         handle_input "local_menu"
@@ -599,40 +492,65 @@ function local_system_info() {
 #   Provides a terminal-based dashboard for monitoring system error metrics in real-time.
 #
 function local_check_errors() {
+    local sudo_granted=$1  # $1 argument is true or false representing sudo access status
     info "Local Check Errors Started"
-    # ANSI escape sequences
-    ESC="\033"
-    cursor_to_start="${ESC}[H"
-    cursor_to_third_row="${ESC}[3;1H"  # Move to 3rd row, 1st column
-    keep_running=true
+
+    # Screen dimensions
+    local total_width=$(tput cols)
+    local total_height=$(tput lines)
+    local width=$((total_width * 7 / 10))
+    local max_height=$((total_height - 6))
 
     # Hide the cursor
     echo -ne "\033[?25l"
 
+    # ANSI escape sequences
+    ESC="\033"
+    cursor_to_start="${ESC}[H"
+    keep_running=true
+
+    # Initialize screen
     clear
-    echo -ne "${cursor_to_start}"
-    header "center" "System Error Diagnostics"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
+    tput cup 0 0  # Move cursor to top left
+
+    local current_line=2  # Start at line 2 (0-based)
 
     while $keep_running; do
-        # Move the cursor to the third row
-        echo -ne "${cursor_to_third_row}"
+        # Print header and footer
+        echo -ne "${cursor_to_start}"
+        header "center" "System Error Diagnostics"
+        footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
+        draw_center_line_with_info
 
         # Fetching system error-related information
-        disk_space_critical=$(df -h | awk '($5 ~ /[0-9]+%/) && int($5) >= 90 {print $6 " " $5}')
-        oom_issues=$(dmesg | grep -i 'Out of memory' | wc -l)
-        failed_ssh=$(grep -i 'Permission denied' ~/.bash_history | wc -l)
-        zombie_processes=$(ps aux | awk '$8=="Z" {print $0}' | wc -l)
-        high_cpu_processes=$(ps aux --sort=-%cpu | awk 'NR<=5 {print $0}')
-        high_memory_processes=$(ps aux --sort=-%mem | awk 'NR<=5 {print $0}')
+        if [ "$sudo_granted" == "true" ]; then
+            # Perform operations that require sudo here
+            # For example, let's assume we want to check failed attempts in auth.log
+            failed_auth=$(sudo grep -i 'failed' /var/log/auth.log | wc -l)
+            echo -e "${cyan}Failed Auth Attempts: ${default}$failed_auth"
+            disk_space_critical=$(sudo df -h | awk '($5 ~ /[0-9]+%/) && int($5) >= 90 {print $6 " " $5}')
+            oom_issues=$(sudo dmesg | grep -i 'Out of memory' | wc -l)
+            failed_ssh=$(sudo grep -i 'Permission denied' ~/.bash_history | wc -l)
+            zombie_processes=$(sudo ps aux | awk '$8=="Z" {print $0}' | wc -l)
+            high_cpu_processes=$(local_top_processes "cpu")
+            high_memory_processes=$(local_top_processes "memory")
+        else
+            disk_space_critical=$(df -h | awk '($5 ~ /[0-9]+%/) && int($5) >= 90 {print $6 " " $5}')
+            failed_ssh=$(grep -i 'Permission denied' ~/.bash_history | wc -l)
+            zombie_processes=$(ps aux | awk '$8=="Z" {print $0}' | wc -l)
+            high_cpu_processes=$(local_top_processes "cpu")
+            high_memory_processes=$(local_top_processes "memory")
+        fi
 
         # Print gathered information
-        echo -e "Disk partitions close to full:\n$disk_space_critical"
-        echo -e "OOM Kernel Issues: $oom_issues"
-        echo -e "Failed SSH Attempts: $failed_ssh"
-        echo -e "Zombie Processes: $zombie_processes"
-        echo -e "High CPU Processes:\n$high_cpu_processes"
-        echo -e "High Memory Processes:\n$high_memory_processes"
+        echo -e "${cyan}Disk partitions close to full{$default}:\n${disk_space_critical}"
+        echo -e "${cyan}OOM Kernel Issues: ${default}${oom_issues}"
+        echo -e "${cyan}Failed SSH Attempts: ${default}${failed_ssh}"
+        echo -e "${cyan}Zombie Processes: ${default}${zombie_processes}"
+        line 75 "-"
+        echo -e "${cyan}High CPU Processes:\n${default}${high_cpu_processes}"
+        line 75 "-"
+        echo -e "${cyan}High Memory Processes:\n${default}${high_memory_processes}"
 
         # Check for user input
         handle_input "local_menu"
@@ -678,7 +596,7 @@ function local_check_updates() {
     clear
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
 
     # Move the cursor to the third row
     echo -ne "${cursor_to_third_row}"
@@ -749,7 +667,7 @@ function local_hardware_diagnostics() {
     # For simulation purposes
     # cpu_load=2.5
 
-    if [ $(awk -v n="$cpu_load" 'BEGIN{ print int(n*10) }') -gt 20 ]; then
+    if [ "$(awk -v n="$cpu_load" 'BEGIN{ print int(n*10) }')" -gt 20 ]; then
         issues["Hardware"]="High CPU load: ${cpu_load}"
     fi
 }
@@ -908,7 +826,7 @@ function local_diagnostics_main() {
     clear
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
 
     while $keep_running; do
         # Move the cursor to the third row
@@ -938,7 +856,7 @@ function remote_diagnostics_main() {
     clear
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"  
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"  
 
     while $keep_running; do
         # Move the cursor to the third row
@@ -1047,7 +965,7 @@ function remote_resources() {
     echo -ne "${cursor_to_start}"
 
     header "center" "System Status Report"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press 'ESC' to return to the menu"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
 
     # Initial reading for total bytes in and out
     prev_total_bytes_in=0

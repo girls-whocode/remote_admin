@@ -581,13 +581,15 @@ function draw_center_line_with_info() {
             echo ""
             ;;
         22)
-            tput cup "${row}" $((middle_col + 2))
-            echo ""
+            tput cup $((height - 9)) $((middle_col + 2))
+            if [[ ${environment} = "development" ]]; then
+                echo -ne "${dark_gray}Environment: ${white}${environment}"
+            fi
             ;;
         23)
             tput cup $((height - 8)) $((middle_col + 2))
             if [[ ${environment} = "development" ]]; then
-                echo -ne "${dark_gray}Environment: ${white}${environment}"
+                echo -ne "${dark_gray}Release: ${white}${release}"
             fi
             ;;
         24)
@@ -849,53 +851,6 @@ function new_list() {
     done
     [[ $filter =~ Selected ]] && return
     [[ ${list[*]} ]] && save_tmp "filter='$filter'" || { list=( "${fullist[@]}" ); rm "$tmpfile"; }
-}
-
-# Function Name:
-#   get_user
-#
-# Description:
-#   Checks if a username is specified in the config file; if not, assigns the current system username.
-#
-# Steps:
-#   1. Check if `username` is empty.
-#   2. If empty, assign `username` the value of the current system user.
-#
-# Globals Modified:
-#   - `username`
-#
-# Globals Read:
-#   - `USER`: current system username
-#
-# Parameters:
-#   - None
-#
-# Returns:
-#   - None, but may update `username`.
-#
-# Called By:
-#   Any part of the script that requires a user identification.
-#
-# Calls:
-#   - None
-#
-# Example:
-#   get_user
-#
-function get_user {
-    # The user is specified in the config file, use it, if not then get current user
-    if [[ ${username} == "" ]]; then
-        username=${USER}
-        debug "No user was found assigning to Linux user ${username}"
-    fi
-    debug "User was found assigning to ${username}"
-    return
-}
-
-function get_identity {
-    # The identity is specified in the config file, use it
-    echo "Get Identity"
-    return
 }
 
 # Function Name:

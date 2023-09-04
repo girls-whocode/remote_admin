@@ -71,6 +71,7 @@ script_name="arrow.sh"
 app_logo=" --/A.R.R.O.W./==>"
 app_logo_color="${dark_gray}--${light_blue}/${green}A.R.R.O.W.${light_blue}/${dark_gray}=>${default}"
 app_ver="2.0"
+release="2.0.$(git rev-list --all --count)"
 
 # Look for HostName * and read the identityfile
 if [ -z "${identity_file}" ]; then
@@ -91,20 +92,20 @@ info "${app_name} v.${app_ver} startup completed"
 debug "Username: ${username}"
 debug "${dbg_identity}"
 
-if [ "${COLS}" -lt 115 ]; then
-    error "Terminal columns must be at least 115 characters"
-    echo -e "${RED}Please resize your terminal to at least 115 characters wide (125 Recommended).${default} Current size is ${COLS}"
+if [ "${COLS}" -lt 140 ]; then
+    error "Terminal columns must be at least 140 characters"
+    echo -e "${RED}Please resize your terminal to at least 140 characters wide (150 Recommended). ${default} Current size is ${COLS}"
     exit 1
-elif [ "${COLS}" -lt 125 ]; then
-    notice "Terminal columns are less than 125 characters wide, screen may not render successfully"
+elif [ "${COLS}" -lt 150 ]; then
+    notice "Terminal columns are less than 150 characters wide, screen may not render successfully.${default} Current size is ${COLS}"
 fi
 
-if [ "${LINES}" -lt 30 ]; then
-    error "Terminal lines must be at least 30 characters"
-    echo -e "${RED}Please resize your terminal to at least 30 characters tall (40 Recommended).${default} Current size is ${LINES}"
+if [ "${LINES}" -lt 42 ]; then
+    error "Terminal lines must be at least 42 characters"
+    echo -e "${RED}Please resize your terminal to at least 42 characters tall (50 Recommended).${default} Current size is ${LINES}"
     exit 1
-elif [ "${LINES}" -lt 40 ]; then
-    notice "Terminal lines are less than 35 characters, screen may not render successfully"
+elif [ "${LINES}" -lt 45 ]; then
+    notice "Terminal lines are less than 45 characters, screen may not render successfully (50 Recommended).${default} Current size is ${LINES}"
 fi
 
 menu
