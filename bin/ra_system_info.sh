@@ -370,6 +370,7 @@ function local_system_info() {
     # Get the terminal height and width
     term_height=$(tput lines)
     term_width=$(tput cols)-2
+    local width=$((term_width * 7 / 10))
 
     # ANSI escape sequences
     ESC="\033"
@@ -452,10 +453,10 @@ function local_system_info() {
         # Print top active processes
         echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${white}Top Processes (by CPU):${default}"
-        echo -e "$(local_top_processes "cpu" 10)"
+        echo -e "$(local_top_processes "cpu" 5 | fold -w $width -s)"
         echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${white}Top Processes (by Memory):${default}"
-        echo -e "$(local_top_processes "memory" 10)"
+        echo -e "$(local_top_processes "memory" 5 | fold -w $width -s)"
 
         # Capture network stats
         while read -r line; do
@@ -804,7 +805,7 @@ function check_remote_cpu_usage() {
     cpu_usage=$remote_cpu_usage  # Replace the local CPU reading with the remote one
     cpu_usage_integer=${cpu_usage%.*}
 
-   # Determine the color based on the CPU usage
+    # Determine the color based on the CPU usage
     if [ "${cpu_usage_integer}" -gt 80 ]; then
     color="${light_red}"
     elif [ "${cpu_usage_integer}" -gt 50 ]; then
