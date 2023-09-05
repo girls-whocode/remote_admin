@@ -44,8 +44,10 @@ function local_top_processes() {
 
     if [ "${1}" = "memory" ]; then
         ps -eo pid,%cpu,%mem,cmd --sort=-%mem | head -n $((num+1)) | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
+        line 75 " "
     else
         ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n $((num+1)) | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
+        line 75 " "
     fi
 }
 
@@ -387,20 +389,11 @@ function local_system_info() {
 
     # Check for available updates
     if command -v apt &>/dev/null; then
-        # Loading animation
-        BLA::start_loading_animation "${BLA_braille_whitespace[@]}"
         updates=$(apt list --upgradable 2>/dev/null | wc -l)
-        BLA::stop_loading_animation
     elif command -v yum &>/dev/null; then
-        # Loading animation
-        BLA::start_loading_animation "${BLA_braille_whitespace[@]}"
         updates=$(yum check-update --quiet | wc -l)
-        BLA::stop_loading_animation
     elif command -v dnf &>/dev/null; then
-        # Loading animation
-        BLA::start_loading_animation "${BLA_braille_whitespace[@]}"
         updates=$(dnf check-update --quiet | wc -l)
-        BLA::stop_loading_animation
     else
         echo "Unknown"
     fi
@@ -802,32 +795,7 @@ function local_diagnostics_main() {
 
 # Remote Diagnostics
 function remote_diagnostics_main() {
-    declare -A last_issues # Create an associative array to keep track of last issues
-    info "Remote System Diagnostics Started"
-    # ANSI escape sequences
-    ESC="\033"
-    cursor_to_start="${ESC}[H"
-    cursor_to_third_row="${ESC}[3;1H"  # Move to 3rd row, 1st column
-    keep_running=true
-
-    # Hide the cursor
-    echo -ne "\033[?25l"
-
-    clear
-    echo -ne "${cursor_to_start}"
-    header "center" "System Diagnostics"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"  
-
-    while $keep_running; do
-        # Move the cursor to the third row
-        echo -ne "${cursor_to_third_row}"
-        
-        # Perform diagnostics
-        local_diagnostics
-        
-        # Check for user input
-        handle_input "local_menu"
-    done
+    echo "Need built"
 }
 
 function check_remote_cpu_usage() {
