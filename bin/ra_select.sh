@@ -11,7 +11,7 @@ function select_menu_esc() {
         spaces+=" "
     done
     footer "right" "${app_logo_color} v.${app_ver}" "left" "${spaces}"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" ": ${white}[${light_blue}ESC${white}] ${default}to return ${white}[${light_blue}H${white}] ${default}Help System ${white}[${light_blue}Q${white}] ${default}Exit System ${white}[${light_blue}L${white}] ${default}Logging System ${white}[${light_blue}E${white}] ${default}Environment: Change to ${light_cyan}${chg_env_mode}${default} mode"
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${light_green}: ${light_blue}[${white}ESC${light_blue}] ${default}to return ${light_blue}[${white}H${light_blue}] ${default}Help System ${light_blue}[${white}Q${light_blue}] ${default}Exit System ${light_blue}[${white}L${light_blue}] ${default}Logging System ${light_blue}[${white}E${light_blue}] ${default}Environment: Change to ${light_cyan}${chg_env_mode}${default} mode"
 
     while true; do
         read -rs -t 0.5 -n 3 key 2>/dev/null >&2
@@ -19,7 +19,7 @@ function select_menu_esc() {
             echo -ne "\033[?25h"
             stty -icanon sane
             footer "right" "${app_logo_color} v.${app_ver}" "left" "${spaces}"
-            footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+            footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu.${default}"
             return
         elif [[ "${key}" == "q" || "${key}" == "Q" ]]; then
             clear
