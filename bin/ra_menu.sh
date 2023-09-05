@@ -26,7 +26,7 @@
 function menu() {
     clear
     header "center" "System Administration Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="main_menu"
     unset menu_choice
@@ -103,7 +103,7 @@ function menu() {
 function remote_menu() {
     clear
     header "center" "Remote Systems Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="remote_menu"
     unset menu_choice
@@ -200,7 +200,7 @@ function remote_menu() {
 function local_menu() {
     clear
     header "center" "Local Systems Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="local_menu"
     unset menu_choice
@@ -279,7 +279,7 @@ function local_menu() {
 function app_menu() {
     clear
     header "center" "Application Settings Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="app_menu"
     unset menu_choice
@@ -397,7 +397,7 @@ function action_menu {
     fi
     clear
     header "center" "Application Settings Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="action_menu"
     unset menu_choice
@@ -559,7 +559,7 @@ function action_menu {
 function database_menu() {
     clear
     header "center" "Server Database Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="database_menu"
     unset menu_choice
@@ -649,7 +649,7 @@ function database_menu() {
 function modify_db_menu() {
     clear
     header "center" "Database Modification Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="modify_db_menu"
     unset menu_choice
@@ -736,7 +736,7 @@ function modify_db_menu() {
 function ssh_key_menu() {
     clear
     header "center" "SSH Key Management Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="key_menu"
     unset menu_choice
@@ -792,7 +792,7 @@ function ssh_key_menu() {
 function logging_menu() {
     clear
     header "center" "Logging Level Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="logging_menu"
     unset menu_choice
@@ -889,7 +889,7 @@ function logging_menu() {
 function local_error_menu() {
     clear
     header "center" "Logging Level Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Use the arrow keys to move curson, and ${white}[${light_blue}ENTER${white}] to select. Press ${white}[${light_blue}ESC${white}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="logging_menu"
     sudo_access="false"
