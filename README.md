@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [wiki](https://github.com/girls-whocode/remote_admin/wiki)
 - [Main Menu](#main-menu)
 - [Remote Systems Menu](#remote-systems-menu)
 - [Local Systems Menu](#local-systems-menu)
@@ -52,7 +53,7 @@ Liberate the power of control by invoking the "./ra.sh" command, the key to unlo
 
 <img src="documents/images/remote_menu.png" alt="Main Menu" width="250px" style="float: right;" />
 
-- **Enter a Host**: Provide the hostname for ARROWistration.
+- **Enter a Host**: Provide the hostname for ARROW to perform actions on.
 - **Load Server Database**: Infuse an existing server database.
 - **Load from SSH Config**: Inhale hosts from SSH configuration.
 - **Create a New Database**: Forge a novel server database.
