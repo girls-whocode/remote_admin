@@ -388,10 +388,15 @@ function bytes_to_human() {
         echo "$(add_commas "$(awk "BEGIN { printf \"%.2f\", ${bytes}/1024 }")") KiB"
     elif [[ "$bytes" -lt 1073741824 ]]; then
         echo "$(add_commas "$(awk "BEGIN { printf \"%.2f\", ${bytes}/1048576 }")") MiB"
-    else
+    elif [[ "$bytes" -lt 1099511627776 ]]; then  # Less than 1 TiB
         echo "$(add_commas "$(awk "BEGIN { printf \"%.2f\", ${bytes}/1073741824 }")") GiB"
+    elif [[ "$bytes" -lt 1125899906842624 ]]; then  # Less than 1 PiB
+        echo "$(add_commas "$(awk "BEGIN { printf \"%.2f\", ${bytes}/1099511627776 }")") TiB"
+    else  # Greater than or equal to 1 PiB
+        echo "$(add_commas "$(awk "BEGIN { printf \"%.2f\", ${bytes}/1125899906842624 }")") PiB"
     fi
 }
+
 
 # Function Name:
 #   draw_bar

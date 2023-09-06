@@ -240,10 +240,14 @@ function local_check_cpu_usage() {
 #   Memory Usage:  10.00% |
 #
 function local_check_memory_usage() {
+  # Get memory data in megabytes
   total_memory=$(free -m | awk '/Mem:/ { print $2 }')
   used_memory=$(free -m | awk '/Mem:/ { print $3 }')
+
+  # Calculate usage percentage
   memory_percentage=$(( 100 * used_memory / total_memory ))
 
+  # Determine color
   if [ $memory_percentage -gt 75 ]; then
     color="${light_red}"
   elif [ $memory_percentage -gt 50 ]; then
@@ -252,8 +256,13 @@ function local_check_memory_usage() {
     color="${light_green}"
   fi
 
+  # Print memory usage percentage
   printf "\r${white}Memory Usage: ${color}%6.2f%%${default}" $memory_percentage
+
+  # Initialize bar string
   bar=""
+
+  # Fill bar according to memory usage
   for (( i=0; i<$memory_percentage+1; i+=10 )); do
     if [ "${memory_percentage}" -gt 80 ]; then
         bar+="${light_red}|${default}"
@@ -264,15 +273,22 @@ function local_check_memory_usage() {
     fi
   done
 
+  # Fill the rest of the bar with dark gray
   for (( i=$memory_percentage; i<100; i+=10 )); do
     bar+="${dark_gray}|${default}"
   done
 
+  # Display bar
   echo -ne " $bar"
 
-  # Add total memory and used memory after the bar
-  printf "${dark_gray} Total Memory:${default} ${total_memory}M  ${dark_gray}Used Memory:${default} ${used_memory}M"
+  # Convert to gigabytes for readability
+  total_memory_gb=$(awk "BEGIN { printf \"%.2f\", ${total_memory}/1024 }")
+  used_memory_gb=$(awk "BEGIN { printf \"%.2f\", ${used_memory}/1024 }")
+
+  # Add total and used memory after the bar
+  printf "${dark_gray} Total Memory:${default} ${total_memory_gb}G  ${dark_gray}Used Memory:${default} ${used_memory_gb}G"
 }
+
 
 # Function:
 #   local_check_disk_usage
@@ -300,33 +316,61 @@ function local_check_memory_usage() {
 #   Disk Usage:  10.00% |
 #
 function local_check_disk_usage() {
-  disk_usage=$(df -h / | awk '/\// {print $(NF-1)}' | sed 's/%//g')
-  if [ $disk_usage -gt 80 ]; then
-    color="${light_red}"
-  elif [ $disk_usage -gt 60 ]; then
-    color="${yellow}"
-  else
-    color="${light_green}"
-  fi
+    # Initialize variables for total and used disk space
+    total_space=0
+    used_space=0
+    
+    # Loop over each filesystem
+    while read -r line; do
+        this_total=$(echo "$line" | awk '{print $2}' | sed 's/[A-Za-z]*//g')
+        this_used=$(echo "$line" | awk '{print $3}' | sed 's/[A-Za-z]*//g')
+        
+        # Skip if empty (sometimes happens with sed)
+        [ -z "$this_total" ] && continue
+        [ -z "$this_used" ] && continue
 
-  printf "\r${white}Disk Usage: ${color}%8.2f%%${default}" $disk_usage
+        # Convert to bytes
+        this_total=$(( this_total * 1024 ))
+        this_used=$(( this_used * 1024 ))
 
-  bar=""
-  for (( i=0; i<$disk_usage+1; i+=10 )); do
-    if [ "${disk_usage}" -gt 80 ]; then
-        bar+="${light_red}|${default}"
-    elif [ "${disk_usage}" -gt 50 ]; then
-        bar+="${yellow}|${default}"
+        total_space=$(( total_space + this_total ))
+        used_space=$(( used_space + this_used ))
+    done < <(df -P | awk 'NR>1 {print}')
+
+    # Calculate percentage (integer math, may have rounding errors)
+    disk_usage=$(( (used_space * 100) / total_space ))
+    
+    # Determine color
+    if [ "$disk_usage" -gt 80 ]; then
+        color="${light_red}"
+    elif [ "$disk_usage" -gt 60 ]; then
+        color="${yellow}"
     else
-        bar+="${light_green}|${default}"
+        color="${light_green}"
     fi
-  done
-  
-  for (( i=$disk_usage; i<100; i+=10 )); do
-    bar+="${dark_gray}|${default}"
-  done
-  
-  echo -ne " $bar${dark_gray} Total Disk Space: ${default}$(df -h / | awk '/\// {print $2}')${dark_gray} Used Disk Space: ${default}$(df -h / | awk '/\// {print $3}')"
+
+    printf "\r${white}Overall Disk Usage: ${color}%d%%${default}" "$disk_usage"
+
+    # Bar representation
+    bar=""
+    for (( i=0; i<=disk_usage; i+=10 )); do
+        if [ "$disk_usage" -gt 80 ]; then
+            bar+="${light_red}|${default}"
+        elif [ "$disk_usage" -gt 50 ]; then
+            bar+="${yellow}|${default}"
+        else
+            bar+="${light_green}|${default}"
+        fi
+    done
+
+    for (( i=disk_usage; i<100; i+=10 )); do
+        bar+="${dark_gray}|${default}"
+    done
+
+    human_total_space=$(bytes_to_human "${total_space}")
+    human_used_space=$(bytes_to_human "${used_space}")
+
+    echo -ne " $bar${dark_gray} Total Disk Space: ${default}${human_total_space}${dark_gray} Used Disk Space: ${default}${human_used_space}"
 }
 
 # Function:
@@ -441,7 +485,7 @@ function local_system_info() {
         echo -e "${white}Uptime:${default} ${light_blue}$uptime${default}"
         echo -e "${white}OS Name:${default} ${light_blue}$os_name${default}" "${white}Kernel Version:${default} ${light_blue}$kernel_version${default}"
         echo -e "${white}CPU:${default} ${light_blue}$total_cpus${default} cores ${light_blue}$cpu_model${default}" "${white}Load Average:${default} ${light_blue}$load_avg${default}"
-        echo -e "${white}Disk Space:${default} ${light_blue}$disk_space${default} ${light_cyan}(${white}Used: ${light_blue}$used_disk_space${light_cyan})${default}" "${white}Total Memory:${default} ${light_blue}${total_mem} MB${default} ${light_cyan}(${white}Used: ${light_blue}${used_mem} ${white}MB${light_cyan}) ${white}Updates Available: ${light_blue}${updates}${default}"
+        echo -e "${white}Updates Available: ${light_blue}${updates}${default}"
         echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${network_activity_info}"
 
