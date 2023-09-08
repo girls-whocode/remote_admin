@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 declare -A host_to_ip
@@ -248,4 +248,3 @@ function get_host_file() {
     # Further code...
     select_hosts  # If this function uses host_options or host_count, no further modification is needed
 }
-

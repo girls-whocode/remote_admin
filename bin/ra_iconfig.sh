@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function interactive_config() {
     debug "interactive_config function called"

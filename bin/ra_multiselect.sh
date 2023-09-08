@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Function Name:
 #   multiselect
@@ -85,7 +85,7 @@ function multiselect {
     cursor_blink_off
 
     key_input() {
-        local key
+        local key key_part
         IFS= read -rsn1 key 2>/dev/null >&2
         if [[ $key = "" ]]; then echo enter; fi;
         if [[ $key = $'\x20' ]]; then echo space; fi;
@@ -96,20 +96,18 @@ function multiselect {
         if [[ $key = "a" ]]; then echo all; fi;
         if [[ $key = "n" ]]; then echo none; fi;
         if [[ $key = $'\x1b' ]]; then
-            read -rsn2 key
-            if [[ $key = [A || $key = k ]]; then echo up;    fi;
-            if [[ $key = [B || $key = j ]]; then echo down;  fi;
-            if [[ $key = [C || $key = l ]]; then echo right; fi;
-            if [[ $key = [D || $key = h ]]; then echo left;  fi;
-        fi
-    }
+            # Read the next two characters forming the escape sequence
+            IFS= read -rsn2 -t 0.1 key_part
+            key+="$key_part"
 
-    toggle_option() {
-        local option=$1
-        if [[ ${selected[option]} == true ]]; then
-            selected[option]=false
-        else
-            selected[option]=true
+            case $key in
+                $'\x1b[A' | $'\x1b[Ak') echo up;    ;;
+                $'\x1b[B' | $'\x1b[Bj') echo down;  ;;
+                $'\x1b[C' | $'\x1b[Cl') echo right; ;;
+                $'\x1b[D' | $'\x1b[Dh') echo left;  ;;
+                $'\x1b') echo esc; ;;
+                *) echo "unknown: $key"; ;;
+            esac
         fi
     }
 
@@ -178,41 +176,46 @@ function multiselect {
         # user key control
         case $(key_input) in
             space)  
-                    toggle_option_multicol $active_row $active_col
-                    ;;
+                toggle_option_multicol $active_row $active_col
+                ;;
             enter)  
-                    print_options_multicol -1 -1
-                    break
-                    ;;
+                print_options_multicol -1 -1
+                break
+                ;;
             up)     
-                    ((active_row--))
-                    if [ $active_row -lt 0 ]; then 
-                        active_row=0
-                    fi;;
+                ((active_row--))
+                if [ $active_row -lt 0 ]; then 
+                    active_row=0
+                fi;;
             down)   
-                    ((active_row++))
-                    if [ $active_row -ge $(( ${#options[@]} / colmax )) ]; then 
-                        active_row=$(( ${#options[@]} / colmax ))
-                    fi
-                    ;;
+                ((active_row++))
+                if [ $active_row -ge $(( ${#options[@]} / colmax )) ]; then 
+                    active_row=$(( ${#options[@]} / colmax ))
+                fi
+                ;;
             left)   
-                    ((active_col=active_col - 1))
-                    if [ $active_col -lt 0 ]; then 
-                        active_col=0; 
-                    fi
-                    ;;
+                ((active_col=active_col - 1))
+                if [ $active_col -lt 0 ]; then 
+                    active_col=0; 
+                fi
+                ;;
             right)  
-                    ((active_col=active_col + 1))
-                    if [ $active_col -ge "$colmax" ]; then 
-                        active_col=$(( colmax - 1 ))
-                    fi
-                    ;;
+                ((active_col=active_col + 1))
+                if [ $active_col -ge "$colmax" ]; then 
+                    active_col=$(( colmax - 1 ))
+                fi
+                ;;
             all)    
-                    toggle_option_multicol -10 -10
-                    ;;
+                toggle_option_multicol -10 -10
+                ;;
+            esc)  
+                print_options_multicol -1 -1
+                remote_menu
+                return
+                ;;
             none)   
-                    toggle_option_multicol -100 -100
-                    ;;
+                toggle_option_multicol -100 -100
+                ;;
         esac
     done
 

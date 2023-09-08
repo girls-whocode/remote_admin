@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 # shellcheck disable=SC2181  # mycmd #? is used for return value of commands

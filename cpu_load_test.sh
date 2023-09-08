@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Generate a random CPU load: between 70% and 95%
 target_load=$(shuf -i 70-95 -n 1)
