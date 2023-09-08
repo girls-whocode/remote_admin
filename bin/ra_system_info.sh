@@ -8,7 +8,6 @@
 declare -A issues       # Associative array to hold current issues
 declare -A last_issues  # Associative array to hold last known issues
 declare -A prev_total prev_idle
-declare cpu_status
 declare had_issues_last_run=false
 
 # Function:
@@ -44,10 +43,10 @@ function local_top_processes() {
     fi
 
     if [ "${1}" = "memory" ]; then
-        ps -eo pid,%cpu,%mem,cmd --sort=-%mem | head -n $((num+1)) | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
+        ps -eo pid,%cpu,%mem,cmd --sort=-%mem | head -n $((num+1)) | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { split($4, arr, "/"); cmd=arr[length(arr)]; printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, cmd }'
         line 75 " "
     else
-        ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n $((num+1)) | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, $4 }'
+        ps -eo pid,%cpu,%mem,cmd --sort=-%cpu | head -n $((num+1)) | awk -v green="${green}" -v yellow="${yellow}" -v cyan="${cyan}" -v lblue="${light_blue}" -v mag="${light_magenta}" -v reset="${default}" 'NR==1{ printf green "%-8s %-8s %-8s %-30s\n" reset, $1, $2, $3, $4 } NR>1 { split($4, arr, "/"); cmd=arr[length(arr)]; printf cyan "%-8s " lblue "%-8s " mag "%-8s " yellow "%-30s\n" reset, $1, $2, $3, cmd }'
         line 75 " "
     fi
 }
@@ -212,9 +211,9 @@ function local_check_cpu_usage() {
     get_cpu_usage_integer
 
     # Determine the color based on the CPU usage
-    if [ "${cpu_usage_integer}" -gt 80 ]; then
+    if [ "${cpu_usage_integer}" -gt 90 ]; then
         color="${light_red}"
-    elif [ "${cpu_usage_integer}" -gt 50 ]; then
+    elif [ "${cpu_usage_integer}" -gt 70 ]; then
         color="${yellow}"
     else
         color="${light_green}"
@@ -227,9 +226,9 @@ function local_check_cpu_usage() {
     bar=""
     for (( i=0; i<cpu_usage_integer+1; i+=10 )); do
         # Determine the color based on the CPU usage
-        if [ "${cpu_usage_integer}" -gt 80 ]; then
+        if [ "${cpu_usage_integer}" -gt 90 ]; then
             bar+="${light_red}|${default}"
-        elif [ "${cpu_usage_integer}" -gt 50 ]; then
+        elif [ "${cpu_usage_integer}" -gt 70 ]; then
             bar+="${yellow}|${default}"
         else
             bar+="${light_green}|${default}"
@@ -242,10 +241,10 @@ function local_check_cpu_usage() {
     done
 
     # Display the CPU usage and bar graph
-    if [ "${cpu_usage_integer}" -gt 80 ]; then
+    if [ "${cpu_usage_integer}" -gt 90 ]; then
         echo -ne " ${light_red}$bar${default}"
         cpu_status="${light_red}High${default}"
-    elif [ "${cpu_usage_integer}" -gt 50 ]; then
+    elif [ "${cpu_usage_integer}" -gt 70 ]; then
         echo -ne " ${yellow}$bar${default}"
         cpu_status="${yellow}Moderate${default}"
     else
@@ -288,9 +287,9 @@ function local_check_memory_usage() {
     get_memory_usage_integer
 
     # Determine color
-    if [ $memory_percentage -gt 75 ]; then
+    if [ $memory_percentage -gt 90 ]; then
         color="${light_red}"
-    elif [ $memory_percentage -gt 50 ]; then
+    elif [ $memory_percentage -gt 70 ]; then
         color="${yellow}"
     else
         color="${light_green}"
@@ -304,9 +303,9 @@ function local_check_memory_usage() {
 
     # Fill bar according to memory usage
     for (( i=0; i<$memory_percentage+1; i+=10 )); do
-        if [ "${memory_percentage}" -gt 80 ]; then
+        if [ "${memory_percentage}" -gt 90 ]; then
             bar+="${light_red}|${default}"
-        elif [ "${memory_percentage}" -gt 50 ]; then
+        elif [ "${memory_percentage}" -gt 70 ]; then
             bar+="${yellow}|${default}"
         else
             bar+="${light_green}|${default}"
@@ -359,10 +358,10 @@ function local_check_disk_usage() {
     get_disk_usage_integer
     
     # Determine color
-    if [ "$disk_usage" -gt 80 ]; then
+    if [ "$disk_usage" -gt 90 ]; then
         color="${light_red}"
         disk_status="${light_red}High${default}"
-    elif [ "$disk_usage" -gt 60 ]; then
+    elif [ "$disk_usage" -gt 70 ]; then
         color="${yellow}"
         disk_status="${yellow}Moderate${default}"
     else
@@ -375,9 +374,9 @@ function local_check_disk_usage() {
     # Bar representation
     bar=""
     for (( i=0; i<=disk_usage; i+=10 )); do
-        if [ "$disk_usage" -gt 80 ]; then
+        if [ "$disk_usage" -gt 90 ]; then
             bar+="${light_red}|${default}"
-        elif [ "$disk_usage" -gt 50 ]; then
+        elif [ "$disk_usage" -gt 70 ]; then
             bar+="${yellow}|${default}"
         else
             bar+="${light_green}|${default}"
@@ -451,6 +450,7 @@ function local_system_info() {
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
     footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
+    loading=true
 
     # Check for available updates
     if command -v apt &>/dev/null; then
@@ -459,6 +459,12 @@ function local_system_info() {
         updates=$(yum check-update --quiet | wc -l)
     elif command -v dnf &>/dev/null; then
         updates=$(dnf check-update --quiet | wc -l)
+    elif command -v zypper &>/dev/null; then
+        updates=$(zypper list-updates | wc -l)
+    elif command -v pacman &>/dev/null; then
+        updates=$(pacman -Qu | wc -l)
+    elif command -v brew &>/dev/null; then
+        updates=$(brew outdated | wc -l)
     else
         echo "Unknown"
     fi
@@ -520,10 +526,10 @@ function local_system_info() {
         # Print top active processes
         echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${white}Top Processes (by CPU):${default}"
-        echo -e "$(local_top_processes "cpu" 5 | fold -w $width -s)"
+        echo -e "$(local_top_processes "cpu" 10 | fold -w $width -s)"
         echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${white}Top Processes (by Memory):${default}"
-        echo -e "$(local_top_processes "memory" 5 | fold -w $width -s)"
+        echo -e "$(local_top_processes "memory" 10 | fold -w $width -s)"
 
         # Capture network stats
         while read -r line; do
@@ -547,6 +553,7 @@ function local_system_info() {
 
         # Check for user input
         handle_input "local_menu"
+        loading=false
     done
 }
 
@@ -846,6 +853,10 @@ function local_diagnostics_main() {
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
     footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
+
+    BLA::start_loading_animation "${BLA_growing_dots[@]}"
+    local_diagnostics_run
+    BLA::stop_loading_animation
 
     while $keep_running; do
         # Move the cursor to the third row

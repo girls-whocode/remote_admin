@@ -205,17 +205,17 @@ function handle_input() {
 #   show_message "Operation Completed Successfully"
 #
 function show_message() {
-  local message=$1
-  local lines=$(tput lines)
-  local cols=$(tput cols)
+    local message=$1
+    local lines=$(tput lines)
+    local cols=$(tput cols)
 
-  local half_message_length=$((${#message} / 2))
-  local middle_line=$((lines / 2))
-  local middle_col=$((cols / 2))
+    local half_message_length=$((${#message} / 2))
+    local middle_line=$((lines / 2))
+    local middle_col=$((cols / 2))
 
-  tput cup $middle_line $((middle_col - half_message_length))
-  printf "%b${message}%b" "${light_red}" "${default}"
-  info "${message}"
+    tput cup $middle_line $((middle_col - half_message_length))
+    printf "%b${message}%b" "${light_red}" "${default}"
+    info "${message}"
 }
 
 # Function Name:
@@ -514,9 +514,9 @@ function draw_center_line_with_info() {
             if [[ ${system_info} = true ]]; then
                 get_cpu_usage_integer
                 # Check if the variable is set and is an integer
-                if [ "${cpu_usage_integer}" -gt 80 ]; then
+                if [ "${cpu_usage_integer}" -gt 90 ]; then
                     cpu_status="${light_red}High     ${default}"
-                elif [ "${cpu_usage_integer}" -gt 50 ]; then
+                elif [ "${cpu_usage_integer}" -gt 70 ]; then
                     cpu_status="${yellow}Moderate${default}"
                 else
                     cpu_status="${light_green}Normal   ${default}"
@@ -531,9 +531,9 @@ function draw_center_line_with_info() {
             if [[ ${system_info} = true ]]; then
                 get_memory_usage_integer
                 # Check if the variable is set and is an integer
-                if [ "${memory_percentage}" -gt 80 ]; then
+                if [ "${memory_percentage}" -gt 90 ]; then
                     memory_status="${light_red}High     ${default}"
-                elif [ "${memory_percentage}" -gt 50 ]; then
+                elif [ "${memory_percentage}" -gt 70 ]; then
                     memory_status="${yellow}Moderate${default}"
                 else
                     memory_status="${light_green}Normal   ${default}"
@@ -548,9 +548,9 @@ function draw_center_line_with_info() {
             if [[ ${system_info} = true ]]; then
                 get_disk_usage_integer
                 # Check if the variable is set and is an integer
-                if [ "${disk_usage}" -gt 80 ]; then
+                if [ "${disk_usage}" -gt 90 ]; then
                     disk_status="${light_red}High     ${default}"
-                elif [ "${disk_usage}" -gt 50 ]; then
+                elif [ "${disk_usage}" -gt 70 ]; then
                     disk_status="${yellow}Moderate${default}"
                 else
                     disk_status="${light_green}Normal   ${default}"
