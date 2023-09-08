@@ -8,6 +8,7 @@
 declare -A issues       # Associative array to hold current issues
 declare -A last_issues  # Associative array to hold last known issues
 declare -A prev_total prev_idle
+declare cpu_status
 declare had_issues_last_run=false
 
 # Function:
@@ -135,6 +136,46 @@ function get_active_cores() {
     echo "${active_cores_count}"
 }
 
+function get_cpu_usage_integer() {
+    cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
+    cpu_usage_integer=${cpu_usage%.*}
+}
+
+function get_memory_usage_integer() {
+    # Get memory data in megabytes
+    total_memory=$(free -m | awk '/Mem:/ { print $2 }')
+    used_memory=$(free -m | awk '/Mem:/ { print $3 }')
+
+    # Calculate usage percentage
+    memory_percentage=$(( 100 * used_memory / total_memory ))
+}
+
+function get_disk_usage_integer() {
+    # Initialize variables for total and used disk space
+    total_space=0
+    used_space=0
+    
+    # Loop over each filesystem
+    while read -r line; do
+        this_total=$(echo "$line" | awk '{print $2}' | sed 's/[A-Za-z]*//g')
+        this_used=$(echo "$line" | awk '{print $3}' | sed 's/[A-Za-z]*//g')
+        
+        # Skip if empty (sometimes happens with sed)
+        [ -z "$this_total" ] && continue
+        [ -z "$this_used" ] && continue
+
+        # Convert to bytes
+        this_total=$(( this_total * 1024 ))
+        this_used=$(( this_used * 1024 ))
+
+        total_space=$(( total_space + this_total ))
+        used_space=$(( used_space + this_used ))
+    done < <(df -P | awk 'NR>1 {print}')
+
+    # Calculate percentage (integer math, may have rounding errors)
+    disk_usage=$(( (used_space * 100) / total_space ))
+}
+
 # Function:
 #   local_check_cpu_usage
 #
@@ -168,8 +209,7 @@ function local_check_cpu_usage() {
     active_cores=$(grep "processor" /proc/cpuinfo | awk '{print $3}' | wc -l)
 
     # Get CPU usage and extract integer part
-    cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
-    cpu_usage_integer=${cpu_usage%.*}
+    get_cpu_usage_integer
 
     # Determine the color based on the CPU usage
     if [ "${cpu_usage_integer}" -gt 80 ]; then
@@ -204,8 +244,13 @@ function local_check_cpu_usage() {
     # Display the CPU usage and bar graph
     if [ "${cpu_usage_integer}" -gt 80 ]; then
         echo -ne " ${light_red}$bar${default}"
+        cpu_status="${light_red}High${default}"
+    elif [ "${cpu_usage_integer}" -gt 50 ]; then
+        echo -ne " ${yellow}$bar${default}"
+        cpu_status="${yellow}Moderate${default}"
     else
         echo -ne " ${light_green}$bar${default}"
+        cpu_status="${light_green}Normal${default}"
     fi
 
     active_cores=$(get_active_cores)
@@ -240,53 +285,48 @@ function local_check_cpu_usage() {
 #   Memory Usage:  10.00% |
 #
 function local_check_memory_usage() {
-  # Get memory data in megabytes
-  total_memory=$(free -m | awk '/Mem:/ { print $2 }')
-  used_memory=$(free -m | awk '/Mem:/ { print $3 }')
+    get_memory_usage_integer
 
-  # Calculate usage percentage
-  memory_percentage=$(( 100 * used_memory / total_memory ))
-
-  # Determine color
-  if [ $memory_percentage -gt 75 ]; then
-    color="${light_red}"
-  elif [ $memory_percentage -gt 50 ]; then
-    color="${yellow}"
-  else
-    color="${light_green}"
-  fi
-
-  # Print memory usage percentage
-  printf "\r${white}Memory Usage: ${color}%6.2f%%${default}" $memory_percentage
-
-  # Initialize bar string
-  bar=""
-
-  # Fill bar according to memory usage
-  for (( i=0; i<$memory_percentage+1; i+=10 )); do
-    if [ "${memory_percentage}" -gt 80 ]; then
-        bar+="${light_red}|${default}"
-    elif [ "${memory_percentage}" -gt 50 ]; then
-        bar+="${yellow}|${default}"
+    # Determine color
+    if [ $memory_percentage -gt 75 ]; then
+        color="${light_red}"
+    elif [ $memory_percentage -gt 50 ]; then
+        color="${yellow}"
     else
-        bar+="${light_green}|${default}"
+        color="${light_green}"
     fi
-  done
 
-  # Fill the rest of the bar with dark gray
-  for (( i=$memory_percentage; i<100; i+=10 )); do
-    bar+="${dark_gray}|${default}"
-  done
+    # Print memory usage percentage
+    printf "\r${white}Memory Usage: ${color}%6.2f%%${default}" $memory_percentage
 
-  # Display bar
-  echo -ne " $bar"
+    # Initialize bar string
+    bar=""
 
-  # Convert to gigabytes for readability
-  total_memory_gb=$(awk "BEGIN { printf \"%.2f\", ${total_memory}/1024 }")
-  used_memory_gb=$(awk "BEGIN { printf \"%.2f\", ${used_memory}/1024 }")
+    # Fill bar according to memory usage
+    for (( i=0; i<$memory_percentage+1; i+=10 )); do
+        if [ "${memory_percentage}" -gt 80 ]; then
+            bar+="${light_red}|${default}"
+        elif [ "${memory_percentage}" -gt 50 ]; then
+            bar+="${yellow}|${default}"
+        else
+            bar+="${light_green}|${default}"
+        fi
+    done
 
-  # Add total and used memory after the bar
-  printf "${dark_gray} Total Memory:${default} ${total_memory_gb}G  ${dark_gray}Used Memory:${default} ${used_memory_gb}G"
+    # Fill the rest of the bar with dark gray
+    for (( i=$memory_percentage; i<100; i+=10 )); do
+        bar+="${dark_gray}|${default}"
+    done
+
+    # Display bar
+    echo -ne " $bar"
+
+    # Convert to gigabytes for readability
+    total_memory_gb=$(awk "BEGIN { printf \"%.2f\", ${total_memory}/1024 }")
+    used_memory_gb=$(awk "BEGIN { printf \"%.2f\", ${used_memory}/1024 }")
+
+    # Add total and used memory after the bar
+    printf "${dark_gray} Total Memory:${default} ${total_memory_gb}G  ${dark_gray}Used Memory:${default} ${used_memory_gb}G"
 }
 
 
@@ -316,37 +356,18 @@ function local_check_memory_usage() {
 #   Disk Usage:  10.00% |
 #
 function local_check_disk_usage() {
-    # Initialize variables for total and used disk space
-    total_space=0
-    used_space=0
-    
-    # Loop over each filesystem
-    while read -r line; do
-        this_total=$(echo "$line" | awk '{print $2}' | sed 's/[A-Za-z]*//g')
-        this_used=$(echo "$line" | awk '{print $3}' | sed 's/[A-Za-z]*//g')
-        
-        # Skip if empty (sometimes happens with sed)
-        [ -z "$this_total" ] && continue
-        [ -z "$this_used" ] && continue
-
-        # Convert to bytes
-        this_total=$(( this_total * 1024 ))
-        this_used=$(( this_used * 1024 ))
-
-        total_space=$(( total_space + this_total ))
-        used_space=$(( used_space + this_used ))
-    done < <(df -P | awk 'NR>1 {print}')
-
-    # Calculate percentage (integer math, may have rounding errors)
-    disk_usage=$(( (used_space * 100) / total_space ))
+    get_disk_usage_integer
     
     # Determine color
     if [ "$disk_usage" -gt 80 ]; then
         color="${light_red}"
+        disk_status="${light_red}High${default}"
     elif [ "$disk_usage" -gt 60 ]; then
         color="${yellow}"
+        disk_status="${yellow}Moderate${default}"
     else
         color="${light_green}"
+        disk_status="${light_green}Normal${default}"
     fi
 
     printf "\r${white}Overall Disk Usage: ${color}%d%%${default}" "$disk_usage"
@@ -430,7 +451,6 @@ function local_system_info() {
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
     footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
-    draw_center_line_with_info
 
     # Check for available updates
     if command -v apt &>/dev/null; then
@@ -446,6 +466,8 @@ function local_system_info() {
     while $keep_running; do
         # Hide the cursor
         echo -ne "\033[?25l"
+        system_info=true
+        draw_center_line_with_info
 
         # Move the cursor to the third row
         echo -ne "${cursor_to_second_row}"
@@ -460,6 +482,12 @@ function local_system_info() {
         else
             os_name="Unknown"
         fi
+
+        # Store the system checks in variables
+        check_cpu_output=$(local_check_cpu_usage)
+        check_memory_output=$(local_check_memory_usage)
+        check_disk_output=$(local_check_disk_usage)
+
         kernel_version=$(uname -r)
         si_hostname=$(hostname)
         ip_address=$(hostname -I | awk '{print $1}')
@@ -473,7 +501,7 @@ function local_system_info() {
         used_disk_space=$(df -h --total | grep 'total' | awk '{print $3}')
         num_active_network_cards=$(ip link | grep 'state UP' -c)
         open_tcp_ports=$(ss -tuln | grep 'LISTEN' | wc -l)
-        cpu_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Disk Usage: ${light_green}${check_disk_output}"
+        cpu_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Overall Disk Usage: ${light_green}${check_disk_output}"
         network_activity_info="${white}Network Bytes In: ${light_green}${human_bytes_in}/sec        \n${white}Network Bytes Out: ${light_green}${human_bytes_out}/sec        ${default}"
         total_bytes_in=0
         total_bytes_out=0
@@ -488,11 +516,6 @@ function local_system_info() {
         echo -e "${white}Updates Available: ${light_blue}${updates}${default}"
         echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${network_activity_info}"
-
-        # Store the system checks in variables
-        check_cpu_output=$(local_check_cpu_usage)
-        check_memory_output=$(local_check_memory_usage)
-        check_disk_output=$(local_check_disk_usage)
 
         # Print top active processes
         echo -e "${dark_gray}$(line 75 "-")${default}"
@@ -521,9 +544,6 @@ function local_system_info() {
         # Convert to human-readable format
         human_bytes_in=$(bytes_to_human $bytes_in_interval)
         human_bytes_out=$(bytes_to_human $bytes_out_interval)
-
-        # Concatenate the gathered information
-        complete_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Disk Usage: ${light_green}${check_disk_output}\n\n${white}Network Bytes In: ${light_green}${human_bytes_in}/sec        \n${white}Network Bytes Out: ${light_green}${human_bytes_out}/sec        ${default}"
 
         # Check for user input
         handle_input "local_menu"

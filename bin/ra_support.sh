@@ -156,8 +156,10 @@ function handle_input() {
     if [[ "${key}" == "q" || "${key}" == "Q" || "${key}" == "${esc_key}" ]]; then
         echo -ne "\033[?25h"
         stty -icanon sane
-        eval "${1}"
         keep_running=false
+        system_info=false
+
+        eval "${1}"
     fi
     unset key
 }
@@ -501,19 +503,62 @@ function draw_center_line_with_info() {
             ;;
         10)
             tput cup "${row}" $((middle_col + 2))
-            echo ""
+            if [[ ${system_info} = true ]]; then
+                echo -ne "${white}SYSTEM OVERVIEW${default}"
+            else
+                echo ""
+            fi
             ;;
         11)
             tput cup "${row}" $((middle_col + 2))
-            echo ""
+            if [[ ${system_info} = true ]]; then
+                get_cpu_usage_integer
+                # Check if the variable is set and is an integer
+                if [ "${cpu_usage_integer}" -gt 80 ]; then
+                    cpu_status="${light_red}High     ${default}"
+                elif [ "${cpu_usage_integer}" -gt 50 ]; then
+                    cpu_status="${yellow}Moderate${default}"
+                else
+                    cpu_status="${light_green}Normal   ${default}"
+                fi
+                echo -ne "${cyan}CPU Status: ${cpu_status}"
+            else
+                echo ""
+            fi
             ;;
         12)
             tput cup "${row}" $((middle_col + 2))
-            echo ""
+            if [[ ${system_info} = true ]]; then
+                get_memory_usage_integer
+                # Check if the variable is set and is an integer
+                if [ "${memory_percentage}" -gt 80 ]; then
+                    memory_status="${light_red}High     ${default}"
+                elif [ "${memory_percentage}" -gt 50 ]; then
+                    memory_status="${yellow}Moderate${default}"
+                else
+                    memory_status="${light_green}Normal   ${default}"
+                fi
+                echo -ne "${cyan}Memory Status: ${memory_status}"
+            else
+                echo ""
+            fi
             ;;
         13)
             tput cup "${row}" $((middle_col + 2))
-            echo ""
+            if [[ ${system_info} = true ]]; then
+                get_disk_usage_integer
+                # Check if the variable is set and is an integer
+                if [ "${disk_usage}" -gt 80 ]; then
+                    disk_status="${light_red}High     ${default}"
+                elif [ "${disk_usage}" -gt 50 ]; then
+                    disk_status="${yellow}Moderate${default}"
+                else
+                    disk_status="${light_green}Normal   ${default}"
+                fi
+                echo -ne "${cyan}Disk Status: ${memory_status}"
+            else
+                echo ""
+            fi
             ;;
         14)
             tput cup "${row}" $((middle_col + 2))
