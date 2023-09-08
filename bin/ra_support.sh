@@ -260,49 +260,47 @@ function show_message() {
 #
 function wrap_text() {
     local text="$1"
-    local wrap_at=$(tput cols)
-
-    local wrapped_text=""
-    local line_length=0
+    local wrap_at=$(( $(tput cols) - 2 ))
+    local current_line=""
     local word=""
     local ansi_escape=""
     local in_ansi_escape=false
 
-    text+=" "
-
     for (( i=0; i<${#text}; i++ )); do
-        char="${text:$i:1}"
+    char="${text:$i:1}"
 
-        if [ "$char" == $'\033' ]; then
-            in_ansi_escape=true
+    if [ "$char" == $'\033' ]; then
+        in_ansi_escape=true
+    fi
+
+    if [ "$in_ansi_escape" == true ]; then
+        ansi_escape+="$char"
+        if [ "$char" == "m" ]; then
+        in_ansi_escape=false
+        continue
         fi
-
-        if [ "$in_ansi_escape" == true ]; then
-            ansi_escape+="$char"
-            if [ "$char" == "m" ]; then
-                in_ansi_escape=false
-                continue
-            fi
-        else
-            word+="$ansi_escape$char"
-            ansi_escape=""
-            local word_length=$(echo -n "$word" | strip_ansi | wc -c)
-
-            if [[ "$char" == " " || "$char" == $'\n' ]]; then
-                if (( line_length + word_length > wrap_at )); then
-                    wrapped_text+="\n"
-                    line_length=0
-                fi
-
-                wrapped_text+="$word"
-                line_length=$((line_length + word_length))
-                word=""
-            fi
+    else
+        word+="$ansi_escape$char"
+        ansi_escape=""
+        if [[ "$char" == " " || "$char" == $'\n' ]]; then
+        word_stripped=$(strip_ansi "$word")
+        line_stripped=$(strip_ansi "$current_line")
+        if (( ${#line_stripped} + ${#word_stripped} > wrap_at )); then
+            echo -n -e "$current_line\n"
+            current_line=""
         fi
+        current_line+="$word"
+        word=""
+        fi
+    fi
     done
 
-    echo -e "$wrapped_text"
+    # Output the last line if it's not empty
+    if [ -n "$current_line" ]; then
+    echo -e "$current_line"
+    fi
 }
+
 
 # Function Name:
 #   pad_to_width

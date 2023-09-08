@@ -130,6 +130,7 @@ function display_help() {
         debug "Snapshot Help"
         header "center" "Snapshot Help"
         footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
+        
         ss_p1="Choice of Snapshot Technology\nFilesystem: Check whether you are using LVM, ZFS, or Btrfs, as each has its own snapshotting method.\nVirtual Machines: If you're running a VM, then the hypervisor may have its own snapshot capabilities.\nSimple Backup: If you're not using any of the above, rsync or dd can also be used, although they may not provide true snapshot functionality."
         ss_p2="Pre-Snapshot Preparations\nQuiesce the Filesystem: Some filesystems may need to be made read-only or applications may need to be paused to ensure data consistency.\nCheck for Existing Snapshots: Too many snapshots can fill up your storage or even make subsequent snapshots impossible.\nResource Check: Ensure that there is enough disk space and that the system load is not too high to carry out the snapshot operation."
         ss_p3="Script Workflow\nParameter Parsing: Process command-line options or configuration files.\nLogging: Decide on a logging mechanism to capture the success or failure of different steps.\nNotification: Add email notifications or system alerts in case of success/failure.\nError Handling: Implement robust error checking after each operation to make sure each step succeeds before proceeding to the next."
