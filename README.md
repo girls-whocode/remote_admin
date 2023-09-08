@@ -19,6 +19,10 @@ Welcome to the world of **A**dvanced **R**emote **R**esource and **O**perations 
 ## Overview: Navigating the Alpha State
 **NOTE:** As you explore this interface, bear in mind that it's in an EXTREME ALPHA state. Many functions are yet to be developed or fully operational. Being crafted to elevate my professional responsibilities, I [commit](https://github.com/girls-whocode/remote_admin/commits/main) to daily updates. Last update: [SEP. 8th, 2023]
 
+**NOTE 2:**
+I have resolved most of the following issues in the local menu. The System Information and Check Errors are mostly completed. Through testing is recommended and post any issues that may need to be addressed. I will continue to work towards improvements and features.
+
+---
 ARROW 2.0 stands as a comprehensive utility tailor-made for system administrators. It's designed to facilitate remote management of servers and local systems, presenting a sleek menu-driven interface for an effortless experience.
 
 ## Prerequisites: Pathways to Access

@@ -175,6 +175,14 @@ function get_disk_usage_integer() {
     disk_usage=$(( (used_space * 100) / total_space ))
 }
 
+function get_total_processes() {
+    total_processes=$(ps -e | wc -l)
+
+    # Subtracting 1 to exclude the header line.
+    total_processes=$((total_processes - 1))
+    # echo "$total_processes"
+}
+
 # Function:
 #   local_check_cpu_usage
 #
@@ -436,6 +444,19 @@ function local_system_info() {
     term_width=$(tput cols)-2
     local width=$((term_width * 7 / 10))
 
+    # Calculate the number of processes that can be displayed depending on the terminal height
+    if [ "$term_height" -gt 44 ]; then
+        num_processes=10
+    elif [ "$term_height" -le 44 ] && [ "$term_height" -gt 43 ]; then
+        num_processes=9
+    elif [ "$term_height" -le 43 ] && [ "$term_height" -gt 40 ]; then
+        num_processes=5
+    elif [ "$term_height" -le 40 ] && [ "$term_height" -gt 37 ]; then
+        num_processes=4
+    else
+        num_processes=1
+    fi
+
     # ANSI escape sequences
     ESC="\033"
     cursor_to_start="${ESC}[H"
@@ -526,10 +547,10 @@ function local_system_info() {
         # Print top active processes
         echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${white}Top Processes (by CPU):${default}"
-        echo -e "$(local_top_processes "cpu" 10 | fold -w $width -s)"
+        echo -e "$(local_top_processes "cpu" ${num_processes} | fold -w $width -s)"
         echo -e "${dark_gray}$(line 75 "-")${default}"
         echo -e "${white}Top Processes (by Memory):${default}"
-        echo -e "$(local_top_processes "memory" 10 | fold -w $width -s)"
+        echo -e "$(local_top_processes "memory" ${num_processes} | fold -w $width -s)"
 
         # Capture network stats
         while read -r line; do

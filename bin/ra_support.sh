@@ -562,7 +562,12 @@ function draw_center_line_with_info() {
             ;;
         14)
             tput cup "${row}" $((middle_col + 2))
-            echo ""
+            if [[ ${system_info} = true ]]; then
+                get_total_processes
+                echo -ne "${cyan}Total Processes: ${white}$(add_commas "${total_processes}")${default}"
+            else
+                echo ""
+            fi
             ;;
         15)
             tput cup "${row}" $((middle_col + 2))
