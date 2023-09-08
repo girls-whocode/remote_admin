@@ -35,6 +35,7 @@ function select_hosts() {
     clear
     header "center" "Select Hosts from the Database"
     footer "right" "${app_logo_color} v.${app_ver}"
+    draw_center_line_with_info
     target=()
     colmax=3
     # Calculate 70% of the total screen width
@@ -106,7 +107,7 @@ function type_host() {
     echo -ne "${cursor_to_start}"
     header "center" "System Diagnostics"
     footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}" 
-
+    draw_center_line_with_info
     echo -en "${light_blue}🌐 Enter a Host:${default} "
     read -r hostname
     info "Hostname changed to ${hostname}"
@@ -212,6 +213,11 @@ function get_host() {
 #   None. Modifies the 'host_options' and 'preselection' global variables for
 #   further use.
 function get_host_file() {
+    clear
+    header "center" "Select Server Database File"
+    footer "right" "${app_logo_color} v.${app_ver}"
+    draw_center_line_with_info
+
     # Assume the first argument passed to get_host_file is the filename
     file_choice=$1  # This will now be just the filename, not the full path
     full_path=${db_files["$file_choice"]}  # Look up the full path using the associative array
