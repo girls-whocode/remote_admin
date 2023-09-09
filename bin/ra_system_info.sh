@@ -183,6 +183,76 @@ function get_total_processes() {
     # echo "$total_processes"
 }
 
+function get_cpu_load() {
+    echo $(awk -v a="$(awk '/cpu /{print $2+$4,$2+$4+$5}' /proc/stat; sleep 1)" '/cpu /{split(a,s); print int(100*($2+$4-s[1])/($2+$4+$5-s[2]))}' /proc/stat)
+}
+
+function get_memory_usage() {
+    echo $(free | grep Mem | awk '{print int($3/$2 * 100.0)}')
+}
+
+function get_disk_usage() {
+    echo $(df / | grep / | awk '{ print $5}' | sed 's/%//g')
+}
+
+function get_total_processes() {
+    echo $(ps aux | wc -l)
+}
+
+function get_swap_activity() {
+    echo $(free | grep Swap | awk '{if ($2 == 0) print 0; else print $3/$2 * 100}')
+}
+
+function get_firewall_status() {
+    # Check for ufw
+    if hash ufw 2>/dev/null; then
+        status=$(sudo ufw status | grep -i "active" && echo "${light_green}Enabled ${light_blue}(${white}ufw${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}ufw${light_blue})${default}")
+    # Check for firewalld
+    elif hash firewall-cmd 2>/dev/null; then
+        status=$(sudo firewall-cmd --state && echo "${light_green}Enabled ${light_blue}(${white}firewalld${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}firewalld${light_blue})${default}")
+    # Check for SuSEfirewall2 (mostly for older SuSE versions)
+    elif hash SuSEfirewall2 2>/dev/null; then
+        status=$(sudo systemctl is-active SuSEfirewall2 && echo "${light_green}Enabled ${light_blue}(${white}SuSEfirewall2${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}SuSEfirewall2${light_blue})${default}")
+    # Check for iptables as a fallback
+    else
+        status=$(sudo iptables -L > /dev/null 2>&1 && echo "${light_green}Enabled ${light_blue}(${white}iptables${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}iptables${light_blue})${default}")
+    fi
+    echo "$status"
+}
+
+function get_pending_updates() {
+    # Check for available updates
+    if command -v apt &>/dev/null; then
+        echo $(apt list --upgradable 2>/dev/null | wc -l)
+    elif command -v yum &>/dev/null; then
+        echo $(yum check-update --quiet 2>/dev/null | wc -l)
+    elif command -v dnf &>/dev/null; then
+        echo $(dnf check-update --quiet 2>/dev/null | wc -l)
+    elif command -v zypper &>/dev/null; then
+        echo $(zypper list-updates | wc -l)
+    elif command -v pacman &>/dev/null; then
+        echo $(brew outdated | wc -l)
+    elif command -v brew &>/dev/null; then
+        echo $(brew outdated | wc -l)
+
+    else
+        echo "Unknown"
+    fi
+    
+}
+
+function get_raid_health() {
+    if [ -e /dev/md0 ]; then
+        echo $(sudo mdadm --detail /dev/md0 | grep "State :" | awk '{print $3}')
+    else
+        echo "N/A"
+    fi
+}
+
+function get_service_health() {
+    echo $(systemctl is-active sshd)
+}
+
 # Function:
 #   local_check_cpu_usage
 #
@@ -336,7 +406,6 @@ function local_check_memory_usage() {
     printf "${dark_gray} Total Memory:${default} ${total_memory_gb}G  ${dark_gray}Used Memory:${default} ${used_memory_gb}G"
 }
 
-
 # Function:
 #   local_check_disk_usage
 #
@@ -401,41 +470,6 @@ function local_check_disk_usage() {
     echo -ne " $bar${dark_gray} Total Disk Space: ${default}${human_total_space}${dark_gray} Used Disk Space: ${default}${human_used_space}"
 }
 
-# Function:
-#   local_system_info
-#
-# Description:
-#   This function generates a dynamic real-time terminal display that shows an array of system-related information.
-#   This includes data such as hostname, IP address, uptime, OS name, kernel version, CPU details, memory, disk usage,
-#   network card status, and a list of top CPU-consuming processes.
-#
-# Parameters:
-#   None
-#
-# Returns:
-#   None; The function prints all the acquired information directly to the terminal.
-#
-# Dependencies:
-#   - Relies on the following system utilities: `tput`, `awk`, `sed`, `hostname`, `uptime`, `lscpu`, `free`, `df`, `ip`, `ss`
-#   - Calls the following local functions: `info`, `header`, `footer`, `line`, `local_top_processes`
-#   - Uses ANSI escape sequences for cursor manipulation and text coloring
-#   - Relies on various files for system information: '/etc/redhat-release', '/etc/os-release', '/proc/net/dev'
-#
-# Global Variables:
-#   - Makes use of globally defined ANSI color variables like ${white}, ${light_green}, ${light_cyan}, ${default}
-#   - Uses ${app_logo_color} and ${app_ver} for displaying application version details in the footer
-#
-# Interactivity:
-#   - The function keeps running until the user presses the 'ESC' key, at which point it exits the loop and returns
-#     to the main menu. The function listens for user input through the `handle_input` function.
-#
-# Columns:
-#   - Utilizes a 3-column format for presenting information.
-#   - Dynamically calculates the width of each column based on the terminal width to ensure the responsive layout.
-#
-# Example:
-#   When run, it creates an organized terminal dashboard that helps users monitor different system metrics in real-time.
-#
 function local_system_info() {
     info "Local System Information Started"
 
@@ -472,6 +506,8 @@ function local_system_info() {
     header "center" "System Diagnostics"
     footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
     loading=true
+    system_info=true
+    draw_center_line_with_info
 
     # Check for available updates
     if command -v apt &>/dev/null; then
@@ -493,8 +529,6 @@ function local_system_info() {
     while $keep_running; do
         # Hide the cursor
         echo -ne "\033[?25l"
-        system_info=true
-        draw_center_line_with_info
 
         # Move the cursor to the third row
         echo -ne "${cursor_to_second_row}"
