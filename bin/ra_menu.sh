@@ -26,7 +26,7 @@
 function menu() {
     clear
     header "center" "System Administration Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move cursor, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="main_menu"
     unset menu_choice
@@ -103,7 +103,7 @@ function menu() {
 function remote_menu() {
     clear
     header "center" "Remote Systems Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move cursor, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="remote_menu"
     unset menu_choice
@@ -200,7 +200,7 @@ function remote_menu() {
 function local_menu() {
     clear
     header "center" "Local Systems Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move cursor, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="local_menu"
     unset menu_choice
@@ -279,7 +279,7 @@ function local_menu() {
 function app_menu() {
     clear
     header "center" "Application Settings Menu"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move curson, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
+    footer "right" "${app_logo_color} v.${app_ver}" "left" "${default}Use the arrow keys to move cursor, and ${light_blue}[${white}ENTER${light_blue}] ${default}to select. Press ${light_blue}[${white}ESC${light_blue}] ${default}for ESC menu."
     draw_center_line_with_info
     menu_help="app_menu"
     unset menu_choice

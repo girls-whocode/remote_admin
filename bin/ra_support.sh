@@ -517,13 +517,13 @@ function draw_center_line_with_info() {
         12)
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
-                cpu_status="${light_green}Normal${default}"
                 cpu_load=$(get_cpu_load | awk '{print int($1+0.5)}')  # Round to nearest integer
+                cpu_status="${light_green}Normal ${white}(${dark_gray}${cpu_load}%${white})${default}   "
 
                 if (( cpu_load > 80 )); then
-                    cpu_status="${light_red}High${default}"
+                    cpu_status="${light_red}High ${white}(${dark_gray}${cpu_load}%${white})${default}   "
                 elif (( cpu_load > 40 )); then
-                    cpu_status="${yellow}Moderate${default}"
+                    cpu_status="${yellow}Moderate ${white}(${dark_gray}${cpu_load}%${white})${default}   "
                 fi
 
                 echo -ne "${cyan}CPU Status: ${cpu_status}"
@@ -534,12 +534,12 @@ function draw_center_line_with_info() {
         13)
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
-                memory_status="${light_green}Normal${default}"
                 memory_usage=$(get_memory_usage | awk '{print int($1+0.5)}')  # Round to nearest integer
+                memory_status="${light_green}Normal ${white}(${dark_gray}${memory_usage}%${white})${default}   "
                 if (( memory_usage > 80 )); then
-                    memory_status="${light_red}High${default}"
+                    memory_status="${light_red}High ${white}(${dark_gray}${memory_usage}%${white})${default}   "
                 elif (( memory_usage > 40 )); then
-                    memory_status="${yellow}Moderate${default}"
+                    memory_status="${yellow}Moderate ${white}(${dark_gray}${memory_usage}%${white})${default}   "
                 fi
 
                 echo -ne "${cyan}Memory Status: ${memory_status}"
@@ -551,11 +551,11 @@ function draw_center_line_with_info() {
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
                 disk_usage=$(get_disk_usage)
-                disk_status="${light_green}Normal${default}"
+                disk_status="${light_green}Normal ${white}(${dark_gray}${disk_usage}%${white})${default}   "
                 if (( $disk_usage > 80 )); then
-                    disk_status="${light_red}High${default}"
+                    disk_status="${light_red}High ${white}(${dark_gray}${disk_usage}%${white})${default}   "
                 elif (( $disk_usage > 40 )); then
-                    disk_status="${yellow}Moderate${default}"
+                    disk_status="${yellow}Moderate ${white}(${dark_gray}${disk_usage}%${white})${default}   "
                 fi
 
                 echo -ne "${cyan}Disk Status: ${disk_status}"
@@ -566,12 +566,12 @@ function draw_center_line_with_info() {
         15)
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
-                swap_status="${light_green}Normal${default}"
                 swap_activity=$(get_swap_activity | awk '{print int($1+0.5)}')  # Round to nearest integer
+                swap_status="${light_green}Normal ${white}(${dark_gray}${swap_activity}%${white})${default}   "
                 if (( swap_activity > 80 )); then
-                    swap_status="${light_red}High${default}"
+                    swap_status="${light_red}High ${white}(${dark_gray}${swap_activity}%${white})${default}   "
                 elif (( swap_activity > 40 )); then
-                    swap_status="${yellow}Moderate${default}"
+                    swap_status="${yellow}Moderate  ${white}(${dark_gray}${swap_activity}%${white})${default}   "
                 fi
 
                 echo -ne "${cyan}Swap Status: ${swap_status}"
@@ -583,11 +583,11 @@ function draw_center_line_with_info() {
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
                 total_processes=$(get_total_processes)
-                process_status="${light_green}Normal${default}"
+                process_status="${light_green}Normal ${white}(${dark_gray}$(add_commas "${total_processes}")${white})${default}"
                 if (( $total_processes > 1000 )); then
-                    process_status="${light_red}High${default}"
+                    process_status="${light_red}High ${white}(${dark_gray}$(add_commas "${total_processes}")${white})${default}"
                 elif (( $total_processes > 500 )); then
-                    process_status="${yellow}Moderate${default}"
+                    process_status="${yellow}Moderate ${white}(${dark_gray}$(add_commas "${total_processes}")${white})${default}"
                 fi
 
                 echo -e "${cyan}Process Status: ${process_status}"
@@ -598,7 +598,17 @@ function draw_center_line_with_info() {
         17)
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
-                echo -ne "${cyan}Total Processes: ${white}$(add_commas "${total_processes}")${default}"
+                if [[ "${firewall_loaded_status}" == "loaded" ]]; then
+                    echo -ne "${cyan}Firewall Status: ${firewall_status_indicator}"
+                else
+                    firewall_status_indicator="${light_red}Disabled${default}"
+                    firewall_status=$(get_firewall_status)
+                    firewall_loaded_status="loaded"
+                    if [[ "$firewall_status" == "active" ]]; then
+                        firewall_status_indicator="${light_green}Enabled${default}"
+                    fi
+                    echo -ne "${cyan}Firewall Status: ${firewall_status_indicator}"
+                fi
             else
                 echo ""
             fi
@@ -606,34 +616,24 @@ function draw_center_line_with_info() {
         18)
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
-                firewall_status_indicator="${light_red}Disabled${default}"
-                firewall_status=$(get_firewall_status)
-                if [[ "$firewall_status" == "active" ]]; then
-                    firewall_status_indicator="${light_green}Enabled${default}"
+                if [[ "${pending_updates_status}" == "loaded" ]]; then
+                    echo -ne "${cyan}Update Status: ${pending_updates_status}"
+                else
+                    pending_updates_status="${light_green}Compliant${default}"
+                    pending_updates=$(get_pending_updates)
+                    pending_updates_status="loaded"
+                    if (( $pending_updates > 2 )); then
+                        pending_updates_status="${light_red}High${default}"
+                    elif (( $pending_updates > 1 )); then
+                        pending_updates_status="${yellow}Moderate${default}"
+                    fi
+                    echo -ne "${cyan}Update Status: ${pending_updates_status}"
                 fi
-
-                echo -ne "${cyan}Firewall Status: ${firewall_status_indicator}"
             else
                 echo ""
             fi
             ;;
         19)
-            tput cup "${row}" $((middle_col + 2))
-            if [[ ${system_info} = true ]]; then
-                pending_updates_status="${light_green}Compliant${default}"
-                pending_updates=$(get_pending_updates)
-                if (( $pending_updates > 2 )); then
-                    pending_updates_status="${light_red}High${default}"
-                elif (( $pending_updates > 1 )); then
-                    pending_updates_status="${yellow}Moderate${default}"
-                fi
-
-                echo -ne "${cyan}Update Status: ${pending_updates_status}"
-            else
-                echo ""
-            fi
-            ;;
-        20)
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
                 raid_status="${light_green}Healthy${default}"
@@ -643,13 +643,12 @@ function draw_center_line_with_info() {
                 elif [[ "$raid_health" != "clean" ]]; then
                     raid_status="${light_red}Degraded${default}"
                 fi
-
                 echo -ne "${cyan}RAID Status: ${raid_status}"
             else
                 echo ""
             fi
             ;;
-        21)
+        20)
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
                 service_status="${light_green}Active${default}"
@@ -662,6 +661,10 @@ function draw_center_line_with_info() {
             else
                 echo ""
             fi
+            ;;
+        21)
+            tput cup "${row}" $((middle_col + 2))
+            echo ""
             ;;
         22)
             tput cup $((height - 9)) $((middle_col + 2))

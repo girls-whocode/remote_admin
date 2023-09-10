@@ -238,7 +238,6 @@ function get_pending_updates() {
     else
         echo "Unknown"
     fi
-    
 }
 
 function get_raid_health() {
@@ -470,6 +469,49 @@ function local_check_disk_usage() {
     echo -ne " $bar${dark_gray} Total Disk Space: ${default}${human_total_space}${dark_gray} Used Disk Space: ${default}${human_used_space}"
 }
 
+local_check_swap_usage() {
+    swap_details=$(free -b | grep Swap)
+    total_swap=$(echo $swap_details | awk '{print $2}')
+    used_swap=$(echo $swap_details | awk '{print $3}')
+
+    if [ $total_swap -eq 0 ]; then
+        swap_usage=0
+    else
+        # Multiply by 100 to convert to integer
+        swap_usage=$(( (used_swap * 100) / total_swap ))
+    fi
+
+    # Determine color
+    if [ $swap_usage -gt 9000 ]; then
+        color="${light_red}"
+    elif [ $swap_usage -gt 7000 ]; then
+        color="${yellow}"
+    else
+        color="${light_green}"
+    fi
+
+    # Initialize bar string
+    bar=""
+
+    # Fill bar according to swap usage
+    for (( i=0; i<=$((swap_usage / 1000)); i++ )); do
+        bar+="$color|${default}"
+    done
+
+    # Fill the rest of the bar with dark gray
+    for (( i=$((swap_usage / 1000)); i<10; i++ )); do
+        bar+="${dark_gray}|${default}"
+    done
+
+    # Convert the integer percentage back to float for display
+    swap_usage_float=$(awk "BEGIN { printf \"%.2f\", $swap_usage/100 }")
+
+    total_swap_human=$(bytes_to_human $total_swap)
+    used_swap_human=$(bytes_to_human $used_swap)
+
+    printf "${white}Swap Usage: ${color}%6.2f%%${default} $bar ${dark_gray}Total Swap:${default} ${total_swap_human}  ${dark_gray}Used Swap:${default} ${used_swap_human}\n" $swap_usage_float
+}
+
 function local_system_info() {
     info "Local System Information Started"
 
@@ -507,7 +549,6 @@ function local_system_info() {
     footer "right" "${app_logo_color} v.${app_ver}" "left" "${white}Press ${light_blue}[${white}ESC${light_blue}]${white} or ${light_blue}[${white}Q${light_blue}]${white} to exit screen.${default}"
     loading=true
     system_info=true
-    draw_center_line_with_info
 
     # Check for available updates
     if command -v apt &>/dev/null; then
@@ -529,6 +570,7 @@ function local_system_info() {
     while $keep_running; do
         # Hide the cursor
         echo -ne "\033[?25l"
+        draw_center_line_with_info
 
         # Move the cursor to the third row
         echo -ne "${cursor_to_second_row}"
@@ -548,6 +590,7 @@ function local_system_info() {
         check_cpu_output=$(local_check_cpu_usage)
         check_memory_output=$(local_check_memory_usage)
         check_disk_output=$(local_check_disk_usage)
+        check_swap_output=$(local_check_swap_usage)
 
         kernel_version=$(uname -r)
         si_hostname=$(hostname)
@@ -562,7 +605,8 @@ function local_system_info() {
         used_disk_space=$(df -h --total | grep 'total' | awk '{print $3}')
         num_active_network_cards=$(ip link | grep 'state UP' -c)
         open_tcp_ports=$(ss -tuln | grep 'LISTEN' | wc -l)
-        cpu_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Overall Disk Usage: ${light_green}${check_disk_output}"
+        # cpu_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Overall Disk Usage: ${light_green}${check_disk_output}"
+        cpu_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Swap Usage: ${light_green}${check_swap_output}\n${white}Overall Disk Usage: ${light_green}${check_disk_output}"
         network_activity_info="${white}Network Bytes In: ${light_green}${human_bytes_in}/sec        \n${white}Network Bytes Out: ${light_green}${human_bytes_out}/sec        ${default}"
         total_bytes_in=0
         total_bytes_out=0
@@ -608,6 +652,7 @@ function local_system_info() {
 
         # Check for user input
         handle_input "local_menu"
+        # handle_input "local_menu"
         loading=false
     done
 }
