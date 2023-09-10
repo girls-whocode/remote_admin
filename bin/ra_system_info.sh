@@ -469,7 +469,7 @@ function local_check_disk_usage() {
     echo -ne " $bar${dark_gray} Total Disk Space: ${default}${human_total_space}${dark_gray} Used Disk Space: ${default}${human_used_space}"
 }
 
-local_check_swap_usage() {
+function local_check_swap_usage() {
     swap_details=$(free -b | grep Swap)
     total_swap=$(echo $swap_details | awk '{print $2}')
     used_swap=$(echo $swap_details | awk '{print $3}')
@@ -510,6 +510,73 @@ local_check_swap_usage() {
     used_swap_human=$(bytes_to_human $used_swap)
 
     printf "${white}Swap Usage: ${color}%6.2f%%${default} $bar ${dark_gray}Total Swap:${default} ${total_swap_human}  ${dark_gray}Used Swap:${default} ${used_swap_human}\n" $swap_usage_float
+}
+
+function local_check_nfs_mounts() {
+    NFS_MOUNTS=$(mount | grep nfs | awk '{print $3}')
+    NFS_STATUS=""
+    for mount in $NFS_MOUNTS; do
+        if timeout 10s ls "$mount" &>/dev/null; then
+            NFS_STATUS="${NFS_STATUS}${mount}: Healthy\n"
+        else
+            NFS_STATUS="${NFS_STATUS}${mount}: Not Responding\n"
+        fi
+    done
+    [ -z "$NFS_STATUS" ] && NFS_STATUS="No NFS mounts found."
+    echo -e "$NFS_STATUS"
+}
+
+function check_nfs_health() {
+    local unhealthy_status=false
+    
+    # Dynamically discover NFS mounts
+    local discovered_mounts=$(grep ' nfs ' /proc/mounts | awk '{print $2}')
+    
+    for mount in $discovered_mounts; do
+        # Check if it's really a mountpoint
+        if ! mountpoint -q "$mount"; then
+            echo "$mount is not mounted."
+            unhealthy_status=true
+        else
+            # Check if it's readable
+            if ! [ -r "$mount" ]; then
+                echo "$mount is not readable."
+                unhealthy_status=true
+            fi
+            
+            # Checking latency to the NFS server
+            local server=$(grep "$mount" /proc/mounts | awk -F':' '{ print $1 }')
+            if [[ ! -z "$server" ]]; then
+                local latency_output=$(ping -c 1 "$server")
+                if [[ $? -eq 0 ]]; then
+                    local latency=$(echo "$latency_output" | awk -F'/' 'END {print int($5)}')
+                    if (( latency > 200 )); then
+                        echo "High network latency to NFS server: $latency ms"
+                        unhealthy_status=true
+                    fi
+                else
+                    echo "Unable to ping NFS server: $server"
+                    unhealthy_status=true
+                fi
+            fi
+
+        fi
+    done
+    
+    # Check dmesg for NFS errors (optional, may need sudo to run)
+    # if dmesg | grep -qi 'nfs'; then
+    #     echo "NFS errors found in dmesg."
+    #     unhealthy_status=true
+    # fi
+
+    # Final Health Status
+    if $unhealthy_status; then
+        echo "${light_red}NFS Unhealthy${default}"
+        return 1
+    else
+        echo "${light_green}NFS Healthy${default}"
+        return 0
+    fi
 }
 
 function local_system_info() {

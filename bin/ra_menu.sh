@@ -208,6 +208,7 @@ function local_menu() {
     menu=(
         "💡 System Information" #0
         "🛠️ Check for Errors" #1
+        "⬆️ Perform update on local system" #2
         "📷 Create a Snapshot" #2
         "🔙${light_green} Return to System Menu${default}" #3
         "❓${light_blue} Help Manual${default}" #4
@@ -231,21 +232,27 @@ function local_menu() {
             ;;
         2)
             clear
+            debug "\"Perform update on local system\" was selected"
+            local_updates
+            local_menu
+            ;;
+        3)
+            clear
             debug "\"Create a Snapshot\" was selected"
             snapshot
             local_menu
             ;;
-        3) 
+        4) 
             clear
             debug "\"Return to System Menu\" was selected"
             menu
             ;;
-        4)
+        5)
             clear
             debug "\"Help Manual\" was selected"
             display_help "${menu_help}"
             ;;
-        5)
+        6)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye

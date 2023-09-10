@@ -635,15 +635,42 @@ function draw_center_line_with_info() {
             ;;
         19)
             tput cup "${row}" $((middle_col + 2))
+
+            raid_health=$(get_raid_health)
+            nfs_health_status=$(check_nfs_health)
+
             if [[ ${system_info} = true ]]; then
-                raid_status="${light_green}Healthy${default}"
-                raid_health=$(get_raid_health)
+                # Initialize empty status variables
+                raid_status=""
+                nfs_status=""
+
+                # Check RAID status
                 if [[ "$raid_health" == "N/A" ]]; then
-                    raid_status="${light_green}No RAID found${default}"
+                    raid_status="${dark_gray}No RAID found${default}"
                 elif [[ "$raid_health" != "clean" ]]; then
-                    raid_status="${light_red}Degraded${default}"
+                    raid_status="${light_red}RAID Degraded${default}"
+                else
+                    raid_status="${light_green}RAID Healthy${default}"
                 fi
-                echo -ne "${cyan}RAID Status: ${raid_status}"
+
+                # Check NFS status
+                if [[ "$nfs_health_status" == 1 ]]; then
+                    nfs_status="${light_red}NFS Unhealthy${default}"
+                else
+                    nfs_status="${light_green}NFS Healthy${default}"
+                fi
+
+                # Display statuses
+                if [[ "$raid_status" != "${dark_gray}No RAID found${default}" && "$nfs_status" != "${dark_gray}No NFS found${default}" ]]; then
+                    echo -ne "${cyan}RAID Status: ${raid_status} | NFS Status: ${nfs_status}"
+                elif [[ "$raid_status" != "${dark_gray}No RAID found${default}" ]]; then
+                    echo -ne "${cyan}RAID Status: ${raid_status}"
+                elif [[ "$nfs_status" != "${dark_gray}No NFS found${default}" ]]; then
+                    echo -ne "${cyan}NFS Status: ${nfs_status}"
+                else
+                    echo -ne "${dark_gray}Neither RAID nor NFS found${default}"
+                fi
+
             else
                 echo ""
             fi
