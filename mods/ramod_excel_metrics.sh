@@ -84,13 +84,13 @@ function metrics_load() {
 function metrics_firewall() {
     # Check for ufw
     if hash ufw 2>/dev/null; then
-        status=$(sudo ufw status | grep -i "active" && echo "Enabled (ufw)" || echo "Disabled (ufw)")
+        status=$(sudo ufw status > /dev/null | grep -i "active" && echo "Enabled (ufw)" || echo "Disabled (ufw)")
     # Check for firewalld
     elif hash firewall-cmd 2>/dev/null; then
-        status=$(sudo firewall-cmd --state && echo "Enabled (firewalld)" || echo "Disabled (firewalld)")
+        status=$(sudo firewall-cmd --state > /dev/null && echo "Enabled (firewalld)" || echo "Disabled (firewalld)")
     # Check for SuSEfirewall2 (mostly for older SuSE versions)
     elif hash SuSEfirewall2 2>/dev/null; then
-        status=$(sudo systemctl is-active SuSEfirewall2 && echo "Enabled (SuSEfirewall2)" || echo "Disabled (SuSEfirewall2)")
+        status=$(sudo systemctl is-active SuSEfirewall2 > /dev/null && echo "Enabled (SuSEfirewall2)" || echo "Disabled (SuSEfirewall2)")
     # Check for iptables as a fallback
     else
         status=$(sudo iptables -L > /dev/null 2>&1 && echo "Enabled (iptables)" || echo "Disabled (iptables)")

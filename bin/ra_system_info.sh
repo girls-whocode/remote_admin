@@ -391,13 +391,13 @@ function get_total_processes() {
 function get_firewall_status() {
     # Check for ufw
     if hash ufw 2>/dev/null; then
-        status=$(sudo ufw status | grep -i "active" && echo "${light_green}Enabled ${light_blue}(${white}ufw${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}ufw${light_blue})${default}")
+        status=$(sudo ufw status > /dev/null | grep -i "active" && echo "${light_green}Enabled ${light_blue}(${white}ufw${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}ufw${light_blue})${default}")
     # Check for firewalld
     elif hash firewall-cmd 2>/dev/null; then
-        status=$(sudo firewall-cmd --state && echo "${light_green}Enabled ${light_blue}(${white}firewalld${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}firewalld${light_blue})${default}")
+        status=$(sudo firewall-cmd --state > /dev/null && echo "${light_green}Enabled ${light_blue}(${white}firewalld${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}firewalld${light_blue})${default}")
     # Check for SuSEfirewall2 (mostly for older SuSE versions)
     elif hash SuSEfirewall2 2>/dev/null; then
-        status=$(sudo systemctl is-active SuSEfirewall2 && echo "${light_green}Enabled ${light_blue}(${white}SuSEfirewall2${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}SuSEfirewall2${light_blue})${default}")
+        status=$(sudo systemctl is-active SuSEfirewall2 > /dev/null && echo "${light_green}Enabled ${light_blue}(${white}SuSEfirewall2${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}SuSEfirewall2${light_blue})${default}")
     # Check for iptables as a fallback
     else
         status=$(sudo iptables -L > /dev/null 2>&1 && echo "${light_green}Enabled ${light_blue}(${white}iptables${light_blue})${default}" || echo "${light_red}Disabled ${light_blue}(${white}iptables${light_blue})${default}")
