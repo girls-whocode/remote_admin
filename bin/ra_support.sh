@@ -517,7 +517,7 @@ function draw_center_line_with_info() {
         12)
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
-                cpu_load=$(get_cpu_load "status" | awk '{print int($1+0.5)}')  # Round to nearest integer
+                cpu_load=$(local_check_cpu_usage "status" | awk '{print int($1+0.5)}')  # Round to nearest integer
                 cpu_status="${light_green}Normal ${white}(${dark_gray}${cpu_load}%${white})${default}   "
 
                 if (( cpu_load > 90 )); then

@@ -28,7 +28,7 @@ function get_active_cores() {
     done < /proc/stat
 
     # Wait for 1 second
-    sleep .1
+    # sleep .1
 
     # Take the second snapshot
     declare -A cpu_stat_t2
@@ -60,10 +60,6 @@ function get_cpu_usage_integer() {
     cpu_usage_integer=${cpu_usage%.*}
 }
 
-function get_cpu_load() {
-    echo $(awk -v a="$(awk '/cpu /{print $2+$4,$2+$4+$5}' /proc/stat; sleep 1)" '/cpu /{split(a,s); print int(100*($2+$4-s[1])/($2+$4+$5-s[2]))}' /proc/stat)
-}
-
 function local_check_cpu_usage() {
     # Get total number of CPU cores
     total_cores=$(grep -c "^processor" /proc/cpuinfo)
@@ -84,7 +80,12 @@ function local_check_cpu_usage() {
     fi
 
     # Right-align the CPU value in a 9-character field, colored accordingly
-    printf "\r${white}CPU Usage: ${color}%9.2f%%${default}" "$cpu_usage"
+    if [ "${1}" == "status" ]; then
+        printf "%s" "${cpu_usage}"
+        return
+    else
+        printf "\r${white}CPU Usage: ${color}%9.2f%%${default}" "$cpu_usage"
+    fi
 
     # Create a simple ASCII bar graph for used CPU
     bar=""
@@ -116,16 +117,11 @@ function local_check_cpu_usage() {
         cpu_status="${light_green}Normal${default}"
     fi
 
-    if [ "${1}" == "status" ]; then
-        printf "%s" "${cpu_usage_integer}"
-    else
-        active_cores=$(get_active_cores)
+    active_cores=$(get_active_cores)
         
-        # Add total cores and active cores after the bar
-        printf "${dark_gray} Total Cores:${white}%3d${default} ${dark_gray}Active Cores:${white}%3d${default}" $total_cores $active_cores
-    fi
+    # Add total cores and active cores after the bar
+    printf "${dark_gray} Total Cores:${white}%3d${default} ${dark_gray}Active Cores:${white}%3d${default}" $total_cores $active_cores
 }
-
 
 # Memory Functions
 function get_memory_usage_integer() {
