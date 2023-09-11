@@ -3,3 +3,4 @@ var/server_lists/*
 var/conf/*.conf
 /launch.json
 .vscode
+.git
