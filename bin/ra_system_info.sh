@@ -4,6 +4,7 @@
 # shellcheck disable=SC2181  # mycmd #? is used for return value of commands
 # shellcheck disable=SC2319  # mycmd #? is used for return value of conditions
 # shellcheck disable=SC2155  # declare and assign no longer issue in BASH 14+
+# shellcheck disable=SC2120  # calls are from sourced files
 
 declare -A issues
 declare -A last_issues
@@ -115,11 +116,16 @@ function local_check_cpu_usage() {
         cpu_status="${light_green}Normal${default}"
     fi
 
-    active_cores=$(get_active_cores)
-    
-    # Add total cores and active cores after the bar
-    printf "${dark_gray} Total Cores:${white}%3d${default} ${dark_gray}Active Cores:${white}%3d${default}" $total_cores $active_cores
+    if [ "${1}" == "status" ]; then
+        printf "%s" "${cpu_usage_integer}"
+    else
+        active_cores=$(get_active_cores)
+        
+        # Add total cores and active cores after the bar
+        printf "${dark_gray} Total Cores:${white}%3d${default} ${dark_gray}Active Cores:${white}%3d${default}" $total_cores $active_cores
+    fi
 }
+
 
 # Memory Functions
 function get_memory_usage_integer() {

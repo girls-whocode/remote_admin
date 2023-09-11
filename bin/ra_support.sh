@@ -517,12 +517,12 @@ function draw_center_line_with_info() {
         12)
             tput cup "${row}" $((middle_col + 2))
             if [[ ${system_info} = true ]]; then
-                cpu_load=$(get_cpu_load | awk '{print int($1+0.5)}')  # Round to nearest integer
+                cpu_load=$(get_cpu_load "status" | awk '{print int($1+0.5)}')  # Round to nearest integer
                 cpu_status="${light_green}Normal ${white}(${dark_gray}${cpu_load}%${white})${default}   "
 
-                if (( cpu_load > 80 )); then
+                if (( cpu_load > 90 )); then
                     cpu_status="${light_red}High ${white}(${dark_gray}${cpu_load}%${white})${default}   "
-                elif (( cpu_load > 40 )); then
+                elif (( cpu_load > 70 )); then
                     cpu_status="${yellow}Moderate ${white}(${dark_gray}${cpu_load}%${white})${default}   "
                 fi
 
@@ -536,9 +536,9 @@ function draw_center_line_with_info() {
             if [[ ${system_info} = true ]]; then
                 memory_usage=$(get_memory_usage | awk '{print int($1+0.5)}')  # Round to nearest integer
                 memory_status="${light_green}Normal ${white}(${dark_gray}${memory_usage}%${white})${default}   "
-                if (( memory_usage > 80 )); then
+                if (( memory_usage > 90 )); then
                     memory_status="${light_red}High ${white}(${dark_gray}${memory_usage}%${white})${default}   "
-                elif (( memory_usage > 40 )); then
+                elif (( memory_usage > 70 )); then
                     memory_status="${yellow}Moderate ${white}(${dark_gray}${memory_usage}%${white})${default}   "
                 fi
 
@@ -552,9 +552,9 @@ function draw_center_line_with_info() {
             if [[ ${system_info} = true ]]; then
                 disk_usage=$(get_disk_usage)
                 disk_status="${light_green}Normal ${white}(${dark_gray}${disk_usage}%${white})${default}   "
-                if (( $disk_usage > 80 )); then
+                if (( $disk_usage > 90 )); then
                     disk_status="${light_red}High ${white}(${dark_gray}${disk_usage}%${white})${default}   "
-                elif (( $disk_usage > 40 )); then
+                elif (( $disk_usage > 70 )); then
                     disk_status="${yellow}Moderate ${white}(${dark_gray}${disk_usage}%${white})${default}   "
                 fi
 
@@ -568,9 +568,9 @@ function draw_center_line_with_info() {
             if [[ ${system_info} = true ]]; then
                 swap_activity=$(get_swap_activity | awk '{print int($1+0.5)}')  # Round to nearest integer
                 swap_status="${light_green}Normal ${white}(${dark_gray}${swap_activity}%${white})${default}   "
-                if (( swap_activity > 80 )); then
+                if (( swap_activity > 90 )); then
                     swap_status="${light_red}High ${white}(${dark_gray}${swap_activity}%${white})${default}   "
-                elif (( swap_activity > 40 )); then
+                elif (( swap_activity > 70 )); then
                     swap_status="${yellow}Moderate  ${white}(${dark_gray}${swap_activity}%${white})${default}   "
                 fi
 
@@ -586,7 +586,7 @@ function draw_center_line_with_info() {
                 process_status="${light_green}Normal ${white}(${dark_gray}$(add_commas "${total_processes}")${white})${default}"
                 if (( $total_processes > 1000 )); then
                     process_status="${light_red}High ${white}(${dark_gray}$(add_commas "${total_processes}")${white})${default}"
-                elif (( $total_processes > 500 )); then
+                elif (( $total_processes > 800 )); then
                     process_status="${yellow}Moderate ${white}(${dark_gray}$(add_commas "${total_processes}")${white})${default}"
                 fi
 
