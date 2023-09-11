@@ -27,9 +27,6 @@ function get_active_cores() {
         fi
     done < /proc/stat
 
-    # Wait for 1 second
-    # sleep .1
-
     # Take the second snapshot
     declare -A cpu_stat_t2
     while read -r line; do
@@ -388,11 +385,6 @@ function local_top_processes() {
         line 75 " "
     fi
 }
-
-# function get_total_processes() {
-#     total_processes=$(ps -e | wc -l)
-#     total_processes=$((total_processes - 1))
-# }
 
 function get_total_processes() {
     total_processes=$(ps aux | wc -l)

@@ -5,6 +5,7 @@
 # shellcheck disable=SC2154  # variables are sourced from other files
 
 # Assign default variables
+metrics_flag=false
 ra_start_time=$(date +%s.%3N)
 org_prompt=${PS1}
 ra_script_location="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -81,6 +82,24 @@ elif [ -n "${identity_file}" ]; then
     dbg_identity="${identity_file} Loaded from ${app_name} Config file"
 else
     dbg_identity="No identity found"
+fi
+
+# Check if the --metrics option is provided
+if [[ "$1" == "--metrics" ]]; then
+    metrics_flag=true
+fi
+
+if $metrics_flag; then
+    notice "-------------------------------] ${app_name} started system metics $(LC_ALL=C date +"%Y-%m-%d %H:%M:%S") [-------------------------------"
+    debug "${app_name} v.${app_ver} configuration file loaded from ${config_path}/${config_file}"
+    debug "${app_name} is located in ${ra_script_location} and started at ${ra_start_time}"
+    info "${app_name} v.${app_ver} startup completed"
+    debug "Username: ${username}"
+    debug "${dbg_identity}"
+
+    local_system_metrics
+    success "System metrics collected successfully."
+    exit 0  # Exit with success status
 fi
 
 # Start logging and load the main menu
