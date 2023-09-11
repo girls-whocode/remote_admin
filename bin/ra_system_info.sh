@@ -287,7 +287,7 @@ function local_check_swap_usage() {
     total_swap_human=$(bytes_to_human $total_swap)
     used_swap_human=$(bytes_to_human $used_swap)
 
-    printf "${white}Swap Usage: ${color}%6.2f%%${default} $bar ${dark_gray}Total Swap:${default} ${total_swap_human}  ${dark_gray}Used Swap:${default} ${used_swap_human}\n" $swap_usage_float
+    printf "${color}%6.2f%%${default} $bar ${dark_gray}Total Swap:${default} ${total_swap_human}  ${dark_gray}Used Swap:${default} ${used_swap_human}\n" $swap_usage_float
 }
 
 function get_swap_activity() {
