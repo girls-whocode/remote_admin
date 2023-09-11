@@ -67,9 +67,106 @@ function metrics_swap_usage() {
 # Function to collect processes metric
 function metrics_processes() {
     total_processes=$(ps aux | wc -l)
-    total_processes=$((total_processes - 1))
-
+    total_processes=$((total_processes - 2))
     echo ${total_processes}
+}
+
+function metrics_load() {
+    if [[ ${1} == "5" ]]; then
+        echo $(uptime | awk '{print $10}' | tr -d ',')
+    elif [[ ${1} == "10" ]]; then
+        echo $(uptime | awk '{print $11}' | tr -d ',')
+    elif [[ ${1} == "15" ]]; then
+        echo $(uptime | awk '{print $12}' | tr -d ',')
+    fi
+}
+
+function metrics_firewall() {
+    # Check for ufw
+    if hash ufw 2>/dev/null; then
+        status=$(sudo ufw status | grep -i "active" && echo "Enabled (ufw)" || echo "Disabled (ufw)")
+    # Check for firewalld
+    elif hash firewall-cmd 2>/dev/null; then
+        status=$(sudo firewall-cmd --state && echo "Enabled (firewalld)" || echo "Disabled (firewalld)")
+    # Check for SuSEfirewall2 (mostly for older SuSE versions)
+    elif hash SuSEfirewall2 2>/dev/null; then
+        status=$(sudo systemctl is-active SuSEfirewall2 && echo "Enabled (SuSEfirewall2)" || echo "Disabled (SuSEfirewall2)")
+    # Check for iptables as a fallback
+    else
+        status=$(sudo iptables -L > /dev/null 2>&1 && echo "Enabled (iptables)" || echo "Disabled (iptables)")
+    fi
+    echo "$status"
+}
+
+function metrics_service_health() {
+    echo $(systemctl is-active sshd)
+}
+
+function metrics_pending_updates() {
+    # Check for available updates
+    if command -v apt &>/dev/null; then
+        echo $(apt list --upgradable 2>/dev/null | wc -l)
+    elif command -v yum &>/dev/null; then
+        echo $(yum check-update --quiet 2>/dev/null | wc -l)
+    elif command -v dnf &>/dev/null; then
+        echo $(dnf check-update --quiet 2>/dev/null | wc -l)
+    elif command -v zypper &>/dev/null; then
+        echo $(zypper list-updates | wc -l)
+    elif command -v pacman &>/dev/null; then
+        echo $(brew outdated | wc -l)
+    elif command -v brew &>/dev/null; then
+        echo $(brew outdated | wc -l)
+
+    else
+        echo "Unknown"
+    fi
+}
+
+function check_nfs_health() {
+    local unhealthy_status=false
+    
+    # Dynamically discover NFS mounts
+    local discovered_mounts=$(grep ' nfs ' /proc/mounts | awk '{print $2}')
+    
+    for mount in $discovered_mounts; do
+        # Check if it's really a mountpoint
+        if ! mountpoint -q "$mount"; then
+            error_mgs="$mount is not mounted."
+            unhealthy_status=true
+        else
+            # Check if it's readable
+            if ! [ -r "$mount" ]; then
+                error_mgs="$mount is not readable."
+                unhealthy_status=true
+            fi
+            
+            # Checking latency to the NFS server
+            local server=$(grep "$mount" /proc/mounts | awk -F':' '{ print $1 }')
+            if [[ ! -z "$server" ]]; then
+                local latency_output=$(ping -c 1 "$server")
+                if [[ $? -eq 0 ]]; then
+                    local latency=$(echo "$latency_output" | awk -F'/' 'END {print int($5)}')
+                    if (( latency > 200 )); then
+                        error_mgs="High network latency to NFS server: $latency ms"
+                        unhealthy_status=true
+                    fi
+                else
+                    error_mgs="Unable to ping NFS server: $server"
+                    unhealthy_status=true
+                fi
+            fi
+
+        fi
+    done
+
+    # Final Health Status
+    if $unhealthy_status; then
+        echo "${error_mgs}"
+        return 1
+    else
+        echo "NFS Healthy"
+        return 0
+    fi
 }
 
 function local_system_metrics() {
@@ -82,7 +179,7 @@ function local_system_metrics() {
 
     # Check if the metrics file exists, if not, create and initialize it with headers
     if [ ! -f "$metrics_file" ]; then
-        echo "Date,Time,Uptime,CPU_Status,CPU_Usage(%),Memory_Status,Memory_Usage(%),Disk_Status,Disk_Usage(%),Swap_Status,Swap_Usage(%),Processes_Total" > "$metrics_file"
+        echo "Date,Time,Uptime,CPU_Status,CPU_Usage(%),Memory_Status,Memory_Usage(%),NFS_Status,Disk_Status,Disk_Usage(%),Swap_Status,Swap_Usage(%),Total_Processes,Load_5m,Load_10m,Load_15m,Firewall_Status,Service_Status,Pending_Updates" > "$metrics_file"
     fi
 
     # Get the current timestamp
@@ -96,6 +193,13 @@ function local_system_metrics() {
     check_disk_usage=$(metrics_disk_usage)
     check_swap_usage=$(metrics_swap_usage)
     check_processes=$(metrics_processes)
+    check_5m_load=$(metrics_load 5)
+    check_10m_load=$(metrics_load 10)
+    check_15m_load=$(metrics_load 15)
+    check_filewall=$(metrics_firewall)
+    check_service=$(metrics_service_health)
+    check_updates=$(metrics_pending_updates)
+    check_nfs=$(check_nfs_health)
 
     if [[ ${check_cpu_usage} -ge 95 ]]; then
         cpu_status="Critical"
@@ -146,8 +250,5 @@ function local_system_metrics() {
     fi
 
     # Append metrics to the CSV file
-    echo "$timestamp_date,$timestamp_time,$uptime,$cpu_status,$check_cpu_usage,$mem_status,$check_memory_usage,$disk_status,$check_disk_usage,$swap_status,$check_swap_usage,$check_processes" >> "$metrics_file"
-
-    # Sleep for a desired interval (e.g., 5 minutes)
-    # sleep 300  # Adjust the interval as needed
+    echo "$timestamp_date,$timestamp_time,$uptime,$cpu_status,$check_cpu_usage,$mem_status,$check_memory_usage,$check_nfs,$disk_status,$check_disk_usage,$swap_status,$check_swap_usage,$check_processes,$check_5m_load,$check_10m_load,$check_15m_load,$check_filewall,$check_service,$check_updates" >> "$metrics_file"
 }

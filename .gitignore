@@ -4,3 +4,4 @@ var/conf/*.conf
 /launch.json
 .vscode
 .git
+/data

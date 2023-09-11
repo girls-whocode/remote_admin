@@ -316,12 +316,12 @@ function check_nfs_health() {
     for mount in $discovered_mounts; do
         # Check if it's really a mountpoint
         if ! mountpoint -q "$mount"; then
-            echo "$mount is not mounted."
+            error_mgs="$mount is not mounted."
             unhealthy_status=true
         else
             # Check if it's readable
             if ! [ -r "$mount" ]; then
-                echo "$mount is not readable."
+                error_mgs="$mount is not readable."
                 unhealthy_status=true
             fi
             
@@ -332,27 +332,21 @@ function check_nfs_health() {
                 if [[ $? -eq 0 ]]; then
                     local latency=$(echo "$latency_output" | awk -F'/' 'END {print int($5)}')
                     if (( latency > 200 )); then
-                        echo "High network latency to NFS server: $latency ms"
+                        error_mgs="High network latency to NFS server: $latency ms"
                         unhealthy_status=true
                     fi
                 else
-                    echo "Unable to ping NFS server: $server"
+                    error_mgs="Unable to ping NFS server: $server"
                     unhealthy_status=true
                 fi
             fi
 
         fi
     done
-    
-    # Check dmesg for NFS errors (optional, may need sudo to run)
-    # if dmesg | grep -qi 'nfs'; then
-    #     echo "NFS errors found in dmesg."
-    #     unhealthy_status=true
-    # fi
 
     # Final Health Status
     if $unhealthy_status; then
-        echo "${light_red}NFS Unhealthy${default}"
+        echo "${light_red}NFS Unhealthy ${light_blue}(${white}${error_mgs}${light_blue})${default}"
         return 1
     else
         echo "${light_green}NFS Healthy${default}"
