@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Define the function to request sudo access
-request_sudo_access() {
+function request_sudo_access() {
     local attempts=0
     local max_attempts=3
 
@@ -31,3 +31,10 @@ request_sudo_access() {
     return 1
 }
 
+function has_sudo() {
+    if sudo -n true 2>/dev/null; then
+        sudo_access="true"
+    else
+        sudo_access="false"
+    fi
+}

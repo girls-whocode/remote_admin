@@ -41,7 +41,7 @@ function get_active_cores() {
         total_t2=${cpu_stat_t2[$core]}
         
         # Calculate the CPU usage since the last check.
-        let "delta_total = total_t2 - total_t1"
+        (( "delta_total = total_t2 - total_t1" ))
         
         # Check if usage is greater than threshold
         if (( delta_total >= threshold )); then
@@ -62,7 +62,7 @@ function local_check_cpu_usage() {
     total_cores=$(grep -c "^processor" /proc/cpuinfo)
 
     # Get current number of active cores
-    active_cores=$(grep "processor" /proc/cpuinfo | awk '{print $3}' | wc -l)
+    active_cores=$(grep -c "processor" /proc/cpuinfo | awk '{print $3}')
 
     # Get CPU usage and extract integer part
     get_cpu_usage_integer
@@ -81,7 +81,7 @@ function local_check_cpu_usage() {
         printf "%s" "${cpu_usage}"
         return
     else
-        printf "\r${white}CPU Usage: ${color}%9.2f%%${default}" "$cpu_usage"
+        printf "\r%sCPU Usage: %s%9.2f%%%s" "${white}" "${color}" "$cpu_usage" "${default}"
     fi
 
     # Create a simple ASCII bar graph for used CPU
@@ -117,7 +117,7 @@ function local_check_cpu_usage() {
     active_cores=$(get_active_cores)
         
     # Add total cores and active cores after the bar
-    printf "${white} Total Cores:${green}%3d${default} ${white}Active Cores:${green}%3d${default}" $total_cores $active_cores
+    printf "%s Total Cores:%s%3d%s %sActive Cores:%s%3d%s" "${white}" "${green}" "${total_cores}" "${default}" "${white}" "${green}" "${active_cores}" "${default}"
 }
 
 # Memory Functions
@@ -144,7 +144,7 @@ function local_check_memory_usage() {
     fi
 
     # Print memory usage percentage
-    printf "\r${white}Memory Usage: ${color}%6.2f%%${default}" $memory_percentage
+    printf "\r%sMemory Usage: %s%6.2f%%%s" "${white}" "${color}" "${memory_percentage}" "${default}"
 
     # Initialize bar string
     bar=""
@@ -173,7 +173,7 @@ function local_check_memory_usage() {
     used_memory_gb=$(awk "BEGIN { printf \"%.2f\", ${used_memory}/1024 }")
 
     # Add total and used memory after the bar
-    printf "${white} Total Memory:${green} ${total_memory_gb}G  ${white}Used Memory:${green} ${used_memory_gb}G"
+    printf "%s Total Memory:%s %sG %sUsed Memory:%s %sG" "${white}" "${green}" "${total_memory_gb}" "${white}" "${green}" "${used_memory_gb}"
 }
 
 # Disk Functions
@@ -222,7 +222,7 @@ function local_check_disk_usage() {
         disk_status="${light_green}Normal${default}"
     fi
 
-    printf "\r${white}Overall Disk Usage: ${color}%d%%${default}" "$disk_usage"
+    printf "\r%sOverall Disk Usage: %s%d%%%s" "${white}" "${color}" "$disk_usage" "${default}"
 
     # Bar representation
     bar=""
@@ -286,7 +286,7 @@ function local_check_swap_usage() {
     total_swap_human=$(bytes_to_human "$total_swap")
     used_swap_human=$(bytes_to_human "$used_swap")
 
-    printf "${color}%6.2f%%${default} $bar ${white}Total Swap:${green} ${total_swap_human}  ${white}Used Swap:${green} ${used_swap_human}\n" $swap_usage_float
+    printf "%s%6.2f%%%s %s %sTotal Swap:%s %s  %sUsed Swap:%s %s\n" "${color}" "${swap_usage_float}" "${default}" "${bar}" "${white}" "${green}" "${total_swap_human}" "${white}" "${color}" "${used_swap_human}"
 }
 
 function get_swap_activity() {
@@ -327,7 +327,7 @@ function check_nfs_health() {
             
             # Checking latency to the NFS server
             local server=$(grep "$mount" /proc/mounts | awk -F':' '{ print $1 }')
-            if [[ ! -z "$server" ]]; then
+            if [[ -n "$server" ]]; then
                 local latency_output=$(ping -c 1 "$server")
                 if [[ $? -eq 0 ]]; then
                     local latency=$(echo "$latency_output" | awk -F'/' 'END {print int($5)}')
@@ -408,17 +408,17 @@ function get_firewall_status() {
 function get_pending_updates() {
     # Check for available updates
     if command -v apt &>/dev/null; then
-        echo $(apt list --upgradable 2>/dev/null | wc -l)
+        apt list --upgradable 2>/dev/null | wc -l
     elif command -v yum &>/dev/null; then
-        echo $(yum check-update --quiet 2>/dev/null | wc -l)
+        yum check-update --quiet 2>/dev/null | wc -l
     elif command -v dnf &>/dev/null; then
-        echo $(dnf check-update --quiet 2>/dev/null | wc -l)
+        dnf check-update --quiet 2>/dev/null | wc -l
     elif command -v zypper &>/dev/null; then
-        echo $(zypper list-updates | wc -l)
+        zypper list-updates | wc -l
     elif command -v pacman &>/dev/null; then
-        echo $(brew outdated | wc -l)
+        brew outdated | wc -l
     elif command -v brew &>/dev/null; then
-        echo $(brew outdated | wc -l)
+        brew outdated | wc -l
 
     else
         echo "Unknown"
@@ -426,7 +426,7 @@ function get_pending_updates() {
 }
 
 function get_service_health() {
-    echo $(systemctl is-active sshd)
+    systemctl is-active sshd
 }
 
 function local_check_errors() {
@@ -482,16 +482,16 @@ function local_check_errors() {
 
             # Common metrics requiring sudo
             disk_space_critical=$(sudo df -h | awk '($5 ~ /[0-9]+%/) && int($5) >= 90 {print $6 " " $5}')
-            oom_issues=$(sudo dmesg | grep -i 'Out of memory' | wc -l)
+            oom_issues=$(sudo dmesg | grep -ic 'Out of memory')
             zombie_processes=$(sudo ps aux | awk '$8=="Z" {print $0}' | wc -l)
-            critical_journal=$(sudo journalctl -p 0..2 | grep -v ' -- ' | wc -l)
+            critical_journal=$(sudo journalctl -p 0..2 | grep -vc ' -- ')
             critical_journal_list=$(sudo journalctl -p 0..2 -n 5 --output=short-iso | logview | fold -w $width -s)
             failed_services=$(sudo systemctl list-units --state=failed --no-legend | wc -l)
             failed_services_list=$(sudo systemctl list-units --state=failed --no-legend)
 
         else
             disk_space_critical=$(df -h | awk '($5 ~ /[0-9]+%/) && int($5) >= 90 {print $6 " " $5}')
-            failed_ssh=$(grep -i 'Permission denied' ~/.bash_history | wc -l)
+            failed_ssh=$(grep -ic 'Permission denied' ~/.bash_history)
             zombie_processes=$(ps aux | awk '$8=="Z" {print $0}' | wc -l)
         fi
 
@@ -756,18 +756,6 @@ function local_system_info() {
     done
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 function remote_diagnostics_main() {
     echo "Need built"
 }
@@ -787,7 +775,7 @@ function check_remote_cpu_usage() {
     fi
 
     # Right-align the CPU value in a 9-character field, colored accordingly
-    printf "\r${white}CPU Usage: ${color}%9.2f%%${default}" "$cpu_usage"
+    printf "\r%sCPU Usage: %s%9.2f%%%s" "${white}" "${color}" "${cpu_usage}" "${default}"
     
     # Create a simple ASCII bar graph for used CPU
     bar=""
@@ -808,7 +796,7 @@ function check_remote_cpu_usage() {
     done
 
     # Display the CPU usage and bar graph
-    if [ $cpu_usage_integer -gt 80 ]; then
+    if [ "$cpu_usage_integer" -gt 80 ]; then
         echo -ne " ${light_red}$bar${default}"
     else
         echo -ne " ${light_green}$bar${default}"
@@ -832,7 +820,7 @@ function check_remote_memory_usage() {
   printf "\r${white}Memory Usage: ${color}%6.2f%%${default}" $memory_percentage
 
   bar=""
-  for (( i=0; i<$memory_percentage+1; i+=10 )); do
+  for (( i=0; i<memory_percentage+1; i+=10 )); do
     if [ $memory_percentage -gt 80 ]; then
         bar+="${light_red}|${default}"
     elif [ $memory_percentage -gt 50 ]; then
@@ -842,7 +830,7 @@ function check_remote_memory_usage() {
     fi
   done
   
-  for (( i=$memory_percentage; i<100; i+=10 )); do
+  for (( i=memory_percentage; i<100; i+=10 )); do
     bar+="${dark_gray}|${default}"
   done
   
