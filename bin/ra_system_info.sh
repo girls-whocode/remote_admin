@@ -117,7 +117,7 @@ function local_check_cpu_usage() {
     active_cores=$(get_active_cores)
         
     # Add total cores and active cores after the bar
-    printf "${dark_gray} Total Cores:${white}%3d${default} ${dark_gray}Active Cores:${white}%3d${default}" $total_cores $active_cores
+    printf "${white} Total Cores:${green}%3d${default} ${white}Active Cores:${green}%3d${default}" $total_cores $active_cores
 }
 
 # Memory Functions
@@ -128,7 +128,7 @@ function get_memory_usage_integer() {
 }
 
 function get_memory_usage() {
-    echo $(free | grep Mem | awk '{print int($3/$2 * 100.0)}')
+    free | grep Mem | awk '{print int($3/$2 * 100.0)}'
 }
 
 function local_check_memory_usage() {
@@ -150,7 +150,7 @@ function local_check_memory_usage() {
     bar=""
 
     # Fill bar according to memory usage
-    for (( i=0; i<$memory_percentage+1; i+=10 )); do
+    for (( i=0; i<memory_percentage+1; i+=10 )); do
         if [ "${memory_percentage}" -gt 90 ]; then
             bar+="${light_red}|${default}"
         elif [ "${memory_percentage}" -gt 70 ]; then
@@ -161,7 +161,7 @@ function local_check_memory_usage() {
     done
 
     # Fill the rest of the bar with dark gray
-    for (( i=$memory_percentage; i<100; i+=10 )); do
+    for (( i=memory_percentage; i<100; i+=10 )); do
         bar+="${dark_gray}|${default}"
     done
 
@@ -173,7 +173,7 @@ function local_check_memory_usage() {
     used_memory_gb=$(awk "BEGIN { printf \"%.2f\", ${used_memory}/1024 }")
 
     # Add total and used memory after the bar
-    printf "${dark_gray} Total Memory:${default} ${total_memory_gb}G  ${dark_gray}Used Memory:${default} ${used_memory_gb}G"
+    printf "${white} Total Memory:${green} ${total_memory_gb}G  ${white}Used Memory:${green} ${used_memory_gb}G"
 }
 
 # Disk Functions
@@ -204,7 +204,7 @@ function get_disk_usage_integer() {
 }
 
 function get_disk_usage() {
-    echo $(df / | grep / | awk '{ print $5}' | sed 's/%//g')
+    df / | grep / | awk '{ print $5}' | sed 's/%//g'
 }
 
 function local_check_disk_usage() {
@@ -243,15 +243,15 @@ function local_check_disk_usage() {
     human_total_space=$(bytes_to_human "${total_space}")
     human_used_space=$(bytes_to_human "${used_space}")
 
-    echo -ne " $bar${dark_gray} Total Disk Space: ${default}${human_total_space}${dark_gray} Used Disk Space: ${default}${human_used_space}"
+    echo -ne " $bar${white} Total Disk Space: ${green}${human_total_space}${white} Used Disk Space: ${green}${human_used_space}"
 }
 
 function local_check_swap_usage() {
     swap_details=$(free -b | grep Swap)
-    total_swap=$(echo $swap_details | awk '{print $2}')
-    used_swap=$(echo $swap_details | awk '{print $3}')
+    total_swap=$(echo "$swap_details" | awk '{print $2}')
+    used_swap=$(echo "$swap_details" | awk '{print $3}')
 
-    if [ $total_swap -eq 0 ]; then
+    if [ "$total_swap" -eq 0 ]; then
         swap_usage=0
     else
         # Multiply by 100 to convert to integer
@@ -283,14 +283,14 @@ function local_check_swap_usage() {
     # Convert the integer percentage back to float for display
     swap_usage_float=$(awk "BEGIN { printf \"%.2f\", $swap_usage/100 }")
 
-    total_swap_human=$(bytes_to_human $total_swap)
-    used_swap_human=$(bytes_to_human $used_swap)
+    total_swap_human=$(bytes_to_human "$total_swap")
+    used_swap_human=$(bytes_to_human "$used_swap")
 
-    printf "${color}%6.2f%%${default} $bar ${dark_gray}Total Swap:${default} ${total_swap_human}  ${dark_gray}Used Swap:${default} ${used_swap_human}\n" $swap_usage_float
+    printf "${color}%6.2f%%${default} $bar ${white}Total Swap:${green} ${total_swap_human}  ${white}Used Swap:${green} ${used_swap_human}\n" $swap_usage_float
 }
 
 function get_swap_activity() {
-    echo $(free | grep Swap | awk '{if ($2 == 0) print 0; else print $3/$2 * 100}')
+    free | grep Swap | awk '{if ($2 == 0) print 0; else print $3/$2 * 100}'
 }
 
 function local_check_nfs_mounts() {
@@ -356,7 +356,7 @@ function check_nfs_health() {
 
 function get_raid_health() {
     if [ -e /dev/md0 ]; then
-        echo $(sudo mdadm --detail /dev/md0 | grep "State :" | awk '{print $3}')
+        mdadm --detail /dev/md0 | grep "State :" | awk '{print $3}'
     else
         echo "N/A"
     fi
@@ -703,7 +703,7 @@ function local_system_info() {
         disk_space=$(df -h --total | grep 'total' | awk '{print $2}')
         used_disk_space=$(df -h --total | grep 'total' | awk '{print $3}')
         num_active_network_cards=$(ip link | grep 'state UP' -c)
-        open_tcp_ports=$(ss -tuln | grep 'LISTEN' | wc -l)
+        open_tcp_ports=$(ss -tuln | grep -c 'LISTEN')
         # cpu_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Overall Disk Usage: ${light_green}${check_disk_output}"
         cpu_info="${white}CPU Usage: ${check_cpu_output}\nMemory Usage: ${check_memory_output}\n${white}Swap Usage: ${light_green}${check_swap_output}\n${white}Overall Disk Usage: ${light_green}${check_disk_output}"
         network_activity_info="${white}Network Bytes In: ${light_green}${human_bytes_in}/sec        \n${white}Network Bytes Out: ${light_green}${human_bytes_out}/sec        ${default}"

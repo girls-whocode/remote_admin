@@ -119,11 +119,11 @@ elif [ "${COLS}" -lt 150 ]; then
     notice "Terminal columns are less than 150 characters wide, screen may not render successfully.${default} Current size is ${COLS}"
 fi
 
-if [ "${LINES}" -lt 42 ]; then
+if [ "${LINES}" -lt 30 ]; then
     error "Terminal lines must be at least 42 characters"
     echo -e "${RED}Please resize your terminal to at least 42 characters tall (50 Recommended).${default} Current size is ${LINES}"
     exit 1
-elif [ "${LINES}" -lt 45 ]; then
+elif [ "${LINES}" -lt 30 ]; then
     notice "Terminal lines are less than 45 characters, screen may not render successfully (50 Recommended).${default} Current size is ${LINES}"
 fi
 

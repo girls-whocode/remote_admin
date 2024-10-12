@@ -32,9 +32,8 @@ function menu() {
     unset menu_choice
     
     menu=(
-        "☁️ Remote Systems" #0
-        "🏣 Local System" #1
-        "🔑 SSH Key Management" #2
+        "🏣 Local System" #0
+        "☁️ Remote Systems" #1
         "⚙️ Settings" #2
         "❓${light_blue} Help Manual${default}" #3
         "⏹️${light_red} Exit ${app_name}${default}" #4
@@ -44,32 +43,27 @@ function menu() {
     menu_choice=$?
 
    case "${menu_choice}" in
-        0) # Completed
-            clear
-            debug "\"Remote Systems\" was selected"
-            remote_menu
-            ;;
-        1) # Completed
+        0)
             clear
             debug "\"Local System\" was selected"
             local_menu
             ;;
-        2) # Completed
+        1)
             clear
-            debug "\"SSH Key Management\" was selected"
-            ssh_key_menu
+            debug "\"Remote Systems\" was selected"
+            remote_menu
             ;;
-        3) # Completed
+        2)
             clear
             debug "\"Settings\" was selected"
             app_menu
             ;;
-        4) # Completed
+        3)
             clear
             debug "\"Help Manual\" was selected"
             display_help "${menu_help}"
             ;;
-        5) # Completed
+        4)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
@@ -119,6 +113,7 @@ function remote_menu() {
     constant_menu=(
         "🆎 Enter a Host"
         "📂 Server Databases"
+        "🔑 SSH Key Management" #2
         "🗳️ Load from SSH Config"
         "🔙${light_green} Return to System Menu${default}"
         "❓${light_blue} Help Manual${default}"
@@ -153,20 +148,25 @@ function remote_menu() {
             ;;
         2)
             clear
+            debug "\"SSH Key Management\" was selected"
+            ssh_key_menu
+            ;;
+        3)
+            clear
             debug "\"Load from SSH Config\" was selected"
             action_menu
             ;;
-        3)
+        4)
             clear
             debug "\"Return to System Menu\" was selected"
             menu
             ;;
-        4)
+        5)
             clear
             debug "\"Help Manual\" was selected"
             display_help "${menu_help}"
             ;;
-        5)
+        6)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
@@ -219,7 +219,7 @@ function local_menu() {
     menu_choice=$?
 
     case "${menu_choice}" in
-        0) # Completed
+        0)
             clear
             debug "\"System Information\" was selected"
             local_system_info
@@ -585,7 +585,7 @@ function database_menu() {
     menu_choice=$?
 
     case "${menu_choice}" in
-        0) # Completed
+        0)
             clear
             debug "\"Load a Database\" was selected"
             load_database
@@ -607,7 +607,7 @@ function database_menu() {
             debug "\"Delete a Database\" was selected"
             database_menu
             ;;
-        4) # Completed
+        4)
             clear
             debug "\"Return to Remote Menu\" was selected"
             remote_menu
@@ -617,7 +617,7 @@ function database_menu() {
             debug "\"Help Manual\" was selected"
             display_help "${menu_help}"
             ;;
-        6) # Completed
+        6)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
@@ -778,10 +778,10 @@ function ssh_key_menu() {
             debug "\"Delete Key from Local System\" was selected"
             ssh_key_menu
             ;;
-        3) # Completed
+        3)
             clear
-            debug "\"Return to System Menu\" was selected"
-            menu
+            debug "\"Return to Remote Menu\" was selected"
+            remote_menu
             ;;
         4)
             clear
@@ -875,7 +875,7 @@ function logging_menu() {
             debug "\"View Logs\" was selected"
             view_logs
             ;;
-        7) # Completed
+        7)
             clear
             info "\"Return to System Menu\" was selected"
             menu
