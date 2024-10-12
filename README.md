@@ -164,10 +164,15 @@ After submitting your pull request, our team reviews your contribution. Feedback
 
 ## Change Log
 10/12/2024: Added Change Log section to README.md for quick access
+
 10/12/2024: Fixed color bugs in Local Settings -> System Information screen.
+
 10/12/2024: Removed redundant echos in shell commands in system_info.sh
+
 10/10/2024: Moved SSH Key Management into Remote Menu
+
 10/10/2024: Reduced minimum screen height requirements from 45 to 30
+
 
 ## License
 This script is licensed under MIT License.
