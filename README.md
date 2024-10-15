@@ -183,6 +183,12 @@ After submitting your pull request, our team reviews your contribution. Feedback
 
 ## Change Log
 
+10/15/2024: Working on adding sensor data to System Information page. We need to determine if sensors library is install, if so then use it, if not then ignore it.
+
+10/14/2024: Added spark to modules ramod_spark.sh (https://github.com/holman/spark) to include beautiful graphs
+
+10/14/2024: Started new Internet Speed Test System ra_inetspeed.sh
+
 10/12/2024: Moved vulnerability scanner to ra_scanner.sh
 
 10/12/2024: Added new function has_sudo in ra_sudo.sh

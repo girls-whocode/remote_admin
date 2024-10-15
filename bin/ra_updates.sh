@@ -21,7 +21,7 @@ function local_updates {
 
     clear
     echo -ne "${cursor_to_start}"
-    header "center" "System Diagnostics"
+    header "center" "Update Local System"
     footer "right" "${app_logo_color} v.${app_ver}"
 
     # Hide the cursor
@@ -62,7 +62,7 @@ function local_updates {
     [[ ${updates} -eq 1 ]] && updates_text="update" || updates_text="updates"
     echo -ne "${default} There are ${light_red}${updates}${default} ${updates_text} available for ${white}${os_name}. Preparing for installation"
 
-    puase
+    pause
 }
 
 function deploy_updates {

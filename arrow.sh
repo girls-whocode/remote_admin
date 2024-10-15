@@ -73,6 +73,7 @@ app_logo=" --/A.R.R.O.W./==>"
 app_logo_color="${dark_gray}--${light_blue}/${green}A.R.R.O.W.${light_blue}/${dark_gray}=>${default}"
 app_ver="2.0"
 release="2.0.$(git rev-list --all --count)"
+trap BLA::stop_loading_animation SIGINT
 
 # Look for HostName * and read the identityfile
 if [ -z "${identity_file}" ]; then

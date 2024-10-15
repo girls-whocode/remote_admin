@@ -57,6 +57,33 @@ function get_cpu_usage_integer() {
     cpu_usage_integer=${cpu_usage%.*}
 }
 
+function cpu_temp() {
+    # Get data values
+    CPUtemp=$(sensors | grep CPU | awk '{print substr($2,2,4)}')
+    CPUidle=$(iostat | awk '{if (NR==4) print $6}')
+    Random1=$((1+ $RANDOM % 100))
+    Random2=$((1+ $RANDOM % 100))
+ 
+    labels=( CPUtemp CPUidle Random1 Random2)
+    values=( $CPUtemp $CPUidle $Random1 $Random2)
+    units=( degC % psi mm)
+ 
+    # Show a title
+    printf " %10s " ""
+    tput setaf 7; tput smul;
+    printf "%s%s\n\n" "Show CPU Data " "$(date +'%T')"
+    tput rmul;
+ 
+    # cycle thru data and show a label, 
+    for index in "${!labels[@]}"
+    do
+          tput setaf $(expr $index + 1); # don't use 0 (black) 
+          printf " %10s " "${labels[index]}"
+          eval "printf '█%.0s' {1..${values[index]%.*}}"
+          printf " %s %s\n\n" ${values[index]} ${units[index]}
+    done    
+}
+
 function local_check_cpu_usage() {
     # Get total number of CPU cores
     total_cores=$(grep -c "^processor" /proc/cpuinfo)

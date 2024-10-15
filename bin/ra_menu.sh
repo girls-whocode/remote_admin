@@ -33,10 +33,10 @@ function menu() {
     
     menu=(
         "🏣 Local System" #0
-        "☁️ Remote Systems" #1
-        "⚙️ Settings" #2
+        "☁️  Remote Systems" #1
+        "⚙️  Settings" #2
         "❓${light_blue} Help Manual${default}" #3
-        "⏹️${light_red} Exit ${app_name}${default}" #4
+        "⏹️ ${light_red} Exit ${app_name}${default}" #4
     )
     
     select_option "${menu[@]}"
@@ -207,12 +207,13 @@ function local_menu() {
     
     menu=(
         "💡 System Information" #0
-        "🛠️ Check for Errors" #1
-        "⬆️ Perform update on local system" #2
-        "📷 Create a Snapshot" #2
-        "🔙${light_green} Return to System Menu${default}" #3
-        "❓${light_blue} Help Manual${default}" #4
-        "⏹️${light_red} Exit ${app_name}${default}" #5
+        "🏎️  Internet Speed Test" #1
+        "🛠️  Check for Errors" #2
+        "⬆️  Perform update on local system" #3
+        "📷 Create a Snapshot" #4
+        "🔙${light_green} Return to System Menu${default}" #5
+        "❓${light_blue} Help Manual${default}" #6
+        "⏹️ ${light_red} Exit ${app_name}${default}" #7
     )
 
     select_option "${menu[@]}"
@@ -227,32 +228,38 @@ function local_menu() {
             ;;
         1)
             clear
+            debug "\"System Information\" was selected"
+            local_inet_speedtest
+            local_menu
+            ;;
+        2)
+            clear
             debug "\"Check for Errors\" was selected"
             local_error_menu
             ;;
-        2)
+        3)
             clear
             debug "\"Perform update on local system\" was selected"
             local_updates
             local_menu
             ;;
-        3)
+        4)
             clear
             debug "\"Create a Snapshot\" was selected"
             snapshot
             local_menu
             ;;
-        4) 
+        5) 
             clear
             debug "\"Return to System Menu\" was selected"
             menu
             ;;
-        5)
+        6)
             clear
             debug "\"Help Manual\" was selected"
             display_help "${menu_help}"
             ;;
-        6)
+        7)
             clear
             debug "\"Exit ${app_name}\" was selected"
             bye
