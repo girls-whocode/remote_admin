@@ -183,6 +183,8 @@ After submitting your pull request, our team reviews your contribution. Feedback
 
 ## Change Log
 
+10/18/2024: Added script to test if Arrow is already running and abort new instance.
+
 10/15/2024: Working on adding sensor data to System Information page. We need to determine if sensors library is install, if so then use it, if not then ignore it.
 
 10/14/2024: Added spark to modules ramod_spark.sh (https://github.com/holman/spark) to include beautiful graphs

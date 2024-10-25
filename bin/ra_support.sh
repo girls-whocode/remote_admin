@@ -1174,7 +1174,7 @@ function footer() {
             echo -ne "${dark_gray}"
             printf '%*s' "${suffix_length}" | tr ' ' '-'
             echo -ne "${default}"
-            echo
+            #echo
             ;;
         "center")
             padding_length=$(( (cols - text1_length - decorative_length) / 2 ))
@@ -1185,14 +1185,14 @@ function footer() {
             echo -ne "${dark_gray}"
             printf '%*s' "${suffix_length}" | tr ' ' '-'
             echo -ne "${default}"
-            echo
+            #echo
             ;;
         "right")
             prefix_length=$((cols - text1_length - decorative_length))
             echo -ne "${dark_gray}"
             printf '%*s' "${prefix_length}" | tr ' ' '-'
             echo -ne "----${white}[ ${light_cyan}${text1}${white} ]${dark_gray}----${default}"
-            echo
+            #echo
             ;;
         *)
             echo "Invalid alignment specified"

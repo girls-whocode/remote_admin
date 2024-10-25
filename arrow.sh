@@ -4,6 +4,12 @@
 # shellcheck disable=SC2034  # variables are used in other files
 # shellcheck disable=SC2154  # variables are sourced from other files
 
+# Test if Arrow is already running
+if [ "$(lsof -t "$0" | wc -l)" -gt 1 ]; then
+    echo "Another instance of $0 is running. Stopping."
+    exit 1
+fi
+
 # Assign default variables
 metrics_flag=false
 ra_start_time=$(date +%s.%3N)
@@ -70,7 +76,7 @@ app_acronym="Advanced Remote Resource and Operations Workflow"
 app_emoji="🏹"
 script_name="arrow.sh"
 app_logo=" --/A.R.R.O.W./==>"
-app_logo_color="${dark_gray}--${light_blue}/${green}A.R.R.O.W.${light_blue}/${dark_gray}=>${default}"
+app_logo_color="${app_emoji}${dark_gray}--${light_blue}/${green}A.R.R.O.W.${light_blue}/${dark_gray}=>${default}"
 app_ver="2.0"
 release="2.0.$(git rev-list --all --count)"
 trap BLA::stop_loading_animation SIGINT
@@ -112,20 +118,20 @@ info "${app_name} v.${app_ver} startup completed"
 debug "Username: ${username}"
 debug "${dbg_identity}"
 
-if [ "${COLS}" -lt 140 ]; then
-    error "Terminal columns must be at least 140 characters"
-    echo -e "${RED}Please resize your terminal to at least 140 characters wide (150 Recommended). ${default} Current size is ${COLS}"
+if [ "${COLS}" -lt 125 ]; then
+    error "Terminal columns must be at least 125 characters"
+    echo -e "${RED}Please resize your terminal to at least 125 characters wide (130 Recommended). ${default} Current size is ${COLS}"
     exit 1
-elif [ "${COLS}" -lt 150 ]; then
-    notice "Terminal columns are less than 150 characters wide, screen may not render successfully.${default} Current size is ${COLS}"
+elif [ "${COLS}" -lt 130 ]; then
+    notice "Terminal columns are less than 130 characters wide, screen may not render successfully.${default} Current size is ${COLS}"
 fi
 
-if [ "${LINES}" -lt 30 ]; then
-    error "Terminal lines must be at least 42 characters"
-    echo -e "${RED}Please resize your terminal to at least 42 characters tall (50 Recommended).${default} Current size is ${LINES}"
+if [ "${LINES}" -lt 32 ]; then
+    error "Terminal lines must be at least 32 characters"
+    echo -e "${RED}Please resize your terminal to at least 32 characters tall (40 Recommended).${default} Current size is ${LINES}"
     exit 1
-elif [ "${LINES}" -lt 30 ]; then
-    notice "Terminal lines are less than 45 characters, screen may not render successfully (50 Recommended).${default} Current size is ${LINES}"
+elif [ "${LINES}" -lt 40 ]; then
+    notice "Terminal lines are less than 40 characters, screen may not render successfully.${default} Current size is ${LINES}"
 fi
 
 menu
