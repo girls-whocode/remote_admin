@@ -3,8 +3,8 @@
 ## Main Menu
 The main entry point for interacting with the system.
 
-* ☁️ Remote Systems: Navigate to the Remote Systems Menu for host-specific tasks.
 * 🏣 Local System: Navigate to the Local Systems Menu for local machine operations.
+* ☁️ Remote Systems: Navigate to the Remote Systems Menu for host-specific tasks.
 * ⚙️ Settings: Navigate to the Application Settings Menu for configuring the app.
 * ❓ Help Manual: Display the Help Manual for the main menu.
 * ⏹️ Exit: Exit the application.

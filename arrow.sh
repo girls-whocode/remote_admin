@@ -76,7 +76,7 @@ app_acronym="Advanced Remote Resource and Operations Workflow"
 app_emoji="🏹"
 script_name="arrow.sh"
 app_logo=" --/A.R.R.O.W./==>"
-app_logo_color="${app_emoji}${dark_gray}--${light_blue}/${green}A.R.R.O.W.${light_blue}/${dark_gray}=>${default}"
+app_logo_color="${app_emoji} ${dark_gray}--${light_blue}/${green}A.R.R.O.W.${light_blue}/${dark_gray}=>${default}"
 app_ver="2.0"
 release="2.0.$(git rev-list --all --count)"
 trap BLA::stop_loading_animation SIGINT

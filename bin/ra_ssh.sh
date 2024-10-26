@@ -101,10 +101,7 @@ function do_ssh {
 # Note:
 #
 function copy_ssh_key {
-    setup_action  # Pre-action setup
-    clear
-    header "center" "Copy SSH Key to ${hostname}"
-    footer "right" "${app_logo_color} v.${app_ver}" "left" "Press ESC to return to the menu"
+    setup_action "Copy SSH Key to ${hostname}" # Pre-action setup
 
     if [ ${#host_array[@]} -gt 1 ]; then  # If multiple hosts are selected
         debug "Copy SSH key to multiple hosts"

@@ -18,7 +18,7 @@ Welcome to the world of **A**dvanced **R**emote **R**esource and **O**perations 
 
 ## Overview: Navigating the Alpha State
 
-**NOTE 1:** As you explore this interface, bear in mind that it's in an EXTREME ALPHA state. Many functions are yet to be developed or fully operational. Being crafted to elevate my professional responsibilities, I [commit](https://github.com/girls-whocode/remote_admin/commits/main) to daily updates. Last update: [OCT. 10th, 2024]
+**NOTE 1:** As you explore this interface, bear in mind that it's in an EXTREME ALPHA state. Many functions are yet to be developed or fully operational. Being crafted to elevate my professional responsibilities, I [commit](https://github.com/girls-whocode/remote_admin/commits/main) to daily updates. Last update: [OCT. 26th, 2024]
 
 **NOTE 2:**
 I have resolved most of the following issues in the local menu. The System Information and Check Errors are mostly completed. Through testing is recommended and post any issues that may need to be addressed. I will continue to work towards improvements and features. Over the next few months, I will primarily start working on the local menu. There are many items that I have missed due to the need of my remote operations.
@@ -183,6 +183,12 @@ After submitting your pull request, our team reviews your contribution. Feedback
 
 ## Change Log
 
+10/26/2024: Started creating more documents located in the Documents folder of this application.
+
+10/26/2024: Redesigned setup_action function to be more universal for all functions
+
+10/26/2024: Moved all setup_action calls to use new redesigned function
+
 10/18/2024: Added script to test if Arrow is already running and abort new instance.
 
 10/15/2024: Working on adding sensor data to System Information page. We need to determine if sensors library is install, if so then use it, if not then ignore it.
@@ -206,6 +212,10 @@ After submitting your pull request, our team reviews your contribution. Feedback
 10/10/2024: Moved SSH Key Management into Remote Menu
 
 10/10/2024: Reduced minimum screen height requirements from 45 to 30
+
+## To Do
+
+A BUNCH!
 
 ## License
 
