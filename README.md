@@ -183,6 +183,8 @@ After submitting your pull request, our team reviews your contribution. Feedback
 
 ## Change Log
 
+10/26/2024: Using ChatGPT to help with the documentation and standardization of function descriptions.
+
 10/26/2024: Started creating more documents located in the Documents folder of this application.
 
 10/26/2024: Redesigned setup_action function to be more universal for all functions
